@@ -841,8 +841,10 @@
         <div class="kpi-row">
           <div class="kpi-card">
             <div class="kpi-label">Total SKUs</div>
-            <div class="kpi-value">2,847 <span class="unit">items</span></div>
-            <div class="kpi-trend up">▲ 4.3% this week</div>
+            <div class="kpi-value">
+              <span id="total-skus">Loading...</span> <span class="unit">items</span>
+            </div>
+            <div class="kpi-trend up">Live from database</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Throughput</div>
@@ -898,27 +900,30 @@
         </div>
         <div class="grid-half">
           <div class="card">
-            <div class="card-header"><div class="card-title">Inventory Overview</div></div>
+            <div class="card-header">
+              <div class="card-title">Inventory Overview</div>
+              <div class="card-badge">Live</div>
+            </div>
             <div class="inventory-grid">
               <div class="inventory-item">
-                <div class="inv-label">Orders Received</div>
-                <div class="inv-value">4,236</div>
-                <div class="inv-trend up">▲ 6% this month</div>
+                <div class="inv-label">Total Stock</div>
+                <div class="inv-value" id="total-stock">Loading...</div>
+                <div class="inv-trend up">Current inventory</div>
               </div>
               <div class="inventory-item">
-                <div class="inv-label">Orders Shipped</div>
-                <div class="inv-value">2,778</div>
-                <div class="inv-trend up">▲ 4% this month</div>
+                <div class="inv-label">Products in Inventory</div>
+                <div class="inv-value" id="inventory-products">Loading...</div>
+                <div class="inv-trend up">Tracked products</div>
               </div>
               <div class="inventory-item">
-                <div class="inv-label">Orders Returned</div>
-                <div class="inv-value">147</div>
-                <div class="inv-trend down">▼ 3% this month</div>
+                <div class="inv-label">Low Stock Items</div>
+                <div class="inv-value" id="low-stock">Loading...</div>
+                <div class="inv-trend down">Needs attention</div>
               </div>
               <div class="inventory-item">
-                <div class="inv-label">Orders Cancelled</div>
-                <div class="inv-value">537</div>
-                <div class="inv-trend down">▼ 7% this month</div>
+                <div class="inv-label">Inventory Locations</div>
+                <div class="inv-value" id="inventory-locations">Loading...</div>
+                <div class="inv-trend up">Warehouse locations</div>
               </div>
             </div>
           </div>
@@ -1075,6 +1080,85 @@
         }, 700);
       });
     }
+    async function loadProducts() {
+        try {
+            const response = await fetch("http://127.0.0.1:8000/products");
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch products");
+            }
+            const products = await response.json();
+            console.log("Products from API:", products);
+
+            const totalSkus = document.getElementById("total-skus");
+            if (totalSkus) {
+                totalSkus.textContent = products.length.toLocaleString();
+            }
+        } catch (error) {
+            console.error("Error loading products:", error);
+
+            const totalSkus = document.getElementById("total-skus");
+            if (totalSkus) {
+                totalSkus.textContent = "0";
+            }
+        }
+    }
+    loadProducts();
+
+    async function loadInventory() {
+        try {
+            const response = await fetch("http://127.0.0.1:8000/inventory");
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch inventory");
+            }
+
+            const inventory = await response.json();
+
+            console.log("Inventory from FastAPI:", inventory);
+
+            // Total stock
+            const totalStock = inventory.reduce(
+                (sum, item) => sum + Number(item.quantity || 0),
+                0
+            );
+
+            document.getElementById("total-stock").textContent =
+                totalStock.toLocaleString();
+
+            // Number of products
+            document.getElementById("inventory-products").textContent =
+                inventory.length;
+
+            // Low stock
+            const lowStock = inventory.filter(
+                item => Number(item.quantity) <= Number(item.reorder_level)
+            ).length;
+
+            document.getElementById("low-stock").textContent =
+                lowStock;
+
+            // Unique warehouse locations
+            const locations = new Set(
+                inventory
+                    .map(item => item.warehouse_location)
+                    .filter(location => location)
+            );
+
+            document.getElementById("inventory-locations").textContent =
+                locations.size;
+
+        } catch (error) {
+            console.error("Error loading inventory:", error);
+
+            document.getElementById("total-stock").textContent = "0";
+            document.getElementById("inventory-products").textContent = "0";
+            document.getElementById("low-stock").textContent = "0";
+            document.getElementById("inventory-locations").textContent = "0";
+        }
+    }
+
+    loadInventory();
     
 
 
