@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IronNest · Sign In</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100%;
+    }
+
+    body {
+      background: #f7f7f8;
+      color: #0f172a;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; }
+    input { font-family: inherit; outline: none; border: none; }
+
+    /* ── BRAND LOGO ── */
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: fixed;
+      top: 32px;
+      left: 40px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.03em;
+    }
+    .brand-logo .logo-mark {
+      width: 38px;
+      height: 38px;
+      background: #2563eb;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1.2rem;
+    }
+
+    /* ── AUTH CARD ── */
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: #ffffff;
+      border: 1px solid #ebedf0;
+      border-radius: 16px;
+      padding: 48px 44px 36px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.03);
+    }
+
+    .auth-card .card-eyebrow {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+
+    .auth-card h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.035em;
+      margin-bottom: 32px;
+      line-height: 1.15;
+    }
+
+    .field { margin-bottom: 16px; }
+    .field input {
+      width: 100%;
+      padding: 15px 18px;
+      background: #ffffff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: #0f172a;
+      transition: all 0.15s ease;
+    }
+    .field input::placeholder { color: #9ca3af; }
+    .field input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+    }
+    .field input.invalid {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+    .field input.invalid:focus {
+      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+    }
+
+    .field-hint {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      margin-top: 6px;
+      padding-left: 4px;
+      display: none;
+    }
+    .field-hint.show { display: block; }
+    .field-hint.error { color: #dc2626; }
+    .field-hint.success { color: #059669; }
+
+    /* Password strength meter */
+    .password-strength {
+      margin-top: 8px;
+      display: none;
+    }
+    .password-strength.show { display: block; }
+    .strength-bars {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .strength-bars .bar {
+      flex: 1;
+      height: 3px;
+      background: #e5e7eb;
+      border-radius: 10px;
+      transition: background 0.3s ease;
+    }
+    .strength-bars .bar.active.weak { background: #ef4444; }
+    .strength-bars .bar.active.fair { background: #f59e0b; }
+    .strength-bars .bar.active.good { background: #3b82f6; }
+    .strength-bars .bar.active.strong { background: #10b981; }
+    .strength-text {
+      font-size: 0.7rem;
+      color: #94a3b8;
+    }
+    .strength-text.weak { color: #ef4444; }
+    .strength-text.fair { color: #f59e0b; }
+    .strength-text.good { color: #3b82f6; }
+    .strength-text.strong { color: #10b981; }
+
+    .row-helper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 8px 0 28px;
+      font-size: 0.85rem;
+    }
+    .row-helper .remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #334155;
+      cursor: pointer;
+      user-select: none;
+    }
+    .row-helper .remember input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 5px;
+      cursor: pointer;
+      accent-color: #2563eb;
+    }
+    .row-helper .forgot {
+      color: #2563eb;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      text-underline-offset: 3px;
+    }
+    .row-helper .forgot:hover { text-decoration: underline; }
+
+    .btn-primary-full {
+      width: 100%;
+      padding: 15px;
+      background: #2563eb;
+      color: #ffffff;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+    }
+    .btn-primary-full:hover {
+      background: #1d4ed8;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+    .btn-primary-full:active { transform: translateY(1px); }
+    .btn-primary-full:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .card-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+    .card-footer a {
+      color: #2563eb;
+      font-weight: 500;
+      cursor: pointer;
+      margin-left: 4px;
+      text-decoration: none;
+    }
+    .card-footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    .demo-note {
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      color: #1e40af;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .demo-note strong { color: #1e3a8a; }
+
+    .form-error, .form-success {
+      font-size: 0.8rem;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      display: none;
+      line-height: 1.5;
+    }
+    .form-error { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; }
+    .form-error.show { display: block; }
+    .form-success { color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; }
+    .form-success.show { display: block; }
+
+    .auth-view { display: none; }
+    .auth-view.active { display: block; animation: fadeSlide 0.25s ease; }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast .toast-icon { font-size: 1.1rem; }
+
+    @media (max-width: 520px) {
+      body { padding: 20px; }
+      .brand-logo { top: 20px; left: 20px; font-size: 1.1rem; }
+      .brand-logo .logo-mark { width: 32px; height: 32px; font-size: 1rem; }
+      .auth-card { padding: 36px 24px 28px; border-radius: 14px; }
+      .auth-card h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brand-logo">
+    <div class="logo-mark">📦</div>
+    <div>IronNest</div>
+  </div>
+
+  <div class="auth-card">
+
+    <!-- ═══ LOGIN VIEW ═══ -->
+    <div class="auth-view active" id="view-login">
+      <div class="card-eyebrow">Please enter your details</div>
+      <h1>Welcome back</h1>
+
+      <div class="form-error" id="login-error"></div>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <input type="email" id="login-email" placeholder="Email address" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
+        </div>
+
+        <div class="row-helper">
+          <label class="remember">
+            <input type="checkbox" id="remember-check" />
+            <span>Remember for 30 days</span>
+          </label>
+          <a class="forgot" id="link-forgot">Forgot password</a>
+        </div>
+
+        <button type="submit" class="btn-primary-full" id="login-btn">Sign In</button>
+      </form>
+
+      <div class="demo-note">
+        <strong>Demo credentials:</strong><br>
+        📧 admin@warehouse.com · 🔒 Admin@123
+      </div>
+
+      <div class="card-footer">
+        Don't have an account? <a id="link-signup">Sign up</a>
+      </div>
+    </div>
+
+    <!-- ═══ SIGNUP VIEW ═══ -->
+    <div class="auth-view" id="view-signup">
+      <div class="card-eyebrow">Create your account</div>
+      <h1>Get started</h1>
+
+      <div class="form-error" id="signup-error"></div>
+      <div class="form-success" id="signup-success"></div>
+
+      <form id="signup-form" novalidate>
+        <div class="field">
+          <input type="text" id="signup-name" placeholder="Full name" required autocomplete="name" />
+          <div class="field-hint" id="hint-name"></div>
+        </div>
+        <div class="field">
+          <input type="email" id="signup-email" placeholder="Email address" required autocomplete="email" />
+          <div class="field-hint" id="hint-email"></div>
+        </div>
+        <div class="field">
+          <input type="tel" id="signup-contact" placeholder="Contact number (10 digits)" required maxlength="14" autocomplete="tel" />
+          <div class="field-hint" id="hint-contact"></div>
+        </div>
+        <div class="field">
+          <input type="password" id="signup-password" placeholder="Password" required minlength="8" autocomplete="new-password" />
+          <div class="password-strength" id="password-strength">
+            <div class="strength-bars">
+              <div class="bar" id="bar1"></div>
+              <div class="bar" id="bar2"></div>
+              <div class="bar" id="bar3"></div>
+              <div class="bar" id="bar4"></div>
+            </div>
+            <div class="strength-text" id="strength-text">Enter password</div>
+          </div>
+          <div class="field-hint" id="hint-password"></div>
+        </div>
+        <div class="field">
+          <input type="password" id="signup-confirm" placeholder="Confirm password" required autocomplete="new-password" />
+          <div class="field-hint" id="hint-confirm"></div>
+        </div>
+
+        <button type="submit" class="btn-primary-full" id="signup-btn" style="margin-top:12px;">Create Account</button>
+      </form>
+
+      <div class="card-footer">
+        Already have an account? <a id="link-login">Sign in</a>
+      </div>
+    </div>
+
+    <!-- ═══ FORGOT VIEW ═══ -->
+    <div class="auth-view" id="view-forgot">
+      <div class="card-eyebrow">Reset your password</div>
+      <h1>Forgot password?</h1>
+
+      <div class="form-error" id="forgot-error"></div>
+      <div class="form-success" id="forgot-success"></div>
+
+      <form id="forgot-form" novalidate>
+        <div class="field">
+          <input type="email" id="forgot-email" placeholder="Email address" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <input type="tel" id="forgot-contact" placeholder="Contact number (10 digits)" required maxlength="14" />
+        </div>
+        <div class="field" id="new-pass-group" style="display:none;">
+          <input type="password" id="forgot-newpass" placeholder="New password (min 8 chars)" minlength="8" />
+          <div class="field-hint" id="hint-forgot-pass"></div>
+        </div>
+
+        <button type="submit" class="btn-primary-full" id="forgot-btn" style="margin-top:12px;">Verify Identity</button>
+      </form>
+
+      <div class="card-footer">
+        Remember your password? <a id="link-login-2">Sign in</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toast-icon">✅</span>
+    <span id="toast-msg">Success</span>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════
+    //  TOAST
+    // ═══════════════════════════════════════════════════════
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toast-msg');
+    const toastIcon = document.getElementById('toast-icon');
+    let toastTimer;
+
+    function showToast(msg, type = 'success') {
+      toastMsg.textContent = msg;
+      toastIcon.textContent = type === 'success' ? '✅' : type === 'error' ? '⚠️' : 'ℹ️';
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  VALIDATION HELPERS
+    // ═══════════════════════════════════════════════════════
+    const DISPOSABLE_DOMAINS = [
+      'tempmail.com', 'temp-mail.org', '10minutemail.com', 'guerrillamail.com',
+      'mailinator.com', 'throwawaymail.com', 'yopmail.com', 'getnada.com',
+      'sharklasers.com', 'trashmail.com', 'fakeinbox.com', 'maildrop.cc',
+      'dispostable.com', 'mintemail.com', 'spam4.me', 'grr.la', 'tempinbox.com',
+      'throwaway.email', 'mohmal.com', 'emailondeck.com', 'tempr.email',
+      'discard.email', 'mailnesia.com', 'bugmenot.com', 'mailcatch.com'
+    ];
+
+    const FAKE_DOMAINS = [
+      'test.com', 'example.com', 'fake.com', 'abc.com', 'xyz.com',
+      'test.test', 'mail.com', 'asdf.com', 'qwerty.com'
+    ];
+
+    function isValidEmail(email) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        return { valid: false, reason: 'Please enter a valid email address.' };
+      }
+      const domain = email.split('@')[1].toLowerCase();
+      if (DISPOSABLE_DOMAINS.includes(domain)) {
+        return { valid: false, reason: 'Temporary emails not allowed.' };
+      }
+      if (FAKE_DOMAINS.includes(domain)) {
+        return { valid: false, reason: 'This email domain is not allowed.' };
+      }
+      const localPart = email.split('@')[0];
+      if (localPart.length < 2) {
+        return { valid: false, reason: 'Email username must be at least 2 characters.' };
+      }
+      if (/^(test|demo|fake|abc|xyz|asdf|qwerty)\d*$/.test(localPart)) {
+        return { valid: false, reason: 'Please use your real email address.' };
+      }
+      return { valid: true, reason: 'Email looks good!' };
+    }
+
+    function isValidContact(contact) {
+      if (!contact) return { valid: false, reason: 'Contact number is required.' };
+      let cleaned = contact.replace(/[\s\-()]/g, '');
+      let digitsOnly = cleaned;
+
+      if (cleaned.startsWith('+91')) {
+        digitsOnly = cleaned.substring(3);
+      } else if (cleaned.startsWith('+')) {
+        const match = cleaned.match(/^\+(\d{1,3})(\d{10})$/);
+        if (match) digitsOnly = match[2];
+        else return { valid: false, reason: 'Invalid country code format.' };
+      } else if (cleaned.startsWith('91') && cleaned.length === 12) {
+        digitsOnly = cleaned.substring(2);
+      }
+
+      if (!/^\d{10}$/.test(digitsOnly)) {
+        if (/\D/.test(digitsOnly)) {
+          return { valid: false, reason: 'Only digits allowed (no letters or symbols).' };
+        }
+        return { valid: false, reason: `Must be exactly 10 digits (you entered ${digitsOnly.length}).` };
+      }
+
+      if (!/^[6-9]/.test(digitsOnly)) {
+        return { valid: false, reason: 'Must start with 6, 7, 8, or 9.' };
+      }
+      if (/^(\d)\1{9}$/.test(digitsOnly)) {
+        return { valid: false, reason: 'Cannot be all same digits.' };
+      }
+      if (digitsOnly === '1234567890' || digitsOnly === '0123456789') {
+        return { valid: false, reason: 'Enter a valid contact number.' };
+      }
+      return { valid: true, reason: 'Contact looks good!', cleaned: digitsOnly };
+    }
+
+    function isValidName(name) {
+      if (!name || name.trim().length < 3) return { valid: false, reason: 'Name must be at least 3 characters.' };
+      if (!/^[a-zA-Z\s.'-]+$/.test(name.trim())) return { valid: false, reason: 'Only letters and spaces allowed.' };
+      if (name.trim().length > 50) return { valid: false, reason: 'Name too long (max 50).' };
+      return { valid: true, reason: 'Name looks good!' };
+    }
+
+    function getPasswordStrength(password) {
+      let score = 0;
+      const checks = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;`~]/.test(password),
+      };
+      if (checks.length) score++;
+      if (checks.uppercase && checks.lowercase) score++;
+      if (checks.number) score++;
+      if (checks.special) score++;
+      if (password.length >= 12 && score >= 3) score = 4;
+
+      let label = 'Enter password', level = '';
+      if (password.length === 0) { label = 'Enter password'; level = ''; }
+      else if (score <= 1) { label = 'Weak — add uppercase, numbers & symbols'; level = 'weak'; }
+      else if (score === 2) { label = 'Fair — add more variety'; level = 'fair'; }
+      else if (score === 3) { label = 'Good — almost there'; level = 'good'; }
+      else { label = 'Strong password ✓'; level = 'strong'; }
+
+      return { score, checks, label, level };
+    }
+
+    function isValidPassword(password) {
+      const s = getPasswordStrength(password);
+      if (password.length < 8) return { valid: false, reason: 'Min 8 characters.' };
+      if (!s.checks.uppercase) return { valid: false, reason: 'Need 1 uppercase letter.' };
+      if (!s.checks.lowercase) return { valid: false, reason: 'Need 1 lowercase letter.' };
+      if (!s.checks.number) return { valid: false, reason: 'Need 1 number.' };
+      if (!s.checks.special) return { valid: false, reason: 'Need 1 special character.' };
+      return { valid: true, reason: 'Strong password!' };
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  STORAGE
+    // ═══════════════════════════════════════════════════════
+    const DB_KEY = 'ironnest_users';
+    const SESSION_KEY = 'ironnest_session';
+
+    function getUsers() {
+      try { return JSON.parse(localStorage.getItem(DB_KEY)) || []; }
+      catch { return []; }
+    }
+    function saveUsers(users) {
+      localStorage.setItem(DB_KEY, JSON.stringify(users));
+    }
+    function saveSession(user) {
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        email: user.email,
+        name: user.name,
+        loginAt: Date.now()
+      }));
+    }
+
+    // Seed default admin
+    if (getUsers().length === 0) {
+      saveUsers([{
+        name: 'Harry K.',
+        email: 'admin@warehouse.com',
+        contact: '9876543210',
+        password: 'Admin@123'
+      }]);
+    }
+
+    // Auto-redirect if already logged in
+    if (localStorage.getItem(SESSION_KEY)) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  VIEW SWITCHING
+    // ═══════════════════════════════════════════════════════
+    let forgotVerifiedUser = null;
+
+    function showAuthView(view) {
+      document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
+      const el = document.getElementById('view-' + view);
+      if (el) el.classList.add('active');
+      document.querySelectorAll('.form-error, .form-success').forEach(e => e.classList.remove('show'));
+      document.querySelectorAll('.field-hint').forEach(e => e.classList.remove('show', 'error', 'success'));
+      document.querySelectorAll('.field input').forEach(e => e.classList.remove('invalid'));
+
+      if (view !== 'forgot') {
+        forgotVerifiedUser = null;
+        const ng = document.getElementById('new-pass-group');
+        if (ng) ng.style.display = 'none';
+        const fb = document.getElementById('forgot-btn');
+        if (fb) fb.textContent = 'Verify Identity';
+        const fe = document.getElementById('forgot-email');
+        const fc = document.getElementById('forgot-contact');
+        if (fe) fe.disabled = false;
+        if (fc) fc.disabled = false;
+      }
+    }
+
+    document.getElementById('link-forgot').addEventListener('click', (e) => { e.preventDefault(); showAuthView('forgot'); });
+    document.getElementById('link-signup').addEventListener('click', (e) => { e.preventDefault(); showAuthView('signup'); });
+    document.getElementById('link-login').addEventListener('click', (e) => { e.preventDefault(); showAuthView('login'); });
+    document.getElementById('link-login-2').addEventListener('click', (e) => { e.preventDefault(); showAuthView('login'); });
+
+    // ── Field hints ──
+    function setFieldHint(inputId, hintId, message, type) {
+      const input = document.getElementById(inputId);
+      const hint = document.getElementById(hintId);
+      if (!input || !hint) return;
+      hint.textContent = message;
+      hint.classList.remove('error', 'success');
+      hint.classList.add('show', type);
+      if (type === 'error') input.classList.add('invalid');
+      else input.classList.remove('invalid');
+    }
+
+    function clearFieldHint(inputId, hintId) {
+      const input = document.getElementById(inputId);
+      const hint = document.getElementById(hintId);
+      if (input) input.classList.remove('invalid');
+      if (hint) hint.classList.remove('show', 'error', 'success');
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  LIVE VALIDATION
+    // ═══════════════════════════════════════════════════════
+    document.getElementById('signup-name').addEventListener('input', (e) => {
+      const v = e.target.value.trim();
+      if (v.length === 0) return clearFieldHint('signup-name', 'hint-name');
+      const result = isValidName(v);
+      setFieldHint('signup-name', 'hint-name', (result.valid ? '✓ ' : '✕ ') + result.reason, result.valid ? 'success' : 'error');
+    });
+
+    document.getElementById('signup-email').addEventListener('input', (e) => {
+      const v = e.target.value.trim();
+      if (v.length === 0) return clearFieldHint('signup-email', 'hint-email');
+      const result = isValidEmail(v);
+      setFieldHint('signup-email', 'hint-email', (result.valid ? '✓ ' : '✕ ') + result.reason, result.valid ? 'success' : 'error');
+    });
+
+    document.getElementById('signup-contact').addEventListener('input', (e) => {
+      let v = e.target.value;
+      if (!v.startsWith('+')) {
+        v = v.replace(/\D/g, '');
+        if (v.length > 10) v = v.substring(0, 10);
+        e.target.value = v;
+      }
+      if (v.length === 0) return clearFieldHint('signup-contact', 'hint-contact');
+      const result = isValidContact(v);
+      setFieldHint('signup-contact', 'hint-contact', (result.valid ? '✓ ' : '✕ ') + result.reason, result.valid ? 'success' : 'error');
+    });
+
+    document.getElementById('signup-password').addEventListener('input', (e) => {
+      const v = e.target.value;
+      const strengthDiv = document.getElementById('password-strength');
+      const bars = ['bar1', 'bar2', 'bar3', 'bar4'].map(id => document.getElementById(id));
+      const text = document.getElementById('strength-text');
+
+      if (v.length === 0) {
+        strengthDiv.classList.remove('show');
+        return clearFieldHint('signup-password', 'hint-password');
+      }
+      strengthDiv.classList.add('show');
+      const { score, label, level } = getPasswordStrength(v);
+      bars.forEach((bar, i) => {
+        bar.className = 'bar';
+        if (i < score) bar.classList.add('active', level);
+      });
+      text.className = 'strength-text ' + level;
+      text.textContent = label;
+
+      const result = isValidPassword(v);
+      setFieldHint('signup-password', 'hint-password', (result.valid ? '✓ ' : '✕ ') + result.reason, result.valid ? 'success' : 'error');
+    });
+
+    document.getElementById('signup-confirm').addEventListener('input', (e) => {
+      const pass = document.getElementById('signup-password').value;
+      const confirm = e.target.value;
+      if (confirm.length === 0) return clearFieldHint('signup-confirm', 'hint-confirm');
+      if (confirm === pass) {
+        setFieldHint('signup-confirm', 'hint-confirm', '✓ Passwords match', 'success');
+      } else {
+        setFieldHint('signup-confirm', 'hint-confirm', '✕ Passwords do not match', 'error');
+      }
+    });
+
+    document.getElementById('forgot-newpass').addEventListener('input', (e) => {
+      const v = e.target.value;
+      if (v.length === 0) return clearFieldHint('forgot-newpass', 'hint-forgot-pass');
+      const result = isValidPassword(v);
+      setFieldHint('forgot-newpass', 'hint-forgot-pass', (result.valid ? '✓ ' : '✕ ') + result.reason, result.valid ? 'success' : 'error');
+    });
+
+    // ═══════════════════════════════════════════════════════
+    //  SIGNUP SUBMIT
+    // ═══════════════════════════════════════════════════════
+    document.getElementById('signup-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim().toLowerCase();
+      const contactRaw = document.getElementById('signup-contact').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-confirm').value;
+      const err = document.getElementById('signup-error');
+      const success = document.getElementById('signup-success');
+      err.classList.remove('show');
+      success.classList.remove('show');
+
+      const nameCheck = isValidName(name);
+      if (!nameCheck.valid) { err.textContent = '❌ ' + nameCheck.reason; err.classList.add('show'); return; }
+
+      const emailCheck = isValidEmail(email);
+      if (!emailCheck.valid) { err.textContent = '❌ ' + emailCheck.reason; err.classList.add('show'); return; }
+
+      const contactCheck = isValidContact(contactRaw);
+      if (!contactCheck.valid) { err.textContent = '❌ ' + contactCheck.reason; err.classList.add('show'); return; }
+      const contact = contactCheck.cleaned;
+
+      const passCheck = isValidPassword(password);
+      if (!passCheck.valid) { err.textContent = '❌ ' + passCheck.reason; err.classList.add('show'); return; }
+
+      if (password !== confirm) { err.textContent = '❌ Passwords do not match.'; err.classList.add('show'); return; }
+
+      const users = getUsers();
+      if (users.find(u => u.email.toLowerCase() === email)) {
+        err.textContent = '❌ An account with this email already exists.';
+        err.classList.add('show'); return;
+      }
+      if (users.find(u => u.contact === contact)) {
+        err.textContent = '❌ An account with this contact number already exists.';
+        err.classList.add('show'); return;
+      }
+
+      users.push({ name, email, contact, password });
+      saveUsers(users);
+
+      success.textContent = '✅ Account created successfully! Redirecting to login...';
+      success.classList.add('show');
+      e.target.reset();
+      document.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
+      document.getElementById('password-strength').classList.remove('show');
+
+      setTimeout(() => showAuthView('login'), 1600);
+    });
+
+    // ═══════════════════════════════════════════════════════
+    //  LOGIN SUBMIT
+    // ═══════════════════════════════════════════════════════
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+      const err = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+      err.classList.remove('show');
+
+      if (!email || !password) {
+        err.textContent = 'Please enter both email and password.';
+        err.classList.add('show');
+        return;
+      }
+
+      const users = getUsers();
+      const user = users.find(u => u.email.toLowerCase() === email && u.password === password);
+
+      if (!user) {
+        err.textContent = '❌ Invalid email or password. Please try again.';
+        err.classList.add('show');
+        return;
+      }
+
+      // Save session
+      saveSession(user);
+
+      // Success feedback
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      showToast('Login successful! Redirecting...', 'success');
+
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 800);
+    });
+
+    // ═══════════════════════════════════════════════════════
+    //  FORGOT SUBMIT
+    // ═══════════════════════════════════════════════════════
+    document.getElementById('forgot-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+      const contactRaw = document.getElementById('forgot-contact').value.trim();
+      const newPass = document.getElementById('forgot-newpass').value;
+      const err = document.getElementById('forgot-error');
+      const success = document.getElementById('forgot-success');
+      const btn = document.getElementById('forgot-btn');
+      const newGroup = document.getElementById('new-pass-group');
+      err.classList.remove('show');
+      success.classList.remove('show');
+
+      const emailCheck = isValidEmail(email);
+      if (!emailCheck.valid) { err.textContent = '❌ ' + emailCheck.reason; err.classList.add('show'); return; }
+
+      const contactCheck = isValidContact(contactRaw);
+      if (!contactCheck.valid) { err.textContent = '❌ ' + contactCheck.reason; err.classList.add('show'); return; }
+      const contact = contactCheck.cleaned;
+
+      const users = getUsers();
+      const user = users.find(u => u.email.toLowerCase() === email && u.contact === contact);
+
+      if (!forgotVerifiedUser) {
+        if (!user) {
+          err.textContent = '❌ No account found with these details.';
+          err.classList.add('show');
+          return;
+        }
+        forgotVerifiedUser = user;
+        newGroup.style.display = 'block';
+        btn.textContent = 'Set New Password';
+        document.getElementById('forgot-email').disabled = true;
+        document.getElementById('forgot-contact').disabled = true;
+        success.textContent = '✅ Identity verified! Please set a new strong password.';
+        success.classList.add('show');
+        return;
+      }
+
+      const passCheck = isValidPassword(newPass);
+      if (!passCheck.valid) { err.textContent = '❌ ' + passCheck.reason; err.classList.add('show'); return; }
+
+      const idx = users.findIndex(u => u.email.toLowerCase() === forgotVerifiedUser.email);
+      users[idx].password = newPass;
+      saveUsers(users);
+
+      success.textContent = '✅ Password reset successfully! Redirecting to login...';
+      success.classList.add('show');
+      forgotVerifiedUser = null;
+      newGroup.style.display = 'none';
+      btn.textContent = 'Verify Identity';
+      document.getElementById('forgot-email').disabled = false;
+      document.getElementById('forgot-contact').disabled = false;
+      e.target.reset();
+      document.getElementById('hint-forgot-pass').classList.remove('show');
+
+      setTimeout(() => showAuthView('login'), 1600);
+    });
+
+    console.log('🔐 Login page ready (Frontend Only)');
+  </script>
+</body>
+</html>
