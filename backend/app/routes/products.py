@@ -8,6 +8,7 @@ router = APIRouter()
 def get_products():
 
     db = get_database_connection()
+
     cursor = db.cursor(dictionary=True)
 
     cursor.execute("SELECT * FROM products")

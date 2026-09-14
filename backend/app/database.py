@@ -1,5 +1,10 @@
-import mysql.connector as mysq
-def db():
-    con=mysq.connect(host="localhost",user="root",password="6618",database="warehouse_twin")
-    cur=con.cursor()
-    print("successfully connected")
+import mysql.connector
+
+
+def get_database_connection():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="6618",
+        database="warehouse_twin"
+    )
