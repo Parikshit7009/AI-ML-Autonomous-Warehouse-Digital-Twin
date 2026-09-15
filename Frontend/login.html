@@ -755,9 +755,9 @@
     // ═══════════════════════════════════════════════════════
     //  LOGIN SUBMIT
     // ═══════════════════════════════════════════════════════
-    document.getElementById('login-form').addEventListener('submit', (e) => {
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       const err = document.getElementById('login-error');
       const btn = document.getElementById('login-btn');
@@ -769,26 +769,43 @@
         return;
       }
 
-      const users = getUsers();
-      const user = users.find(u => u.email.toLowerCase() === email && u.password === password);
-
-      if (!user) {
-        err.textContent = '❌ Invalid email or password. Please try again.';
-        err.classList.add('show');
-        return;
-      }
-
-      // Save session
-      saveSession(user);
-
-      // Success feedback
       btn.disabled = true;
       btn.textContent = 'Signing in...';
-      showToast('Login successful! Redirecting...', 'success');
 
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 800);
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          err.textContent = data.detail || '❌ Invalid email or password. Please try again.';
+          err.classList.add('show');
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+          return;
+        }
+
+        // Save JWT token and user info
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        showToast('Login successful! Redirecting...', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 800);
+
+      } catch (error) {
+        console.error('Login error:', error);
+        err.textContent = 'Unable to connect to the server.';
+        err.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
     });
 
     // ═══════════════════════════════════════════════════════
