@@ -902,7 +902,7 @@
           <div class="card">
             <div class="card-header">
               <div class="card-title">Inventory Overview</div>
-              <div class="card-badge">Live</div>
+              <div class="card-badge"><span class="pulse-dot"></span> Live</div>
             </div>
             <div class="inventory-grid">
               <div class="inventory-item">
@@ -935,6 +935,35 @@
             <div class="chart-wrapper">
               <canvas id="forecastChart"></canvas>
             </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-header">
+            <div class="card-title">Inventory Details</div>
+            <div class="card-badge">Live</div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="text-align: left; padding: 12px;">Product</th>
+                  <th style="text-align: left; padding: 12px;">Quantity</th>
+                  <th style="text-align: left; padding: 12px;">Location</th>
+                  <th style="text-align: left; padding: 12px;">Reorder Level</th>
+                  <th style="text-align: left; padding: 12px;">Status</th>
+                </tr>
+              </thead>
+
+              <tbody id="inventory-table-body">
+                <tr>
+                  <td colspan="5" style="padding: 20px; text-align: center;">
+                    Loading inventory...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -1059,110 +1088,298 @@
     <span id="toast-msg">Success</span>
   </div>
 
-  <!-- YOUR DASHBOARD MODULE -->
-  <script type="module">
-    import { initDashboard, showToast, destroyDashboard } from './dashboard.js';
+  <script>
+    const accessToken = localStorage.getItem("access_token");
 
-    // Auto-initialize dashboard
-    initDashboard();
-
-    // Logout button
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        try { destroyDashboard(); } catch {}
-        showToast('Logging out...', 'success');
-        setTimeout(() => {
-          // Agar login page hai toh waha bhejo, warna reload
-          window.location.href = 'login.html';
-        }, 700);
-      });
+    if (!accessToken) {
+        window.location.href = "/";
     }
+  </script>
+
+  <!-- YOUR DASHBOARD MODULE -->
+  <script>
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user");
+
+            window.location.href = "/";
+        });
+    }
+  </script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    console.log("Dashboard API script started");
+
+    loadProducts();
+    loadInventory();
+
+
     async function loadProducts() {
         try {
-            const response = await fetch("http://127.0.0.1:8000/products");
+            const token = localStorage.getItem("access_token");
+
+            if (!token) {
+                window.location.href = "/";
+                return;
+            }
+
+            const response = await fetch("/products", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("user");
+                window.location.href = "/";
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error("Failed to fetch products");
             }
+
             const products = await response.json();
-            console.log("Products from API:", products);
+
+            console.log("Products from FastAPI:", products);
 
             const totalSkus = document.getElementById("total-skus");
+
             if (totalSkus) {
-                totalSkus.textContent = products.length.toLocaleString();
+                totalSkus.textContent = products.length;
             }
+
         } catch (error) {
             console.error("Error loading products:", error);
 
             const totalSkus = document.getElementById("total-skus");
+
             if (totalSkus) {
                 totalSkus.textContent = "0";
             }
         }
     }
-    loadProducts();
+
 
     async function loadInventory() {
+
         try {
-            const response = await fetch("http://127.0.0.1:8000/inventory");
+
+            const token = localStorage.getItem("access_token");
+
+            if (!token) {
+                window.location.href = "/";
+                return;
+            }
+
+            const response = await fetch("/inventory", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            console.log("Inventory response:", response.status);
+
+            if (response.status === 401) {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("user");
+                window.location.href = "/";
+                return;
+            }
 
             if (!response.ok) {
-                throw new Error("Failed to fetch inventory");
+                throw new Error("Inventory API failed");
             }
 
             const inventory = await response.json();
 
-            console.log("Inventory from FastAPI:", inventory);
+            console.log(
+                "Inventory received:",
+                inventory
+            );
 
-            // Total stock
+
+            // TOTAL STOCK
+
             const totalStock = inventory.reduce(
-                (sum, item) => sum + Number(item.quantity || 0),
+                function (sum, item) {
+                    return sum + Number(item.quantity || 0);
+                },
                 0
             );
 
-            document.getElementById("total-stock").textContent =
-                totalStock.toLocaleString();
 
-            // Number of products
-            document.getElementById("inventory-products").textContent =
+            // PRODUCTS IN INVENTORY
+
+            const productsInInventory =
                 inventory.length;
 
-            // Low stock
+
+            // LOW STOCK
+
             const lowStock = inventory.filter(
-                item => Number(item.quantity) <= Number(item.reorder_level)
+                function (item) {
+                    return Number(item.quantity || 0)
+                        <=
+                        Number(item.reorder_level || 0);
+                }
             ).length;
 
-            document.getElementById("low-stock").textContent =
-                lowStock;
 
-            // Unique warehouse locations
-            const locations = new Set(
-                inventory
-                    .map(item => item.warehouse_location)
-                    .filter(location => location)
-            );
+            // LOCATIONS
 
-            document.getElementById("inventory-locations").textContent =
-                locations.size;
+            const locationSet = new Set();
+
+            inventory.forEach(function (item) {
+
+                if (item.warehouse_location) {
+                    locationSet.add(
+                        item.warehouse_location
+                    );
+                }
+
+            });
+
+
+            // UPDATE DASHBOARD
+
+            const totalStockElement =
+                document.getElementById("total-stock");
+
+            const productsElement =
+                document.getElementById("inventory-products");
+
+            const lowStockElement =
+                document.getElementById("low-stock");
+
+            const locationsElement =
+                document.getElementById("inventory-locations");
+
+
+            if (totalStockElement) {
+                totalStockElement.textContent =
+                    totalStock.toLocaleString();
+            }
+
+            if (productsElement) {
+                productsElement.textContent =
+                    productsInInventory;
+            }
+
+            if (lowStockElement) {
+                lowStockElement.textContent =
+                    lowStock;
+            }
+
+            if (locationsElement) {
+                locationsElement.textContent =
+                    locationSet.size;
+            }
+
+
+            // INVENTORY TABLE
+
+            const tableBody =
+                document.getElementById(
+                    "inventory-table-body"
+                );
+
+
+            if (tableBody) {
+
+                if (inventory.length === 0) {
+
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5"
+                                style="padding:20px;text-align:center;">
+                                No inventory data available
+                            </td>
+                        </tr>
+                    `;
+
+                } else {
+
+                    tableBody.innerHTML =
+                        inventory.map(function (item) {
+
+                            const quantity =
+                                Number(item.quantity || 0);
+
+                            const reorderLevel =
+                                Number(
+                                    item.reorder_level || 0
+                                );
+
+                            const status =
+                                quantity <= reorderLevel
+                                    ? "Low Stock"
+                                    : "In Stock";
+
+
+                            return `
+                                <tr>
+                                    <td style="padding:12px;">
+                                        ${item.product_name}
+                                    </td>
+
+                                    <td style="padding:12px;">
+                                        ${quantity.toLocaleString()}
+                                    </td>
+
+                                    <td style="padding:12px;">
+                                        ${item.warehouse_location || "Not assigned"}
+                                    </td>
+
+                                    <td style="padding:12px;">
+                                        ${reorderLevel}
+                                    </td>
+
+                                    <td style="padding:12px;">
+                                        ${status}
+                                    </td>
+                                </tr>
+                            `;
+
+                        }).join("");
+                }
+            }
+
 
         } catch (error) {
-            console.error("Error loading inventory:", error);
 
-            document.getElementById("total-stock").textContent = "0";
-            document.getElementById("inventory-products").textContent = "0";
-            document.getElementById("low-stock").textContent = "0";
-            document.getElementById("inventory-locations").textContent = "0";
+            console.error(
+                "Inventory error:",
+                error
+            );
+
+            const totalStockElement =
+                document.getElementById("total-stock");
+            const productsElement =
+                document.getElementById("inventory-products");
+            const lowStockElement =
+                document.getElementById("low-stock");
+            const locationsElement =
+                document.getElementById("inventory-locations");
+
+            if (totalStockElement) totalStockElement.textContent = "0";
+            if (productsElement) productsElement.textContent = "0";
+            if (lowStockElement) lowStockElement.textContent = "0";
+            if (locationsElement) locationsElement.textContent = "0";
+
         }
     }
 
-    loadInventory();
-    
-
-
-    
+});
   </script>
 </body>
 </html>
