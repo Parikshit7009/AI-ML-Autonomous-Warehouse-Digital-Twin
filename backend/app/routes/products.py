@@ -1,64 +1,92 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
+
 from backend.app.database import get_database_connection
 from backend.app.schemas.product import ProductCreate
+from backend.app.auth.dependencies import get_current_user
+
 
 router = APIRouter()
 
 
+# Get all products
 @router.get("/products")
-def get_products():
+def get_products(
+    current_user=Depends(get_current_user)
+):
     db = get_database_connection()
     cursor = db.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM products")
-    products = cursor.fetchall()
+    try:
+        cursor.execute("SELECT * FROM products")
+        products = cursor.fetchall()
+        return products
 
-    cursor.close()
-    db.close()
+    finally:
+        cursor.close()
+        db.close()
 
-    return products
 
-
+# Get single product
 @router.get("/products/{product_id}")
-def get_product(product_id: int):
+def get_product(
+    product_id: int,
+    current_user=Depends(get_current_user)
+):
     db = get_database_connection()
     cursor = db.cursor(dictionary=True)
 
-    query = "SELECT * FROM products WHERE product_id = %s"
-    cursor.execute(query, (product_id,))
-    product = cursor.fetchone()
+    try:
+        query = """
+            SELECT *
+            FROM products
+            WHERE product_id = %s
+        """
 
-    cursor.close()
-    db.close()
+        cursor.execute(query, (product_id,))
+        product = cursor.fetchone()
+
+    finally:
+        cursor.close()
+        db.close()
 
     if product is None:
-        return {
-            "message": "Product not found"
-        }
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
 
     return product
 
 
-@router.post("/products", status_code=status.HTTP_201_CREATED)
-def create_product(product: ProductCreate):
+# Create product
+@router.post(
+    "/products",
+    status_code=status.HTTP_201_CREATED
+)
+def create_product(
+    product: ProductCreate,
+    current_user=Depends(get_current_user)
+):
     db = get_database_connection()
     cursor = db.cursor()
 
     query = """
-    INSERT INTO products (
-        product_id,
-        product_name,
-        brand,
-        category,
-        sub_category,
-        price,
-        rating,
-        review_count,
-        stock_status,
-        tags,
-        description
-    )
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO products (
+            product_id,
+            product_name,
+            brand,
+            category,
+            sub_category,
+            price,
+            rating,
+            review_count,
+            stock_status,
+            tags,
+            description
+        )
+        VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+        )
     """
 
     values = (
@@ -81,8 +109,9 @@ def create_product(product: ProductCreate):
 
     except Exception:
         db.rollback()
+
         raise HTTPException(
-            status_code=409,
+            status_code=status.HTTP_409_CONFLICT,
             detail="Product with this ID already exists"
         )
 
