@@ -1,8 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
+
 from backend.app.routes.orders import router as orders_router
 from backend.app.routes.products import router as products_router
 from backend.app.routes.inventory import router as inventory_router
+from backend.app.routes.robots import router as robots_router
+from backend.app.routes.auth import router as auth_router
 
 
 app = FastAPI(
@@ -12,8 +18,20 @@ app = FastAPI(
 )
 
 
+# Frontend location
+BASE_DIR = Path(__file__).resolve().parents[2]
+FRONTEND_DIR = BASE_DIR / "Frontend"
+
+
+# Serve frontend files
+app.mount(
+    "/static",
+    StaticFiles(directory=FRONTEND_DIR),
+    name="static"
+)
+
+
 # CORS configuration
-# Allows the frontend Dashboard.html to communicate with FastAPI
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -23,13 +41,18 @@ app.add_middleware(
 )
 
 
-# Root API
 @app.get("/")
-def root():
-    return {
-        "message": "Warehouse Digital Twin API is running"
-    }
+def serve_login():
+    return FileResponse(
+        FRONTEND_DIR / "login.html"
+    )
 
+
+@app.get("/dashboard")
+def serve_dashboard():
+    return FileResponse(
+        FRONTEND_DIR / "Dashboard.html"
+    )
 
 # Health check
 @app.get("/health")
@@ -39,12 +62,9 @@ def health():
     }
 
 
-# Product routes
+# API routes
 app.include_router(products_router)
-
-
-# Inventory routes
 app.include_router(inventory_router)
-
-#Orders routes
 app.include_router(orders_router)
+app.include_router(robots_router)
+app.include_router(auth_router)
