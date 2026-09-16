@@ -839,28 +839,43 @@
           <button class="tab">Warehouse 4</button>
         </div>
         <div class="kpi-row">
+
           <div class="kpi-card">
             <div class="kpi-label">Total SKUs</div>
             <div class="kpi-value">
-              <span id="total-skus">Loading...</span> <span class="unit">items</span>
+              <span id="total-skus">Loading...</span>
+              <span class="unit">items</span>
             </div>
-            <div class="kpi-trend up">Live from database</div>
+            <div class="kpi-trend up" id="sku-status">Live from database</div>
           </div>
+
           <div class="kpi-card">
-            <div class="kpi-label">Throughput</div>
-            <div class="kpi-value">186 <span class="unit">orders/hr</span></div>
-            <div class="kpi-trend up">▲ 12% vs yesterday</div>
+            <div class="kpi-label">Outbound Throughput</div>
+            <div class="kpi-value">
+              <span id="throughput">Loading...</span>
+              <span class="unit">items/hr</span>
+            </div>
+            <div class="kpi-trend up">Warehouse operations</div>
           </div>
+
           <div class="kpi-card">
             <div class="kpi-label">Avg Picking Time</div>
-            <div class="kpi-value">4.2 <span class="unit">min</span></div>
-            <div class="kpi-trend up">▼ 2.1% faster</div>
+            <div class="kpi-value">
+              <span id="avg-picking-time">Loading...</span>
+              <span class="unit">min</span>
+            </div>
+            <div class="kpi-trend up">Live from dataset</div>
           </div>
+
           <div class="kpi-card">
-            <div class="kpi-label">Late Orders</div>
-            <div class="kpi-value">2.8 <span class="unit">%</span></div>
-            <div class="kpi-trend down">▲ 0.5% increase</div>
+            <div class="kpi-label">Equipment Health</div>
+            <div class="kpi-value">
+              <span id="equipment-health">Loading...</span>
+              <span class="unit">%</span>
+            </div>
+            <div class="kpi-trend up">Average health index</div>
           </div>
+
         </div>
         <div class="grid-main">
           <div class="card">
@@ -1380,6 +1395,132 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+  </script>
+
+  <script>
+async function loadOperationsKPIs() {
+
+    try {
+
+        const token = localStorage.getItem("access_token");
+
+        // User is not logged in
+        if (!token) {
+            window.location.href = "/";
+            return;
+        }
+
+        const response = await fetch("/operations/kpis", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        // Token expired / invalid
+        if (response.status === 401) {
+
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user");
+
+            window.location.href = "/";
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("Failed to load operations KPIs");
+        }
+
+        const kpis = await response.json();
+
+        console.log("Operations KPIs:", kpis);
+
+
+        // =================================================
+        // TOTAL SKUs
+        // =================================================
+
+        const totalSkus =
+            document.getElementById("total-skus");
+
+        if (totalSkus) {
+            totalSkus.textContent =
+                kpis.total_records.toLocaleString();
+        }
+
+
+        // =================================================
+        // THROUGHPUT
+        // =================================================
+
+        const throughput =
+            document.getElementById("throughput");
+
+        if (throughput) {
+
+            const outgoing =
+                Number(kpis.total_outgoing_items || 0);
+
+            // This is temporarily based on the dataset's
+            // total outgoing items. The API will later expose
+            // a dedicated throughput calculation.
+
+            throughput.textContent =
+                outgoing.toLocaleString();
+        }
+
+
+        // =================================================
+        // AVERAGE PICKING TIME
+        // =================================================
+
+        const pickingTime =
+            document.getElementById("avg-picking-time");
+
+        if (pickingTime) {
+
+            pickingTime.textContent =
+                Number(kpis.average_picking_time || 0)
+                .toFixed(2);
+        }
+
+
+        // =================================================
+        // EQUIPMENT HEALTH
+        // =================================================
+
+        const equipmentHealth =
+            document.getElementById("equipment-health");
+
+        if (equipmentHealth) {
+
+            equipmentHealth.textContent =
+                Number(kpis.average_equipment_health || 0)
+                .toFixed(2);
+        }
+
+
+        console.log("Dashboard KPIs updated successfully.");
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error loading operations KPIs:",
+            error
+        );
+
+        document.getElementById("total-skus").textContent = "0";
+        document.getElementById("throughput").textContent = "0";
+        document.getElementById("avg-picking-time").textContent = "0";
+        document.getElementById("equipment-health").textContent = "0";
+    }
+}
+
+
+// Load KPIs when dashboard opens
+loadOperationsKPIs();
   </script>
 </body>
 </html>

@@ -9,6 +9,8 @@ from backend.app.routes.products import router as products_router
 from backend.app.routes.inventory import router as inventory_router
 from backend.app.routes.robots import router as robots_router
 from backend.app.routes.auth import router as auth_router
+from backend.app.routes.operations import router as operations_router
+from backend.app.routes.forecast import router as forecast_router
 
 
 app = FastAPI(
@@ -68,3 +70,6 @@ app.include_router(inventory_router)
 app.include_router(orders_router)
 app.include_router(robots_router)
 app.include_router(auth_router)
+app.include_router(operations_router)
+app.include_router(forecast_router)
+
