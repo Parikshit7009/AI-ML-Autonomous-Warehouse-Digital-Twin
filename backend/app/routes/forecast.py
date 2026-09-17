@@ -11,8 +11,12 @@ router = APIRouter()
 def demand_forecast(
     current_user=Depends(get_current_user)
 ):
+
     try:
-        forecasts = generate_demand_forecast(days=30)
+
+        forecasts = generate_demand_forecast(
+            days=30
+        )
 
         return {
             "model": "RandomForestRegressor",
@@ -22,6 +26,7 @@ def demand_forecast(
         }
 
     except Exception as e:
+
         raise HTTPException(
             status_code=500,
             detail=str(e)

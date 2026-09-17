@@ -1398,6 +1398,259 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
 
   <script>
+let forecastChartInstance = null;
+
+async function loadDemandForecast() {
+
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+        console.error("JWT token not found.");
+        return;
+    }
+
+    try {
+
+        console.log("Loading demand forecast...");
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/forecast/demand",
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        if (!response.ok) {
+
+            const errorText = await response.text();
+
+            throw new Error(
+                "Forecast API error: "
+                + response.status
+                + " "
+                + errorText
+            );
+        }
+
+        const data = await response.json();
+
+        console.log(
+            "Forecast API response:",
+            data
+        );
+
+        if (
+            !data.forecasts ||
+            data.forecasts.length === 0
+        ) {
+
+            console.warn(
+                "No forecast data returned."
+            );
+
+            return;
+        }
+
+        createForecastChart(
+            data.forecasts
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error loading demand forecast:",
+            error
+        );
+    }
+}
+
+
+function createForecastChart(forecasts) {
+
+    const canvas =
+        document.getElementById(
+            "forecastChart"
+        );
+
+    if (!canvas) {
+
+        console.error(
+            "forecastChart canvas not found."
+        );
+
+        return;
+    }
+
+    /*
+     * Use the highest-demand SKU returned
+     * by the backend.
+     */
+    const selectedSKU =
+        forecasts[0];
+
+    const dailyForecast =
+        selectedSKU.forecast || [];
+
+    if (dailyForecast.length === 0) {
+
+        console.warn(
+            "Selected SKU has no daily forecast."
+        );
+
+        return;
+    }
+
+    const labels =
+        dailyForecast.map(
+            item => item.date
+        );
+
+    const values =
+        dailyForecast.map(
+            item =>
+                Number(
+                    item.forecasted_demand
+                )
+        );
+
+    /*
+     * Destroy the previous chart
+     * if one already exists.
+     */
+    if (forecastChartInstance) {
+
+        forecastChartInstance.destroy();
+
+    }
+
+    forecastChartInstance =
+        new Chart(
+            canvas,
+            {
+                type: "line",
+
+                data: {
+
+                    labels: labels,
+
+                    datasets: [
+
+                        {
+                            label:
+                                "Forecasted Demand",
+
+                            data: values,
+
+                            borderWidth: 2,
+
+                            pointRadius: 2,
+
+                            tension: 0.35,
+
+                            fill: true
+                        }
+
+                    ]
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+
+                    plugins: {
+
+                        legend: {
+                            display: true
+                        },
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                title:
+                                    function(context) {
+
+                                        return context[0]
+                                            .label;
+                                    },
+
+                                label:
+                                    function(context) {
+
+                                        return (
+                                            " Demand: "
+                                            +
+                                            context.parsed.y
+                                            +
+                                            " units"
+                                        );
+
+                                    }
+
+                            }
+
+                        }
+
+                    },
+
+                    scales: {
+
+                        x: {
+
+                            ticks: {
+                                maxTicksLimit: 8
+                            }
+
+                        },
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "Units"
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+    console.log(
+        "Forecast chart created for SKU:",
+        selectedSKU.product_id
+    );
+}
+
+
+/*
+ * Load forecast when dashboard opens.
+ */
+loadDemandForecast();
+
+  </script>
+
+  <script>
 async function loadOperationsKPIs() {
 
     try {
