@@ -1398,66 +1398,90 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
 
   <script>
+
+let forecastData = [];
+
 let forecastChartInstance = null;
+
+
+/* ============================================================
+   LOAD DEMAND FORECAST
+   ============================================================ */
 
 async function loadDemandForecast() {
 
-    const token = localStorage.getItem("access_token");
+    const token =
+        localStorage.getItem("access_token");
 
     if (!token) {
-        console.error("JWT token not found.");
+
+        console.error(
+            "JWT token not found."
+        );
+
         return;
     }
 
     try {
 
-        console.log("Loading demand forecast...");
+        console.log(
+            "Loading demand forecast..."
+        );
 
         const response = await fetch(
             "http://127.0.0.1:8000/forecast/demand",
             {
                 method: "GET",
+
                 headers: {
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
+                    "Authorization":
+                        "Bearer " + token,
+
+                    "Content-Type":
+                        "application/json"
                 }
             }
         );
 
         if (!response.ok) {
 
-            const errorText = await response.text();
-
             throw new Error(
                 "Forecast API error: "
                 + response.status
-                + " "
-                + errorText
             );
         }
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         console.log(
             "Forecast API response:",
             data
         );
 
+
+        forecastData =
+            data.forecasts || [];
+
+
         if (
-            !data.forecasts ||
-            data.forecasts.length === 0
+            forecastData.length === 0
         ) {
 
             console.warn(
-                "No forecast data returned."
+                "No forecast data available."
             );
 
             return;
         }
 
-        createForecastChart(
-            data.forecasts
+
+        createForecastSelector();
+
+        updateForecastChart(
+            forecastData[0]
         );
+
 
     } catch (error) {
 
@@ -1465,11 +1489,16 @@ async function loadDemandForecast() {
             "Error loading demand forecast:",
             error
         );
+
     }
 }
 
 
-function createForecastChart(forecasts) {
+/* ============================================================
+   CREATE SKU SELECTOR
+   ============================================================ */
+
+function createForecastSelector() {
 
     const canvas =
         document.getElementById(
@@ -1477,60 +1506,314 @@ function createForecastChart(forecasts) {
         );
 
     if (!canvas) {
-
-        console.error(
-            "forecastChart canvas not found."
-        );
-
         return;
     }
+
+
+    const chartWrapper =
+        canvas.parentElement;
+
 
     /*
-     * Use the highest-demand SKU returned
-     * by the backend.
+     * Don't create the selector twice.
      */
-    const selectedSKU =
-        forecasts[0];
 
-    const dailyForecast =
-        selectedSKU.forecast || [];
+    if (
+        document.getElementById(
+            "forecastSkuSelector"
+        )
+    ) {
 
-    if (dailyForecast.length === 0) {
+        return;
+    }
 
-        console.warn(
-            "Selected SKU has no daily forecast."
+
+    const selectorWrapper =
+        document.createElement(
+            "div"
+        );
+
+
+    selectorWrapper.id =
+        "forecastSelectorWrapper";
+
+
+    selectorWrapper.style.display =
+        "flex";
+
+
+    selectorWrapper.style.alignItems =
+        "center";
+
+
+    selectorWrapper.style.gap =
+        "10px";
+
+
+    selectorWrapper.style.marginBottom =
+        "12px";
+
+
+    const label =
+        document.createElement(
+            "label"
+        );
+
+
+    label.textContent =
+        "Select SKU:";
+
+
+    label.style.fontSize =
+        "0.75rem";
+
+
+    label.style.fontWeight =
+        "600";
+
+
+    label.style.color =
+        "#64748b";
+
+
+    const select =
+        document.createElement(
+            "select"
+        );
+
+
+    select.id =
+        "forecastSkuSelector";
+
+
+    select.style.padding =
+        "7px 12px";
+
+
+    select.style.border =
+        "1px solid #e2e8f0";
+
+
+    select.style.borderRadius =
+        "8px";
+
+
+    select.style.background =
+        "#ffffff";
+
+
+    select.style.fontSize =
+        "0.75rem";
+
+
+    select.style.cursor =
+        "pointer";
+
+
+    /*
+     * Add all 600 SKUs.
+     */
+
+    forecastData.forEach(
+        (item, index) => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                item.product_id;
+
+            option.textContent =
+                item.product_id;
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    select.addEventListener(
+        "change",
+        function() {
+
+            const selected =
+                forecastData.find(
+                    item =>
+                        String(
+                            item.product_id
+                        )
+                        ===
+                        String(
+                            this.value
+                        )
+                );
+
+
+            if (selected) {
+
+                updateForecastChart(
+                    selected
+                );
+
+            }
+
+        }
+    );
+
+
+    selectorWrapper.appendChild(
+        label
+    );
+
+
+    selectorWrapper.appendChild(
+        select
+    );
+
+
+    chartWrapper.parentElement.insertBefore(
+        selectorWrapper,
+        chartWrapper
+    );
+}
+
+
+/* ============================================================
+   UPDATE FORECAST CHART
+   ============================================================ */
+
+function updateForecastChart(
+    selectedSKU
+) {
+
+    const canvas =
+        document.getElementById(
+            "forecastChart"
+        );
+
+
+    if (!canvas) {
+
+        console.error(
+            "forecastChart not found."
         );
 
         return;
     }
 
-    const labels =
-        dailyForecast.map(
+
+    const historical =
+        selectedSKU.historical_demand
+        || [];
+
+
+    const forecast =
+        selectedSKU.forecast
+        || [];
+
+
+    /*
+     * Historical labels
+     */
+
+    const historicalLabels =
+        historical.map(
             item => item.date
         );
 
-    const values =
-        dailyForecast.map(
+
+    /*
+     * Forecast labels
+     */
+
+    const forecastLabels =
+        forecast.map(
+            item => item.date
+        );
+
+
+    /*
+     * Combine dates.
+     */
+
+    const labels = [
+        ...historicalLabels,
+        ...forecastLabels
+    ];
+
+
+    /*
+     * Historical values.
+     */
+
+    const historicalValues =
+        historical.map(
+            item =>
+                Number(
+                    item.demand
+                )
+        );
+
+
+    /*
+     * Forecast values.
+     *
+     * Add nulls for the historical
+     * section so the forecast line
+     * starts at the correct point.
+     */
+
+    const forecastValues = [
+
+        ...new Array(
+            Math.max(
+                historical.length - 1,
+                0
+            )
+        ).fill(null),
+
+        historical.length > 0
+            ? historical[
+                historical.length - 1
+            ].demand
+            : null,
+
+        ...forecast.map(
             item =>
                 Number(
                     item.forecasted_demand
                 )
-        );
+        )
+
+    ];
+
 
     /*
-     * Destroy the previous chart
-     * if one already exists.
+     * Destroy existing chart.
      */
-    if (forecastChartInstance) {
+
+    if (
+        forecastChartInstance
+    ) {
 
         forecastChartInstance.destroy();
 
     }
 
+
+    /*
+     * Create chart.
+     */
+
     forecastChartInstance =
         new Chart(
             canvas,
             {
+
                 type: "line",
 
                 data: {
@@ -1540,61 +1823,93 @@ function createForecastChart(forecasts) {
                     datasets: [
 
                         {
-                            label:
-                                "Forecasted Demand",
 
-                            data: values,
+                            label:
+                                "Historical Demand",
+
+                            data:
+                                [
+                                    ...historicalValues,
+                                    ...new Array(
+                                        forecast.length
+                                    ).fill(null)
+                                ],
+
+                            borderWidth: 2,
+
+                            pointRadius: 1.5,
+
+                            tension: 0.3,
+
+                            fill: false
+
+                        },
+
+
+                        {
+
+                            label:
+                                "Random Forest Forecast",
+
+                            data:
+                                forecastValues,
 
                             borderWidth: 2,
 
                             pointRadius: 2,
 
-                            tension: 0.35,
+                            tension: 0.3,
 
-                            fill: true
+                            borderDash:
+                                [6, 4],
+
+                            fill: false
+
                         }
 
                     ]
+
                 },
+
 
                 options: {
 
                     responsive: true,
 
-                    maintainAspectRatio: false,
+                    maintainAspectRatio:
+                        false,
+
 
                     interaction: {
+
                         mode: "index",
+
                         intersect: false
+
                     },
+
 
                     plugins: {
 
                         legend: {
+
                             display: true
+
                         },
+
 
                         tooltip: {
 
                             callbacks: {
 
                                 title:
-                                    function(context) {
+                                    function(
+                                        context
+                                    ) {
 
-                                        return context[0]
-                                            .label;
-                                    },
-
-                                label:
-                                    function(context) {
-
-                                        return (
-                                            " Demand: "
-                                            +
-                                            context.parsed.y
-                                            +
-                                            " units"
-                                        );
+                                        return context[
+                                            0
+                                        ].label;
 
                                     }
 
@@ -1604,23 +1919,30 @@ function createForecastChart(forecasts) {
 
                     },
 
+
                     scales: {
 
                         x: {
 
                             ticks: {
-                                maxTicksLimit: 8
+
+                                maxTicksLimit:
+                                    10
+
                             }
 
                         },
 
+
                         y: {
 
-                            beginAtZero: true,
+                            beginAtZero:
+                                true,
 
                             title: {
 
-                                display: true,
+                                display:
+                                    true,
 
                                 text:
                                     "Units"
@@ -1636,16 +1958,47 @@ function createForecastChart(forecasts) {
             }
         );
 
+
+    /*
+     * Update card title.
+     */
+
+    const title =
+        document.querySelector(
+            "#forecastChart"
+            + ".dummy"
+        );
+
+
     console.log(
-        "Forecast chart created for SKU:",
+        "Forecast chart updated:",
         selectedSKU.product_id
+    );
+
+
+    console.log(
+        "Current stock:",
+        selectedSKU.current_stock
+    );
+
+
+    console.log(
+        "30-day forecast:",
+        selectedSKU.forecasted_demand_30_days
+    );
+
+
+    console.log(
+        "Demand change:",
+        selectedSKU.change_percent + "%"
     );
 }
 
 
-/*
- * Load forecast when dashboard opens.
- */
+/* ============================================================
+   START
+   ============================================================ */
+
 loadDemandForecast();
 
   </script>
