@@ -1,0 +1,2512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Robot Fleet · IronNest</title>
+<style>
+/* =========================================================
+   IronNest tokens
+   ========================================================= */
+:root{
+  --bg:#eef2f8;
+  --panel:#ffffff;
+  --panel-2:#f8fafc;
+  --border:#e5eaf2;
+  --border-2:#d9e0eb;
+  --text:#0e1a2b;
+  --text-2:#5a6a83;
+  --text-3:#8b99b1;
+  --primary:#2563eb;
+  --primary-2:#1d4ed8;
+  --primary-soft:#eaf1ff;
+  --green:#15a34a;
+  --green-soft:#e6f7ed;
+  --amber:#d97706;
+  --amber-soft:#fff4e5;
+  --red:#dc2626;
+  --red-soft:#fdeaea;
+  --violet:#7c3aed;
+  --slate:#64748b;
+
+  --r:14px;
+  --r-sm:10px;
+  --r-lg:18px;
+
+  --shadow-1:0 1px 2px rgba(15,26,43,.04), 0 1px 3px rgba(15,26,43,.03);
+  --shadow-2:0 2px 6px rgba(15,26,43,.05), 0 12px 28px -22px rgba(15,26,43,.32);
+
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:var(--font);color:var(--text);
+  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  background:var(--bg);
+}
+button,input,select{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+svg{display:block}
+
+/* =========================================================
+   App shell
+   ========================================================= */
+.app{display:flex;min-height:100vh}
+
+/* =========================================================
+   Sidebar (redesigned)
+   ========================================================= */
+.sidebar{
+  width:260px;flex:0 0 260px;
+  background:#ffffff;
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;z-index:30;
+  padding:26px 18px 20px;
+}
+.brand{display:flex;align-items:center;gap:12px;padding:0 8px 30px}
+.brand-mark{
+  width:46px;height:46px;border-radius:12px;flex:0 0 46px;
+  background:linear-gradient(135deg,#5b7cfa,#3b5bdb);
+  font-size:24px;line-height:1;
+  display:grid;place-items:center;
+  box-shadow:0 6px 14px -4px rgba(76,110,245,.45);
+}
+.brand-text{
+  font-size:22px;font-weight:800;letter-spacing:-.5px;
+  color:#0f172a;line-height:1;
+}
+
+.nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
+.nav-section{
+  font-size:11px;font-weight:800;letter-spacing:1px;
+  color:#94a3b8;text-transform:uppercase;
+  padding:18px 14px 10px;
+}
+.nav-section:first-child{padding-top:0}
+
+.nav-item{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 14px;border-radius:12px;
+  color:#475569;text-decoration:none;
+  font-weight:500;font-size:15.5px;
+  transition:background .15s ease,color .15s ease;
+  position:relative;
+}
+.nav-item .nav-emoji{
+  font-size:21px;line-height:1;
+  flex:0 0 24px;text-align:center;
+  filter:saturate(1.1);
+}
+.nav-item:hover{background:#f8fafc;color:#0f172a}
+.nav-item.is-active{
+  background:#eef2ff;
+  color:#3b5bdb;
+  font-weight:700;
+}
+
+.nav-badge{
+  margin-left:auto;
+  background:#ef4444;color:#fff;
+  font-size:11.5px;font-weight:800;
+  min-width:22px;height:22px;padding:0 7px;
+  border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px -1px rgba(239,68,68,.5);
+}
+
+.sidebar-foot{
+  padding:14px 14px 0;border-top:1px solid var(--border);
+  font-size:11.5px;color:var(--text-3);margin-top:10px;
+}
+.sidebar-foot .dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--green);margin-right:6px;
+}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* Topbar — BLANK WHITE STRIP (no content) */
+.topbar{
+  height:56px;flex:0 0 56px;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:20;
+}
+
+/* Page */
+.page{
+  padding:20px 24px 28px;
+  display:flex;flex-direction:column;gap:16px;
+  max-width:1440px;width:100%;margin:0 auto;
+  flex:1;
+}
+
+/* =========================================================
+   Page header
+   ========================================================= */
+.page-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+}
+.page-head h1{font-size:21px;letter-spacing:-.4px;font-weight:700;line-height:1.2}
+.page-head .sub{color:var(--text-2);font-size:13px;margin-top:3px}
+.head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;
+  border-radius:10px;border:1px solid var(--border);background:var(--panel);
+  color:var(--text);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;
+  transition:background .15s ease,border-color .15s ease,transform .12s ease,box-shadow .15s ease;
+}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn:hover{background:var(--panel-2);border-color:var(--border-2)}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-2);border-color:var(--primary-2)}
+.btn-sm{height:30px;padding:0 10px;font-size:12.5px;border-radius:8px}
+.btn-sm svg{width:14px;height:14px}
+
+.live-pill{
+  display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:10px;
+  background:var(--green-soft);color:#0f7a37;font-size:12.5px;font-weight:700;
+  border:1px solid #cdeed9;
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);position:relative}
+.live-dot::after{
+  content:"";position:absolute;inset:-3px;border-radius:50%;
+  border:2px solid rgba(21,163,74,.35);
+  animation:ping 2s cubic-bezier(0,0,.2,1) infinite;
+}
+@keyframes ping{0%{transform:scale(.6);opacity:.9}80%,100%{transform:scale(1.6);opacity:0}}
+
+/* =========================================================
+   Workspace
+   ========================================================= */
+.workspace{
+  display:grid;
+  grid-template-columns:minmax(0, 620px) minmax(0, 1fr);
+  grid-template-areas:
+    "map details"
+    "fleet task";
+  gap:16px;
+  align-items:stretch;
+}
+.map-panel    { grid-area: map; }
+.detail-panel { grid-area: details; }
+.fleet-panel  { grid-area: fleet; }
+.task-panel   { grid-area: task; }
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-1);
+  display:flex;flex-direction:column;min-width:0;min-height:0;
+  overflow:hidden;
+  animation:panelIn .32s cubic-bezier(.22,.9,.3,1) both;
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:13px 16px;border-bottom:1px solid var(--border);min-height:50px;
+}
+.panel-head h2{font-size:13.5px;font-weight:700;letter-spacing:-.1px}
+.panel-head .muted{font-size:11.5px;color:var(--text-3);font-weight:500}
+
+@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.map-panel    { animation-delay:0ms; }
+.detail-panel { animation-delay:50ms; }
+.fleet-panel  { animation-delay:100ms; }
+.task-panel   { animation-delay:150ms; }
+.activity-panel{ animation-delay:200ms; }
+
+/* =========================================================
+   Map panel
+   ========================================================= */
+.map-panel{max-width:100%}
+.map-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 14px 12px 16px;border-bottom:1px solid var(--border);min-height:50px;
+}
+.map-head-left{display:flex;align-items:center;gap:10px;min-width:0}
+.map-head h2{font-size:13.5px;font-weight:700;letter-spacing:-.1px;white-space:nowrap}
+.map-live{
+  display:inline-flex;align-items:center;gap:6px;height:20px;padding:0 8px;border-radius:99px;
+  background:var(--green-soft);color:#0f7a37;
+  font-size:10.5px;font-weight:700;letter-spacing:.3px;
+  border:1px solid #cdeed9;
+}
+.map-live .live-dot{width:6px;height:6px}
+.map-live .live-dot::after{border-width:1.5px}
+
+.map-toolbar{display:flex;align-items:center;gap:5px}
+.map-toolbar .divider{width:1px;height:18px;background:var(--border);margin:0 3px}
+.zoom-label{
+  font-size:11.5px;font-weight:700;color:var(--text-2);min-width:38px;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.map-tool-btn{
+  width:30px;height:30px;border-radius:8px;
+  border:1px solid var(--border);background:var(--panel);
+  display:grid;place-items:center;cursor:pointer;
+  transition:background .15s ease,border-color .15s ease,transform .12s ease;
+}
+.map-tool-btn svg{width:14px;height:14px;stroke:var(--text-2);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.map-tool-btn:hover{background:var(--panel-2);border-color:var(--border-2)}
+.map-tool-btn:active{transform:scale(.94)}
+.map-tool-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+.map-expand-btn{
+  display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 9px;
+  border-radius:8px;border:1px solid var(--border);background:var(--panel);
+  font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;
+  transition:background .15s ease,color .15s ease,border-color .15s ease,transform .12s ease;
+}
+.map-expand-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.map-expand-btn:hover{background:var(--panel-2);color:var(--text);border-color:var(--border-2)}
+.map-expand-btn:active{transform:scale(.97)}
+.map-expand-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+.map-stage{
+  position:relative;
+  aspect-ratio:1 / 1;
+  width:100%;
+  background:#0f1a29;
+  overflow:hidden;
+  touch-action:none;
+  cursor:grab;
+}
+.map-stage.is-panning{cursor:grabbing}
+.map-stage svg{width:100%;height:100%;display:block}
+
+.map-float{
+  position:absolute;z-index:3;
+  background:rgba(13,22,35,.72);
+  -webkit-backdrop-filter:blur(10px) saturate(150%);
+  backdrop-filter:blur(10px) saturate(150%);
+  border:1px solid rgba(140,170,210,.16);
+  border-radius:11px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 8px 20px -12px rgba(0,0,0,.55);
+}
+
+.map-sim-controls{
+  top:12px;left:12px;
+  display:flex;gap:2px;padding:4px;border-radius:999px;
+}
+.map-sim-controls .sim-btn{
+  width:30px;height:30px;border-radius:999px;
+  background:transparent;border:none;cursor:pointer;
+  display:grid;place-items:center;
+  transition:background .15s ease,transform .12s ease;
+}
+.map-sim-controls .sim-btn svg{width:14px;height:14px;stroke:#cbd8ea;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.map-sim-controls .sim-btn:hover{background:rgba(255,255,255,.09)}
+.map-sim-controls .sim-btn:active{transform:scale(.9)}
+.map-sim-controls .sim-btn.is-active{background:rgba(96,165,250,.3)}
+.map-sim-controls .sim-btn.is-active svg{stroke:#dbeafe}
+
+.map-legend{
+  bottom:12px;right:12px;
+  display:flex;flex-direction:column;gap:4px;
+  padding:8px 10px;font-size:10px;color:#9fb2ca;font-weight:600;
+  max-width:calc(100% - 24px);
+  border-radius:9px;
+}
+.map-legend span{display:inline-flex;align-items:center;gap:7px}
+.map-legend i{width:9px;height:9px;border-radius:2.5px;display:block;flex:0 0 9px}
+
+.map-hint{
+  bottom:12px;left:12px;
+  padding:5px 9px;font-size:10px;color:#7d90aa;font-weight:600;
+  border-radius:8px;
+}
+
+/* Map SVG styles */
+.floor{fill:#0f1a29}
+.zone-label{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;fill:rgba(160,185,215,.5);pointer-events:none}
+.rack{fill:#22334a;stroke:#2f4661;stroke-width:1}
+.rack-slot{stroke:rgba(120,155,195,.16);stroke-width:1}
+.rack-label{font-size:9.5px;font-weight:700;fill:rgba(150,180,215,.42);letter-spacing:.5px}
+.wall{fill:#1c2b40;stroke:#31465f;stroke-width:1}
+.pad{fill:rgba(120,160,210,.10);stroke:rgba(130,170,220,.28);stroke-width:1;stroke-dasharray:4 4}
+.pad-label{font-size:9px;font-weight:700;fill:rgba(150,185,225,.55);letter-spacing:.4px}
+.restricted{fill:rgba(220,38,38,.10);stroke:rgba(220,38,38,.4);stroke-width:1.2;stroke-dasharray:7 5}
+
+.route-dim{fill:none;stroke:rgba(96,165,250,.14);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:stroke .3s ease}
+.route-done{fill:none;stroke:#22d3ee;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(34,211,238,.5))}
+.route-left{fill:none;stroke:#60a5fa;stroke-width:2.4;stroke-dasharray:8 7;stroke-linecap:round;stroke-linejoin:round;
+  animation:dashMove 1.8s linear infinite}
+@keyframes dashMove{to{stroke-dashoffset:-30}}
+
+.node-start{fill:#22c55e;stroke:#0b1220;stroke-width:1.5}
+.node-end{fill:#f59e0b;stroke:#0b1220;stroke-width:1.5}
+
+.robot{cursor:pointer}
+.robot .zone{fill:none;stroke:rgba(96,165,250,.14);stroke-width:1;transition:stroke .3s ease,fill .3s ease}
+.robot .body{fill:#3b82f6;stroke:#0b1220;stroke-width:1.2;transition:fill .25s ease}
+.robot .nose{fill:#dbeafe}
+.robot.is-idle .body{fill:#64748b}
+.robot.is-idle .nose{fill:#cbd5e1}
+.robot.is-charging .body{fill:#22c55e}
+.robot.is-charging .nose{fill:#dcfce7}
+.robot.is-offline .body{fill:#3c4a5e}
+.robot.is-offline .nose{fill:#7c8ba1}
+.robot.is-offline{opacity:.6}
+.robot.is-warning .body{fill:#f59e0b}
+.robot.is-warning .nose{fill:#fff3d6}
+.robot.is-warning .zone{stroke:rgba(245,158,11,.85);fill:rgba(245,158,11,.10);animation:pulseZone 1.8s ease-in-out infinite}
+.robot.is-collision .body{fill:#ef4444}
+.robot.is-collision .nose{fill:#ffe0e0}
+.robot.is-collision .zone{stroke:rgba(239,68,68,.95);fill:rgba(239,68,68,.13);animation:pulseZone 1.2s ease-in-out infinite}
+.robot.is-selected .zone{stroke:rgba(96,165,250,.8);stroke-width:1.8;stroke-dasharray:5 4}
+.robot.is-selected .body{stroke:#ffffff;stroke-width:1.6}
+@keyframes pulseZone{0%,100%{opacity:.5}50%{opacity:1}}
+.robot-label{font-size:10px;font-weight:800;fill:#dbeafe;letter-spacing:.4px;pointer-events:none;paint-order:stroke;stroke:#0b1220;stroke-width:3px;stroke-linejoin:round}
+.robot.is-selected .robot-label{fill:#ffffff}
+
+.alert-line{stroke:rgba(239,68,68,.9);stroke-width:1.6;stroke-dasharray:4 4;animation:dashMove 1s linear infinite}
+.alert-text{font-size:11px;font-weight:800;fill:#fecaca;letter-spacing:.5px;paint-order:stroke;stroke:#0b1220;stroke-width:3.5px;stroke-linejoin:round}
+
+/* =========================================================
+   Detail panel
+   ========================================================= */
+.detail-body{
+  padding:18px 18px 20px;
+  display:flex;flex-direction:column;gap:18px;
+  overflow-y:auto;flex:1;
+}
+.detail-id{display:flex;align-items:center;gap:12px}
+.robot-avatar{
+  width:40px;height:40px;border-radius:11px;
+  background:var(--primary-soft);color:var(--primary);
+  display:grid;place-items:center;font-weight:800;font-size:12.5px;font-family:var(--mono);
+  flex:0 0 40px;
+}
+.detail-name{font-size:15px;font-weight:700;letter-spacing:-.2px;font-family:var(--mono);line-height:1.15}
+.detail-sub{font-size:12px;color:var(--text-3);font-weight:500;margin-top:2px}
+
+.meter{display:flex;flex-direction:column;gap:7px}
+.meter-head{display:flex;align-items:baseline;justify-content:space-between}
+.meter-head .k{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px}
+.meter-head .v{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.bar{height:6px;border-radius:99px;background:#eef1f7;overflow:hidden;position:relative}
+.bar > i{
+  display:block;height:100%;border-radius:99px;background:var(--primary);
+  transition:width .5s cubic-bezier(.22,.9,.3,1),background .3s ease;
+}
+.bar.batt > i{background:var(--green)}
+.bar.batt[data-level="mid"] > i{background:var(--amber)}
+.bar.batt[data-level="low"] > i{background:var(--red)}
+
+.dl{display:flex;flex-direction:column;gap:0}
+.dl .row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-size:12.5px;padding:11px 0;border-bottom:1px solid #f1f5fa;
+}
+.dl .row:last-child{border-bottom:none}
+.dl .row .k{color:var(--text-3);font-weight:600}
+.dl .row .v{
+  font-weight:700;color:var(--text);text-align:right;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:62%;
+  font-variant-numeric:tabular-nums;
+}
+
+/* =========================================================
+   Fleet panel
+   ========================================================= */
+.fleet-panel{max-height:520px}
+.fleet-filters{
+  padding:11px 12px;display:flex;flex-direction:column;gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.search-wrap{position:relative}
+.search-wrap svg{
+  position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;stroke:var(--text-3);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+}
+.search-wrap input{
+  width:100%;height:34px;border-radius:9px;
+  border:1px solid var(--border);background:var(--panel-2);
+  padding:0 12px 0 32px;font-size:12.5px;outline:none;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+}
+.search-wrap input::placeholder{color:var(--text-3)}
+.search-wrap input:focus{background:#fff;border-color:#bfd4ff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.filter-row select{
+  height:30px;border-radius:8px;
+  border:1px solid var(--border);background:var(--panel-2);
+  font-size:12px;font-weight:500;padding:0 22px 0 9px;outline:none;cursor:pointer;
+  transition:border-color .15s ease,background .15s ease;
+  appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b99b1' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;background-position:right 7px center;
+}
+.filter-row select:focus{border-color:#bfd4ff;box-shadow:0 0 0 3px rgba(37,99,235,.12);background:#fff}
+
+.robot-list{
+  overflow-y:auto;padding:9px;
+  display:flex;flex-direction:column;gap:6px;
+  flex:1;min-height:0;scrollbar-width:thin;
+}
+.robot-list::-webkit-scrollbar{width:8px}
+.robot-list::-webkit-scrollbar-thumb{
+  background:rgba(140,155,180,.25);border-radius:99px;
+  border:2px solid transparent;background-clip:padding-box;
+}
+.robot-list::-webkit-scrollbar-thumb:hover{background:rgba(140,155,180,.45);background-clip:padding-box;border:2px solid transparent}
+
+.robot-row{
+  width:100%;text-align:left;background:var(--panel);
+  border:1px solid var(--border);border-radius:10px;
+  padding:10px 11px;cursor:pointer;position:relative;
+  display:flex;flex-direction:column;gap:5px;
+  transition:border-color .15s ease,background .15s ease,transform .12s ease,box-shadow .15s ease;
+  animation:fadeUp .3s ease both;animation-delay:var(--d,0ms);
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.robot-row:hover{background:var(--panel-2);border-color:var(--border-2);transform:translateY(-1px);box-shadow:var(--shadow-1)}
+.robot-row:active{transform:translateY(0)}
+.robot-row:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.robot-row.is-selected{
+  border-color:#a9c6ff;background:#f4f8ff;
+  box-shadow:0 0 0 3px rgba(37,99,235,.10);
+}
+.robot-row.is-selected::before{
+  content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;
+  border-radius:0 3px 3px 0;background:var(--primary);
+}
+.rr-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rr-id{font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:-.2px}
+.rr-meta{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-2);flex-wrap:wrap}
+.rr-batt{font-weight:700;font-variant-numeric:tabular-nums}
+.rr-task{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;
+  color:var(--text-3);
+}
+
+/* =========================================================
+   Badges
+   ========================================================= */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:99px;
+  font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;
+  background:#eef1f7;color:var(--slate);white-space:nowrap;
+  transition:background .25s ease,color .25s ease;
+}
+.badge i{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+.badge.is-active{background:var(--primary-soft);color:var(--primary)}
+.badge.is-idle{background:#eef1f7;color:var(--slate)}
+.badge.is-charging{background:var(--green-soft);color:#0f7a37}
+.badge.is-offline{background:#eceff4;color:#7b8798}
+.badge.is-maintenance{background:rgba(124,58,237,.12);color:var(--violet)}
+.badge.is-warning{background:var(--amber-soft);color:#a35c00}
+.badge.is-collision{background:var(--red-soft);color:var(--red)}
+.badge.is-collision i,
+.badge.is-warning i{animation:blink 1.2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* =========================================================
+   Current Task panel
+   ========================================================= */
+.task-body{padding:16px;display:flex;flex-direction:column;gap:16px;flex:1}
+.task-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.task-order{font-size:14.5px;font-weight:700;letter-spacing:-.2px;font-family:var(--mono)}
+.task-route{font-size:12px;color:var(--text-2);font-weight:600;margin-top:3px}
+.task-progress{display:flex;align-items:center;gap:10px;min-width:180px;flex:1;max-width:340px}
+.task-progress .bar{height:7px}
+.task-progress .pct{
+  font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums;
+  letter-spacing:-.3px;min-width:40px;text-align:right;
+}
+
+.pipeline{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:10px}
+.step .bullet-col{display:flex;flex-direction:column;align-items:center;flex:0 0 18px}
+.step .bullet{
+  width:18px;height:18px;border-radius:50%;
+  display:grid;place-items:center;flex:0 0 18px;
+  border:2px solid var(--border-2);background:#fff;color:var(--text-3);
+  font-size:9.5px;font-weight:800;
+  transition:all .25s ease;
+}
+.step .bullet svg{width:10px;height:10px;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.step .line{
+  width:2px;flex:1;min-height:12px;background:var(--border);
+  margin:2px 0;border-radius:2px;transition:background .25s ease;
+}
+.step:last-child .line{display:none}
+.step .step-label{
+  padding-bottom:12px;font-size:12.5px;font-weight:600;
+  color:var(--text-3);transition:color .25s ease;line-height:1.3;
+}
+.step.is-done .bullet{background:var(--green);border-color:var(--green);color:#fff}
+.step.is-done .line{background:#b7e6c8}
+.step.is-done .step-label{color:var(--text-2)}
+.step.is-current .bullet{
+  background:var(--primary);border-color:var(--primary);color:#fff;
+  box-shadow:0 0 0 4px rgba(37,99,235,.14);
+}
+.step.is-current .step-label{color:var(--text);font-weight:700}
+
+/* =========================================================
+   Activity panel
+   ========================================================= */
+.activity-panel{grid-column:auto}
+.activity-list{
+  max-height:260px;overflow-y:auto;
+  padding:6px 16px 14px;
+  display:flex;flex-direction:column;gap:0;
+  scrollbar-width:thin;
+}
+.activity-list::-webkit-scrollbar{width:8px}
+.activity-list::-webkit-scrollbar-thumb{
+  background:rgba(140,155,180,.25);border-radius:99px;
+  border:2px solid transparent;background-clip:padding-box;
+}
+.act{
+  display:flex;gap:10px;padding:10px 0;
+  animation:slideIn .3s cubic-bezier(.22,.9,.3,1) both;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:none}}
+.act + .act{border-top:1px solid #f1f5fa}
+.act .ico{
+  width:24px;height:24px;border-radius:7px;
+  display:grid;place-items:center;flex:0 0 24px;
+}
+.act .ico svg{width:12px;height:12px;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.act[data-tone="ok"] .ico{background:var(--green-soft)}
+.act[data-tone="ok"] .ico svg{stroke:var(--green)}
+.act[data-tone="info"] .ico{background:var(--primary-soft)}
+.act[data-tone="info"] .ico svg{stroke:var(--primary)}
+.act[data-tone="warn"] .ico{background:var(--amber-soft)}
+.act[data-tone="warn"] .ico svg{stroke:var(--amber)}
+.act[data-tone="bad"] .ico{background:var(--red-soft)}
+.act[data-tone="bad"] .ico svg{stroke:var(--red)}
+.act .txt{font-size:12px;font-weight:600;color:var(--text);line-height:1.35}
+.act .time{font-size:10.5px;color:var(--text-3);font-weight:500;margin-top:2px}
+
+/* =========================================================
+   Toasts
+   ========================================================= */
+.toasts{
+  position:fixed;right:18px;bottom:18px;
+  display:flex;flex-direction:column;gap:9px;
+  z-index:100;max-width:340px;
+}
+.toast{
+  display:flex;gap:11px;align-items:flex-start;
+  padding:12px 13px;border-radius:12px;
+  background:#fff;border:1px solid var(--border);
+  box-shadow:0 12px 32px -16px rgba(15,26,43,.45);
+  animation:toastIn .3s cubic-bezier(.22,.9,.3,1) both;
+}
+.toast.is-out{animation:toastOut .25s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(4px) scale(.98)}}
+.toast .ico{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:0 0 26px}
+.toast .ico svg{width:14px;height:14px;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.toast[data-tone="bad"]{border-color:#f6cfcf}
+.toast[data-tone="bad"] .ico{background:var(--red-soft)}
+.toast[data-tone="bad"] .ico svg{stroke:var(--red)}
+.toast[data-tone="warn"]{border-color:#f6ddb7}
+.toast[data-tone="warn"] .ico{background:var(--amber-soft)}
+.toast[data-tone="warn"] .ico svg{stroke:var(--amber)}
+.toast[data-tone="ok"] .ico{background:var(--green-soft)}
+.toast[data-tone="ok"] .ico svg{stroke:var(--green)}
+.toast[data-tone="info"] .ico{background:var(--primary-soft)}
+.toast[data-tone="info"] .ico svg{stroke:var(--primary)}
+.toast .t-title{font-size:12.5px;font-weight:800;letter-spacing:-.1px}
+.toast .t-msg{font-size:12px;color:var(--text-2);margin-top:2px;line-height:1.4}
+
+/* =========================================================
+   Expanded map mode
+   ========================================================= */
+body.map-expanded .workspace{
+  grid-template-columns:1fr;
+  grid-template-areas:"map";
+}
+body.map-expanded .detail-panel,
+body.map-expanded .fleet-panel,
+body.map-expanded .task-panel,
+body.map-expanded .activity-panel{display:none;}
+body.map-expanded .map-panel{
+  max-width:min(92vw, 820px);
+  margin:0 auto;width:100%;
+  box-shadow:var(--shadow-2);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width:1280px){
+  .workspace{
+    grid-template-columns:minmax(0, 520px) minmax(0, 1fr);
+  }
+}
+@media (max-width:1080px){
+  .workspace{
+    grid-template-columns:minmax(0, 1fr);
+    grid-template-areas:
+      "map"
+      "details"
+      "fleet"
+      "task";
+  }
+  .map-panel{max-width:620px;}
+  .fleet-panel{max-height:none;}
+}
+@media (max-width:1000px){
+  .sidebar{display:none;}
+  .page{padding:16px 18px 24px;}
+}
+@media (max-width:640px){
+  .page-head h1{font-size:18px;}
+  .head-actions .lbl{display:none;}
+  .head-actions .btn{padding:0 10px;}
+  .map-legend{display:none;}
+  .map-hint{display:none;}
+  .map-sim-controls{top:10px;left:10px;}
+  .toasts{left:14px;right:14px;max-width:none;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ===================== SIDEBAR (redesigned) ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">📦</div>
+      <div class="brand-text">IronNest</div>
+    </div>
+
+    <nav class="nav" aria-label="Main">
+      <div class="nav-section">Operations</div>
+
+      <a class="nav-item" href="#">
+        <span class="nav-emoji">📊</span>
+        Dashboard
+      </a>
+
+      <a class="nav-item" href="#">
+        <span class="nav-emoji">🤖</span>
+        Robots
+        <span class="nav-badge">2</span>
+      </a>
+
+      <a class="nav-item is-active" href="#" aria-current="page">
+        <span class="nav-emoji">📈</span>
+        Forecasting
+      </a>
+
+      <div class="nav-section">Data</div>
+
+      <a class="nav-item" href="#">
+        <span class="nav-emoji">📁</span>
+        Upload Dataset
+      </a>
+    </nav>
+
+    <div class="sidebar-foot"><span class="dot"></span>All systems operational</div>
+  </aside>
+
+  <div class="main">
+    <!-- ============ TOPBAR — completely blank ============ -->
+    <header class="topbar" aria-hidden="true"></header>
+
+    <main class="page">
+
+      <!-- ===================== PAGE HEADER ===================== -->
+      <div class="page-head">
+        <div>
+          <h1>Robot Fleet</h1>
+          <p class="sub">Monitor, manage and optimize autonomous warehouse robots</p>
+        </div>
+        <div class="head-actions">
+          <span class="live-pill"><span class="live-dot" aria-hidden="true"></span>Live</span>
+          <button class="btn" id="btnRefresh" aria-label="Refresh data">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
+            <span class="lbl">Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ===================== WORKSPACE ===================== -->
+      <section class="workspace">
+
+        <!-- ---------- MAP ---------- -->
+        <div class="panel map-panel">
+          <div class="map-head">
+            <div class="map-head-left">
+              <h2>Warehouse Floor</h2>
+              <span class="map-live"><span class="live-dot" aria-hidden="true"></span>Live</span>
+            </div>
+            <div class="map-toolbar" role="toolbar" aria-label="Map controls">
+              <button class="map-tool-btn" id="btnZoomOut" aria-label="Zoom out">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+              </button>
+              <span class="zoom-label" id="zoomLabel" aria-live="polite">100%</span>
+              <button class="map-tool-btn" id="btnZoomIn" aria-label="Zoom in">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+              <span class="divider" aria-hidden="true"></span>
+              <button class="map-tool-btn" id="btnResetView" aria-label="Reset view">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4M3 4v5h5"/></svg>
+              </button>
+              <button class="map-expand-btn" id="btnExpand" aria-label="Expand map">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+                <span id="expandLabel">Expand</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="map-stage" id="mapStage">
+            <svg id="mapSvg" viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Warehouse floor map">
+              <defs>
+                <pattern id="gridPat" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M20 0H0V20" fill="none" stroke="rgba(148,178,214,.05)" stroke-width="1"/>
+                </pattern>
+                <marker id="arrowSel" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+                  <path d="M0 0 L10 5 L0 10 z" fill="#60a5fa"/>
+                </marker>
+              </defs>
+              <rect x="-2000" y="-2000" width="5200" height="5200" fill="#0f1a29"/>
+              <g id="viewport">
+                <rect x="-2000" y="-2000" width="5200" height="5200" fill="url(#gridPat)"/>
+                <g id="layerZones"></g>
+                <g id="layerRacks"></g>
+                <g id="layerWalls"></g>
+                <g id="layerRoutes"></g>
+                <g id="layerNodes"></g>
+                <g id="layerRobots"></g>
+                <g id="layerOverlay"></g>
+              </g>
+            </svg>
+
+            <div class="map-float map-sim-controls" role="group" aria-label="Simulation controls">
+              <button class="sim-btn is-active" id="btnPlay" aria-label="Start simulation" title="Start">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8V4z"/></svg>
+              </button>
+              <button class="sim-btn" id="btnPause" aria-label="Pause simulation" title="Pause">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+              </button>
+              <button class="sim-btn" id="btnReset" aria-label="Reset simulation" title="Reset">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4M3 4v5h5"/></svg>
+              </button>
+            </div>
+
+            <div class="map-float map-legend" aria-hidden="true">
+              <span><i style="background:#22d3ee"></i>Completed</span>
+              <span><i style="background:#60a5fa"></i>Planned</span>
+              <span><i style="background:#22c55e;border-radius:50%"></i>Start</span>
+              <span><i style="background:#f59e0b;border-radius:50%"></i>Destination</span>
+              <span><i style="background:#ef4444;border-radius:50%"></i>Collision</span>
+            </div>
+
+            <div class="map-float map-hint" aria-hidden="true">Drag · Scroll to zoom</div>
+          </div>
+        </div>
+
+        <!-- ---------- ROBOT DETAILS ---------- -->
+        <div class="panel detail-panel">
+          <div class="panel-head">
+            <h2>Robot Details</h2>
+            <span class="badge" id="dStatus"><i></i>—</span>
+          </div>
+          <div class="detail-body">
+            <div class="detail-id">
+              <div class="robot-avatar" id="dAvatar" aria-hidden="true">—</div>
+              <div style="min-width:0">
+                <div class="detail-name" id="dName">—</div>
+                <div class="detail-sub" id="dSub">—</div>
+              </div>
+            </div>
+
+            <div class="meter">
+              <div class="meter-head"><span class="k">Battery</span><span class="v" id="dBatt">—</span></div>
+              <span class="bar batt" id="dBattBar" data-level="high"><i style="width:0%"></i></span>
+            </div>
+
+            <div class="meter">
+              <div class="meter-head"><span class="k">Task Progress</span><span class="v" id="dProg">—</span></div>
+              <span class="bar"><i id="dProgBar" style="width:0%"></i></span>
+            </div>
+
+            <div class="dl">
+              <div class="row"><span class="k">Current Task</span><span class="v" id="dTask">—</span></div>
+              <div class="row"><span class="k">Current Location</span><span class="v" id="dLoc">—</span></div>
+              <div class="row"><span class="k">Destination</span><span class="v" id="dDest">—</span></div>
+              <div class="row"><span class="k">Speed</span><span class="v" id="dSpeed">0.0 m/s</span></div>
+              <div class="row"><span class="k">Connection</span><span class="v" id="dConn">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- FLEET ---------- -->
+        <div class="panel fleet-panel">
+          <div class="panel-head">
+            <h2>Fleet</h2>
+            <span class="muted" id="fleetCount">—</span>
+          </div>
+          <div class="fleet-filters">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="searchInput" type="search" placeholder="Search robots…" autocomplete="off" aria-label="Search robots" />
+            </div>
+            <div class="filter-row">
+              <select id="statusFilter" aria-label="Filter by status">
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="idle">Idle</option>
+                <option value="charging">Charging</option>
+                <option value="offline">Offline</option>
+                <option value="alert">Alert</option>
+              </select>
+              <select id="sortSelect" aria-label="Sort robots">
+                <option value="id">ID</option>
+                <option value="battery-asc">Batt ↑</option>
+                <option value="battery-desc">Batt ↓</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
+          </div>
+          <div class="robot-list" id="robotList" role="listbox" aria-label="Robot fleet"></div>
+        </div>
+
+        <!-- ---------- CURRENT TASK ---------- -->
+        <div class="panel task-panel">
+          <div class="panel-head">
+            <h2>Current Task</h2>
+            <span class="muted" id="taskRobot">—</span>
+          </div>
+          <div class="task-body">
+            <div class="task-head">
+              <div style="min-width:0">
+                <div class="task-order" id="taskOrder">—</div>
+                <div class="task-route" id="taskRoute">No active task</div>
+              </div>
+              <div class="task-progress">
+                <span class="bar"><i id="taskBar" style="width:0%"></i></span>
+                <span class="pct" id="taskPct">0%</span>
+              </div>
+            </div>
+            <div class="pipeline" id="pipeline"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ACTIVITY ===================== -->
+      <section class="panel activity-panel">
+        <div class="panel-head">
+          <h2>Live Activity</h2>
+          <span class="muted" id="activityCount">0 events</span>
+        </div>
+        <div class="activity-list" id="activityList" aria-live="polite"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+/* =========================================================================
+   IronNest — Robot Fleet
+   Single source of truth: UI.selected (a Robot instance).
+   ========================================================================= */
+(function () {
+  "use strict";
+
+  const CONFIG = {
+    METERS_PER_UNIT: 0.1,
+    SAFE_DISTANCE: 2.0,
+    WARNING_DISTANCE: 1.5,
+    COLLISION_DISTANCE: 0.8,
+    ROBOT_RADIUS: 0.5,
+    CELL: 5,
+    INFLATE: 10,
+    LANE_OFFSET: 9,
+    TURN_RATE: 3.6,
+    DRAIN_MOVING: 0.09,
+    DRAIN_IDLE: 0.012,
+    CHARGE_RATE: 1.6,
+    LOOKAHEAD: 16,
+    DEADLOCK_AFTER: 2.6
+  };
+  const U = (m) => m / CONFIG.METERS_PER_UNIT;
+  let SAFE_U = U(CONFIG.SAFE_DISTANCE);
+  let WARN_U = U(CONFIG.WARNING_DISTANCE);
+  let COL_U  = U(CONFIG.COLLISION_DISTANCE);
+  const ROBOT_R_U = U(CONFIG.ROBOT_RADIUS);
+  const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const dist2 = (ax, ay, bx, by) => { const dx = ax - bx, dy = ay - by; return dx * dx + dy * dy; };
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+  const $ = (sel) => document.querySelector(sel);
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const normalizeAngle = (a) => {
+    while (a > Math.PI) a -= Math.PI * 2;
+    while (a < -Math.PI) a += Math.PI * 2;
+    return a;
+  };
+
+  /* WAREHOUSE */
+  const MAP_W = 1200;
+  const MAP_H = 1200;
+
+  const WALLS = [
+    { x: 16,  y: 16,  w: 1168, h: 16 },
+    { x: 16,  y: 1168, w: 1168, h: 16 },
+    { x: 16,  y: 16,  w: 16,  h: 1168 },
+    { x: 1168, y: 16, w: 16,  h: 1168 }
+  ];
+
+  const RACK_COLS = [90, 260, 430, 600];
+  const RACK_ROWS = [130, 290, 450, 610, 770];
+  const RACK_W = 110, RACK_H = 90;
+  const RACK_ROW_NAMES = ["A", "B", "C", "D", "E"];
+
+  const RACKS = [];
+  RACK_ROWS.forEach((ry, ri) => {
+    RACK_COLS.forEach((rx, ci) => {
+      RACKS.push({ x: rx, y: ry, w: RACK_W, h: RACK_H, label: RACK_ROW_NAMES[ri] + (ci + 1) });
+    });
+  });
+
+  const RESTRICTED = { x: 790, y: 40, w: 370, h: 80 };
+  const OBSTACLES = WALLS.concat(RACKS, [RESTRICTED]);
+
+  const ZONES = [
+    { x: 40,  y: 40,   w: 340, h: 90,  label: "Receiving",    fill: "rgba(56,189,248,.06)",  stroke: "rgba(56,189,248,.28)" },
+    { x: 790, y: 130,  w: 370, h: 280, label: "Packing Zone", fill: "rgba(37,99,235,.10)",   stroke: "rgba(96,165,250,.30)" },
+    { x: 790, y: 620,  w: 370, h: 180, label: "Charging Bay", fill: "rgba(22,163,74,.09)",   stroke: "rgba(34,197,94,.30)" },
+    { x: 40,  y: 1050, w: 700, h: 90,  label: "Loading Dock", fill: "rgba(148,163,184,.07)", stroke: "rgba(148,163,184,.26)" }
+  ];
+
+  const PADS = [
+    { x: 870, y: 190, label: "P1" }, { x: 1010, y: 190, label: "P2" },
+    { x: 870, y: 330, label: "P3" }, { x: 1010, y: 330, label: "P4" },
+    { x: 830, y: 670, label: "D1" }, { x: 960, y: 670, label: "D2" }, { x: 1090, y: 670, label: "D3" },
+    { x: 830, y: 750, label: "D4" }, { x: 960, y: 750, label: "D5" }, { x: 1090, y: 750, label: "D6" }
+  ];
+
+  const RACK_FACES = [];
+  RACK_ROW_NAMES.forEach((rowName, ri) => {
+    const aisleY = [255, 415, 575, 735, 895][ri];
+    RACK_COLS.forEach((rx, ci) => {
+      RACK_FACES.push({ x: rx + RACK_W / 2, y: aisleY, label: "Aisle " + rowName + "-" + (ci + 1) });
+    });
+  });
+
+  const PACKING_SPOTS = [
+    { x: 870, y: 190, label: "Packing Zone P1" },
+    { x: 1010, y: 190, label: "Packing Zone P2" },
+    { x: 870, y: 330, label: "Packing Zone P3" },
+    { x: 1010, y: 330, label: "Packing Zone P4" }
+  ];
+  const CHARGE_DOCKS = [
+    { x: 830, y: 670, label: "Charging Dock 1" },
+    { x: 960, y: 670, label: "Charging Dock 2" },
+    { x: 1090, y: 670, label: "Charging Dock 3" },
+    { x: 830, y: 750, label: "Charging Dock 4" },
+    { x: 960, y: 750, label: "Charging Dock 5" },
+    { x: 1090, y: 750, label: "Charging Dock 6" }
+  ];
+  const RECEIVE_SPOTS = [
+    { x: 120, y: 85, label: "Receiving Bay A" },
+    { x: 240, y: 85, label: "Receiving Bay B" },
+    { x: 350, y: 85, label: "Receiving Bay C" }
+  ];
+
+  const SPOT_INDEX = RACK_FACES.concat(PACKING_SPOTS, CHARGE_DOCKS, RECEIVE_SPOTS, [
+    { x: 60, y: 250, label: "West Corridor" },
+    { x: 60, y: 500, label: "West Corridor" },
+    { x: 60, y: 750, label: "West Corridor" },
+    { x: 750, y: 300, label: "East Corridor" },
+    { x: 750, y: 500, label: "East Corridor" },
+    { x: 750, y: 800, label: "East Corridor" },
+    { x: 210, y: 255, label: "Cross Aisle 1" },
+    { x: 380, y: 415, label: "Cross Aisle 2" },
+    { x: 550, y: 575, label: "Cross Aisle 3" },
+    { x: 210, y: 735, label: "Cross Aisle 4" },
+    { x: 380, y: 895, label: "Cross Aisle 5" },
+    { x: 400, y: 85,  label: "Receiving Lane" },
+    { x: 350, y: 1095, label: "Loading Dock" }
+  ]);
+
+  /* NAV GRID + A* */
+  const CELL = CONFIG.CELL;
+  const COLS = Math.round(MAP_W / CELL);
+  const ROWS = Math.round(MAP_H / CELL);
+  const grid = new Uint8Array(COLS * ROWS);
+
+  function buildGrid() {
+    grid.fill(0);
+    const inf = CONFIG.INFLATE;
+    for (const o of OBSTACLES) {
+      const c0 = clamp(Math.floor((o.x - inf) / CELL), 0, COLS - 1);
+      const c1 = clamp(Math.ceil((o.x + o.w + inf) / CELL), 0, COLS - 1);
+      const r0 = clamp(Math.floor((o.y - inf) / CELL), 0, ROWS - 1);
+      const r1 = clamp(Math.ceil((o.y + o.h + inf) / CELL), 0, ROWS - 1);
+      for (let r = r0; r <= r1; r++) {
+        const base = r * COLS;
+        for (let c = c0; c <= c1; c++) grid[base + c] = 1;
+      }
+    }
+  }
+
+  const toCol = (x) => clamp(Math.floor(x / CELL), 0, COLS - 1);
+  const toRow = (y) => clamp(Math.floor(y / CELL), 0, ROWS - 1);
+  const idxOf = (x, y) => toRow(y) * COLS + toCol(x);
+  const cxOf = (i) => (i % COLS) * CELL + CELL / 2;
+  const cyOf = (i) => ((i / COLS) | 0) * CELL + CELL / 2;
+
+  class MinHeap {
+    constructor() { this.a = []; }
+    get size() { return this.a.length; }
+    push(id, f) {
+      const a = this.a; a.push({ id, f });
+      let i = a.length - 1;
+      while (i > 0) {
+        const p = (i - 1) >> 1;
+        if (a[p].f <= a[i].f) break;
+        const t = a[p]; a[p] = a[i]; a[i] = t; i = p;
+      }
+    }
+    pop() {
+      const a = this.a;
+      if (!a.length) return -1;
+      const top = a[0];
+      const last = a.pop();
+      if (a.length) {
+        a[0] = last;
+        let i = 0;
+        for (;;) {
+          const l = i * 2 + 1, r = l + 1;
+          let m = i;
+          if (l < a.length && a[l].f < a[m].f) m = l;
+          if (r < a.length && a[r].f < a[m].f) m = r;
+          if (m === i) break;
+          const t = a[m]; a[m] = a[i]; a[i] = t; i = m;
+        }
+      }
+      return top.id;
+    }
+  }
+
+  const gScore = new Float32Array(COLS * ROWS);
+  const fScore = new Float32Array(COLS * ROWS);
+  const cameFrom = new Int32Array(COLS * ROWS);
+  const openStamp = new Int32Array(COLS * ROWS);
+  const closedStamp = new Int32Array(COLS * ROWS);
+  let stamp = 0;
+
+  const DX = [1, -1, 0, 0, 1, 1, -1, -1];
+  const DY = [0, 0, 1, -1, 1, -1, 1, -1];
+
+  function heuristic(a, b) {
+    const ax = a % COLS, ay = (a / COLS) | 0;
+    const bx = b % COLS, by = (b / COLS) | 0;
+    const dx = Math.abs(ax - bx), dy = Math.abs(ay - by);
+    return (dx + dy) + (Math.SQRT2 - 2) * Math.min(dx, dy);
+  }
+
+  function nearestFree(idx, maxR) {
+    maxR = maxR || 14;
+    if (!grid[idx]) return idx;
+    const c0 = idx % COLS, r0 = (idx / COLS) | 0;
+    for (let rad = 1; rad <= maxR; rad++) {
+      for (let dr = -rad; dr <= rad; dr++) {
+        for (let dc = -rad; dc <= rad; dc++) {
+          if (Math.abs(dr) !== rad && Math.abs(dc) !== rad) continue;
+          const c = c0 + dc, r = r0 + dr;
+          if (c < 0 || r < 0 || c >= COLS || r >= ROWS) continue;
+          const i = r * COLS + c;
+          if (!grid[i]) return i;
+        }
+      }
+    }
+    return idx;
+  }
+
+  function blockCircle(x, y, r) {
+    const c0 = clamp(Math.floor((x - r) / CELL), 0, COLS - 1);
+    const c1 = clamp(Math.ceil((x + r) / CELL), 0, COLS - 1);
+    const r0 = clamp(Math.floor((y - r) / CELL), 0, ROWS - 1);
+    const r1 = clamp(Math.ceil((y + r) / CELL), 0, ROWS - 1);
+    const r2 = r * r;
+    const restored = [];
+    for (let rr = r0; rr <= r1; rr++) {
+      for (let cc = c0; cc <= c1; cc++) {
+        const i = rr * COLS + cc;
+        if (grid[i]) continue;
+        const px = cxOf(i), py = cyOf(i);
+        if (dist2(px, py, x, y) > r2) continue;
+        grid[i] = 1;
+        restored.push(i);
+      }
+    }
+    return restored;
+  }
+
+  function lineClear(c0, r0, c1, r1) {
+    const dx = c1 - c0, dy = r1 - r0;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy)) * 2 || 1;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const c = Math.round(c0 + dx * t);
+      const r = Math.round(r0 + dy * t);
+      if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return false;
+      if (grid[r * COLS + c]) return false;
+    }
+    return true;
+  }
+
+  function astar(sIdx, gIdx) {
+    stamp++;
+    const open = new MinHeap();
+    gScore[sIdx] = 0;
+    fScore[sIdx] = heuristic(sIdx, gIdx);
+    openStamp[sIdx] = stamp;
+    cameFrom[sIdx] = -1;
+    open.push(sIdx, fScore[sIdx]);
+
+    while (open.size) {
+      const cur = open.pop();
+      if (closedStamp[cur] === stamp) continue;
+      closedStamp[cur] = stamp;
+      if (cur === gIdx) {
+        const path = [];
+        let n = cur;
+        while (n !== -1) { path.push(n); n = cameFrom[n]; }
+        path.reverse();
+        return path;
+      }
+      const cc = cur % COLS, cr = (cur / COLS) | 0;
+      for (let d = 0; d < 8; d++) {
+        const nc = cc + DX[d], nr = cr + DY[d];
+        if (nc < 0 || nr < 0 || nc >= COLS || nr >= ROWS) continue;
+        const ni = nr * COLS + nc;
+        if (grid[ni]) continue;
+        if (d >= 4 && (grid[cr * COLS + nc] || grid[nr * COLS + cc])) continue;
+        const ng = gScore[cur] + (d >= 4 ? Math.SQRT2 : 1);
+        if (openStamp[ni] === stamp && ng >= gScore[ni]) continue;
+        openStamp[ni] = stamp;
+        gScore[ni] = ng;
+        cameFrom[ni] = cur;
+        fScore[ni] = ng + heuristic(ni, gIdx);
+        open.push(ni, fScore[ni]);
+      }
+    }
+    return null;
+  }
+
+  function simplifyCells(cells) {
+    if (cells.length <= 2) return cells;
+    const out = [cells[0]];
+    let i = 0;
+    while (i < cells.length - 1) {
+      let j = cells.length - 1;
+      while (j > i + 1) {
+        const a = cells[i], b = cells[j];
+        if (lineClear(a % COLS, (a / COLS) | 0, b % COLS, (b / COLS) | 0)) break;
+        j--;
+      }
+      out.push(cells[j]);
+      i = j;
+    }
+    return out;
+  }
+
+  function planPath(sx, sy, gx, gy, extra) {
+    const restored = [];
+    if (extra) {
+      for (const e of extra) {
+        if (dist2(e.x, e.y, gx, gy) < 30 * 30) continue;
+        restored.push.apply(restored, blockCircle(e.x, e.y, e.r));
+      }
+    }
+    let sIdx = nearestFree(idxOf(sx, sy));
+    let gIdx = nearestFree(idxOf(gx, gy));
+    let cells = (sIdx === gIdx) ? [sIdx] : astar(sIdx, gIdx);
+    for (let i = 0; i < restored.length; i++) grid[restored[i]] = 0;
+    if (!cells) return null;
+    const simplified = simplifyCells(cells);
+    const pts = simplified.map((c) => ({ x: cxOf(c), y: cyOf(c) }));
+    pts[0] = { x: sx, y: sy };
+    pts[pts.length - 1] = { x: gx, y: gy };
+    return pts;
+  }
+
+  function pointBlocked(x, y, pad) {
+    for (let i = 0; i < OBSTACLES.length; i++) {
+      const o = OBSTACLES[i];
+      if (x > o.x - pad && x < o.x + o.w + pad && y > o.y - pad && y < o.y + o.h + pad) return true;
+    }
+    return false;
+  }
+
+  function offsetPath(pts, off) {
+    if (!off || pts.length < 2) return pts;
+    const out = [];
+    for (let i = 0; i < pts.length; i++) {
+      let nx = 0, ny = 0;
+      if (i > 0) {
+        const dx = pts[i].x - pts[i - 1].x, dy = pts[i].y - pts[i - 1].y;
+        const l = Math.hypot(dx, dy) || 1;
+        nx += -dy / l; ny += dx / l;
+      }
+      if (i < pts.length - 1) {
+        const dx = pts[i + 1].x - pts[i].x, dy = pts[i + 1].y - pts[i].y;
+        const l = Math.hypot(dx, dy) || 1;
+        nx += -dy / l; ny += dx / l;
+      }
+      const l = Math.hypot(nx, ny);
+      if (l < 1e-6) { out.push({ x: pts[i].x, y: pts[i].y }); continue; }
+      out.push({ x: pts[i].x + (nx / l) * off, y: pts[i].y + (ny / l) * off });
+    }
+    out[0] = { x: pts[0].x, y: pts[0].y };
+    out[out.length - 1] = { x: pts[pts.length - 1].x, y: pts[pts.length - 1].y };
+    for (let i = 0; i < out.length; i++) if (grid[idxOf(out[i].x, out[i].y)]) return pts;
+    for (let i = 0; i < out.length - 1; i++) {
+      const a = out[i], b = out[i + 1];
+      if (!lineClear(toCol(a.x), toRow(a.y), toCol(b.x), toRow(b.y))) return pts;
+    }
+    return out;
+  }
+
+  /* ROBOT */
+  let ROBOT_SEQ = 0;
+  class Robot {
+    constructor(cfg) {
+      this.id = cfg.id;
+      this.name = cfg.name;
+      this.warehouse = cfg.warehouse || "WH-A";
+      this.status = cfg.status || "idle";
+      this.battery = cfg.battery != null ? cfg.battery : 100;
+      this.baseSpeed = cfg.speed != null ? cfg.speed : 1.2;
+      this.pos = { x: cfg.x, y: cfg.y };
+      this.home = { x: cfg.x, y: cfg.y };
+      this.heading = cfg.heading || 0;
+      this.laneOffset = cfg.laneOffset != null ? cfg.laneOffset : CONFIG.LANE_OFFSET;
+      this.priority = ROBOT_SEQ++;
+
+      this.route = []; this.cumLen = []; this.totalLen = 0;
+      this.segIndex = 0; this.stopPointIdx = []; this.stopIdx = 0;
+      this.task = null;
+
+      this.speedFactor = 1;
+      this.currentSpeed = 0;
+      this.alert = null;
+      this.collisionPartner = null;
+      this.waitTimer = 0;
+      this.replanning = false;
+      this.lastPathBlocked = false;
+
+      this.el = null; this.rotEl = null; this.routeEl = null;
+      this.zoneEl = null; this.labelEl = null; this.rowEl = null;
+      this._cls = "";
+      this._dockLabel = null;
+      this._ui = {};
+    }
+
+    get progress() {
+      if (!this.route.length || this.totalLen <= 0) return 0;
+      if (this.segIndex >= this.route.length - 1) return 1;
+      const a = this.route[this.segIndex];
+      const b = this.route[this.segIndex + 1];
+      const segLen = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      const remaining = dist(this.pos, b);
+      const done = this.cumLen[this.segIndex] + (segLen - remaining);
+      return clamp(done / this.totalLen, 0, 1);
+    }
+
+    get currentLocationLabel() {
+      return this._locLabel || this.spotLabel(this.pos) || "In transit";
+    }
+
+    spotLabel(p) {
+      let best = null, bestD = Infinity;
+      for (const s of SPOT_INDEX) {
+        const d = dist2(p.x, p.y, s.x, s.y);
+        if (d < bestD) { bestD = d; best = s; }
+      }
+      return best && bestD < 55 * 55 ? best.label : null;
+    }
+  }
+
+  /* SIMULATION */
+  const Sim = {
+    robots: [], running: true, time: 0,
+    selected: null,
+    pairState: new Map(),
+    pairLastAt: new Map(),
+
+    init(count) {
+      buildGrid();
+      const spawns = this.spawnPoints();
+      for (let i = 0; i < count; i++) {
+        const sp = spawns[i % spawns.length];
+        const r = new Robot({
+          id: "IR-" + pad2(i + 1),
+          name: "IronBot " + pad2(i + 1),
+          warehouse: i < 12 ? "WH-A" : i < 20 ? "WH-B" : "WH-C",
+          x: sp.x + rand(-5, 5),
+          y: sp.y + rand(-5, 5),
+          heading: rand(0, Math.PI * 2),
+          battery: 0,
+          speed: rand(0.9, 1.6),
+          laneOffset: (i % 2 === 0 ? 1 : -1) * CONFIG.LANE_OFFSET
+        });
+        this.robots.push(r);
+      }
+      this.robots.forEach((r, i) => {
+        if (i === 3) { r.status = "offline"; r.battery = 5; }
+        else if (i === 2) { r.status = "charging"; r.battery = 21; }
+        else if (i >= 21 && i <= 23) { r.status = "idle"; r.battery = rand(55, 92); }
+        else { r.status = "active"; r.battery = rand(28, 98); }
+      });
+      const c1 = this.robots[2];
+      if (c1) {
+        c1.pos = { x: CHARGE_DOCKS[1].x, y: CHARGE_DOCKS[1].y };
+        c1.home = { x: c1.pos.x, y: c1.pos.y };
+        c1._dockLabel = "Charging Dock 2";
+      }
+      const off = this.robots[3];
+      if (off) { off.pos = { x: 60, y: 250 }; off._locLabel = "West Corridor"; }
+    },
+
+    spawnPoints() {
+      const pts = [];
+      const aisleY = [255, 415, 575, 735, 895];
+      for (let row = 0; row < aisleY.length; row++) {
+        for (let c = 0; c < RACK_COLS.length; c++) {
+          pts.push({ x: RACK_COLS[c] + RACK_W / 2, y: aisleY[row] });
+        }
+      }
+      pts.push({ x: 60, y: 200 }, { x: 60, y: 400 }, { x: 60, y: 600 }, { x: 60, y: 800 });
+      pts.push({ x: 210, y: 170 }, { x: 380, y: 170 }, { x: 550, y: 170 });
+      pts.push({ x: 210, y: 415 }, { x: 380, y: 575 }, { x: 750, y: 400 });
+      pts.push({ x: 750, y: 700 }, { x: 400, y: 85 }, { x: 350, y: 1095 });
+      pts.push({ x: 550, y: 255 }, { x: 210, y: 895 });
+      return pts;
+    },
+
+    assignTask(robot, opts) {
+      opts = opts || {};
+      if (opts.type === "charge") {
+        const dock = this.freeDock(robot);
+        robot.task = this.makeTask(robot, "Charging",
+          [{ x: dock.x, y: dock.y, label: dock.label, kind: "charge" }], "CHG");
+        this.buildRoute(robot);
+        robot.status = "active";
+        return;
+      }
+      const isPick = Math.random() < 0.72;
+      const face = pick(RACK_FACES);
+      const packSpot = pick(PACKING_SPOTS);
+      const orderId = String(1000 + ((Math.random() * 8999) | 0));
+      let stops, type;
+      if (isPick) {
+        type = "Picking";
+        stops = [
+          { x: face.x, y: face.y, label: face.label, kind: "pick" },
+          { x: packSpot.x, y: packSpot.y, label: packSpot.label, kind: "drop" }
+        ];
+      } else {
+        type = "Transport";
+        const recv = pick(RECEIVE_SPOTS);
+        stops = [
+          { x: recv.x, y: recv.y, label: recv.label, kind: "pick" },
+          { x: packSpot.x, y: packSpot.y, label: packSpot.label, kind: "drop" }
+        ];
+      }
+      robot.task = this.makeTask(robot, type, stops, orderId);
+      this.buildRoute(robot);
+      robot.status = "active";
+    },
+
+    makeTask(robot, type, stops, orderId) {
+      return { orderId, type, stops, legFractions: [], startedAt: Sim.time, assignedTo: robot.id };
+    },
+
+    freeDock(robot) {
+      const used = new Set();
+      for (const r of this.robots) {
+        if (r === robot) continue;
+        if (r.status === "charging" || (r.task && r.task.type === "Charging")) {
+          let best = null, bd = Infinity;
+          for (const d of CHARGE_DOCKS) {
+            const dd = dist2(r.pos.x, r.pos.y, d.x, d.y);
+            if (dd < bd) { bd = dd; best = d; }
+          }
+          if (best) used.add(best.label);
+        }
+      }
+      const free = CHARGE_DOCKS.filter((d) => !used.has(d.label));
+      const pool = free.length ? free : CHARGE_DOCKS;
+      let best = pool[0], bd = Infinity;
+      for (const d of pool) {
+        const dd = dist2(robot.pos.x, robot.pos.y, d.x, d.y);
+        if (dd < bd) { bd = dd; best = d; }
+      }
+      return best;
+    },
+
+    buildRoute(robot, avoid) {
+      if (!robot.task) return;
+      const stops = robot.task.stops.slice(robot.stopIdx);
+      if (!stops.length) return;
+      let pts = [{ x: robot.pos.x, y: robot.pos.y }];
+      let cur = pts[0];
+      const stopPointIdx = [];
+      for (const stop of stops) {
+        let leg = planPath(cur.x, cur.y, stop.x, stop.y, avoid);
+        if (!leg || leg.length < 2) leg = [{ x: cur.x, y: cur.y }, { x: stop.x, y: stop.y }];
+        leg = offsetPath(leg, robot.laneOffset);
+        for (let i = 1; i < leg.length; i++) pts.push(leg[i]);
+        stopPointIdx.push(pts.length - 1);
+        cur = { x: stop.x, y: stop.y };
+      }
+      const clean = [pts[0]];
+      for (let i = 1; i < pts.length; i++) {
+        const p = pts[i], q = clean[clean.length - 1];
+        if (Math.abs(p.x - q.x) > 0.4 || Math.abs(p.y - q.y) > 0.4) clean.push(p);
+      }
+      const cum = [0];
+      let total = 0;
+      for (let i = 1; i < clean.length; i++) {
+        total += Math.hypot(clean[i].x - clean[i - 1].x, clean[i].y - clean[i - 1].y);
+        cum.push(total);
+      }
+      const remapped = [];
+      let searchFrom = 0;
+      for (const origIdx of stopPointIdx) {
+        const target = pts[origIdx];
+        let found = clean.length - 1;
+        for (let i = searchFrom; i < clean.length; i++) {
+          if (Math.hypot(clean[i].x - target.x, clean[i].y - target.y) < 1.5) { found = i; break; }
+        }
+        remapped.push(found);
+        searchFrom = found;
+      }
+      robot.route = clean;
+      robot.cumLen = cum;
+      robot.totalLen = total || 1;
+      robot.segIndex = 0;
+      robot.stopPointIdx = remapped;
+      if (robot.task) robot.task.legFractions = remapped.map((i) => cum[i] / (total || 1));
+      robot.waitTimer = 0;
+      robot.replanning = false;
+      renderer.syncRoute(robot);
+    },
+
+    replan(robot) {
+      if (!robot.task || robot.replanning) return;
+      robot.replanning = true;
+      const avoid = [];
+      for (const other of this.robots) {
+        if (other === robot) continue;
+        if (other.status === "offline" || other.status === "maintenance") continue;
+        if (dist(robot.pos, other.pos) < 70) avoid.push({ x: other.pos.x, y: other.pos.y, r: 17 });
+      }
+      this.buildRoute(robot, avoid);
+    },
+
+    step(dt) {
+      this.time += dt;
+      for (let i = 0; i < this.robots.length; i++) {
+        const r = this.robots[i];
+        r.speedFactor = 1;
+        r.alert = null;
+        r.collisionPartner = null;
+        r.currentSpeed = 0;
+      }
+      this.detectRobotCollisions();
+      this.detectObstacleConflicts();
+      for (let i = 0; i < this.robots.length; i++) this.updateRobot(this.robots[i], dt);
+    },
+
+    detectRobotCollisions() {
+      const list = [];
+      for (let i = 0; i < this.robots.length; i++) {
+        const r = this.robots[i];
+        if (r.status !== "offline" && r.status !== "maintenance" && r.status !== "charging") {
+          list.push(r);
+        }
+      }
+      const activePairs = new Set();
+
+      for (let i = 0; i < list.length; i++) {
+        const a = list[i];
+        for (let j = i + 1; j < list.length; j++) {
+          const b = list[j];
+          const dx = a.pos.x - b.pos.x;
+          if (dx > WARN_U || dx < -WARN_U) continue;
+          const dy = a.pos.y - b.pos.y;
+          if (dy > WARN_U || dy < -WARN_U) continue;
+          const d2 = dx * dx + dy * dy;
+          const warn2 = WARN_U * WARN_U;
+          if (d2 > warn2) continue;
+
+          const d = Math.sqrt(d2);
+          const key = a.id < b.id ? a.id + "|" + b.id : b.id + "|" + a.id;
+
+          if (d < COL_U) {
+            a.alert = "collision"; b.alert = "collision";
+            a.collisionPartner = b.id; b.collisionPartner = a.id;
+            a.speedFactor = 0; b.speedFactor = 0;
+            a.waitTimer += 0.016; b.waitTimer += 0.016;
+            activePairs.add(key);
+            this.onPairStateChange(key, "collision", a, b, d);
+          } else {
+            if (a.alert !== "collision") a.alert = "warning";
+            if (b.alert !== "collision") b.alert = "warning";
+            a.speedFactor = Math.min(a.speedFactor, 0.5);
+            b.speedFactor = Math.min(b.speedFactor, 0.5);
+            activePairs.add(key);
+            this.onPairStateChange(key, "warning", a, b, d);
+          }
+        }
+      }
+
+      for (const key of Array.from(this.pairState.keys())) {
+        if (!activePairs.has(key)) this.pairState.delete(key);
+      }
+
+      for (let i = 0; i < this.robots.length; i++) {
+        const r = this.robots[i];
+        if (r.alert && r.speedFactor === 0) {
+          if (r.waitTimer > CONFIG.DEADLOCK_AFTER && !r.replanning) {
+            const partner = this.robots.find((x) => x.id === r.collisionPartner);
+            if (partner && r.priority > partner.priority) {
+              this.replan(r);
+              Activity.push("info", r.id + " recalculated route to avoid " + partner.id);
+            }
+          }
+        } else {
+          r.waitTimer = Math.max(0, r.waitTimer - 0.02);
+        }
+      }
+    },
+
+    onPairStateChange(key, state, a, b, d) {
+      const prev = this.pairState.get(key);
+      if (prev === state) return;
+      this.pairState.set(key, state);
+      const now = performance.now();
+      const last = this.pairLastAt.get(key) || 0;
+      if (now - last < 9000) return;
+      this.pairLastAt.set(key, now);
+
+      const metres = (d * CONFIG.METERS_PER_UNIT).toFixed(1);
+      if (state === "collision") {
+        Toast.show("bad", "Collision risk",
+          a.id + " and " + b.id + " — " + metres + " m apart. Both halted.");
+        Activity.push("bad", "⚠ " + a.id + " / " + b.id + " collision risk (" + metres + " m)");
+      } else if (state === "warning" && prev !== "collision") {
+        Activity.push("warn", "⚠ " + a.id + " / " + b.id + " proximity warning");
+      }
+    },
+
+    detectObstacleConflicts() {
+      for (let i = 0; i < this.robots.length; i++) {
+        const r = this.robots[i];
+        if (r.status !== "active" || r.segIndex >= r.route.length - 1) continue;
+        const target = r.route[r.segIndex + 1];
+        const dx = target.x - r.pos.x, dy = target.y - r.pos.y;
+        const l = Math.hypot(dx, dy) || 1;
+        const px = r.pos.x + (dx / l) * CONFIG.LOOKAHEAD;
+        const py = r.pos.y + (dy / l) * CONFIG.LOOKAHEAD;
+
+        if (pointBlocked(px, py, ROBOT_R_U)) {
+          r.alert = "obstacle";
+          r.speedFactor = 0;
+          if (!r.lastPathBlocked) {
+            r.lastPathBlocked = true;
+            Activity.push("warn", "Path blocked — " + r.id);
+            Toast.show("warn", "Path blocked", r.id + " — route recalculation required.");
+            this.replan(r);
+          }
+        } else {
+          r.lastPathBlocked = false;
+        }
+      }
+    },
+
+    updateRobot(r, dt) {
+      if (r.status === "offline" || r.status === "maintenance") { r.currentSpeed = 0; return; }
+
+      if (r.status === "charging") {
+        r.battery = Math.min(100, r.battery + CONFIG.CHARGE_RATE * dt);
+        r.currentSpeed = 0;
+        if (r.battery >= 99.5) {
+          r.status = "idle";
+          Activity.push("ok", r.id + " finished charging");
+          if (r.task && r.task.type === "Charging") r.task = null;
+        }
+        return;
+      }
+
+      if (r.status === "idle") {
+        r.battery = Math.max(0, r.battery - CONFIG.DRAIN_IDLE * dt);
+        r.currentSpeed = 0;
+        return;
+      }
+
+      if (!r.route.length || r.segIndex >= r.route.length - 1) { r.currentSpeed = 0; return; }
+
+      const target = r.baseSpeed * r.speedFactor;
+      r.currentSpeed += (target - r.currentSpeed) * Math.min(1, dt * 6);
+      if (r.currentSpeed < 0.02) r.currentSpeed = 0;
+      if (r.currentSpeed <= 0) {
+        r.battery = Math.max(0, r.battery - CONFIG.DRAIN_IDLE * dt);
+        return;
+      }
+
+      const wp = r.route[r.segIndex + 1];
+      const desired = Math.atan2(wp.y - r.pos.y, wp.x - r.pos.x);
+      const diff = normalizeAngle(desired - r.heading);
+      r.heading += clamp(diff, -CONFIG.TURN_RATE * dt, CONFIG.TURN_RATE * dt);
+
+      let remaining = r.currentSpeed * (1 / CONFIG.METERS_PER_UNIT) * dt;
+      let guard = 0;
+      while (remaining > 0 && r.segIndex < r.route.length - 1 && guard++ < 40) {
+        const t = r.route[r.segIndex + 1];
+        const d = dist(r.pos, t);
+        if (d <= remaining) {
+          r.pos.x = t.x; r.pos.y = t.y;
+          remaining -= d;
+          r.segIndex++;
+          while (r.stopIdx < r.stopPointIdx.length && r.segIndex >= r.stopPointIdx[r.stopIdx]) r.stopIdx++;
+        } else {
+          const k = remaining / d;
+          r.pos.x = lerp(r.pos.x, t.x, k);
+          r.pos.y = lerp(r.pos.y, t.y, k);
+          remaining = 0;
+        }
+      }
+
+      r.battery = Math.max(0, r.battery - CONFIG.DRAIN_MOVING * dt);
+
+      if (r.battery < 12 && r.status === "active" && (!r.task || r.task.type !== "Charging")) {
+        Activity.push("warn", r.id + " battery low — routing to charging");
+        this.assignTask(r, { type: "charge" });
+        return;
+      }
+
+      if (r.segIndex >= r.route.length - 1) this.completeTask(r);
+    },
+
+    completeTask(r) {
+      if (!r.task) { r.status = "idle"; return; }
+      if (r.task.type === "Charging") {
+        r.status = "charging";
+        r._dockLabel = r.task.stops[0].label;
+        Activity.push("ok", r.id + " arrived at " + r.task.stops[0].label);
+        return;
+      }
+      Activity.push("ok", r.id + " completed Order #" + r.task.orderId);
+      this.assignTask(r);
+    },
+
+    applyServerSnapshot(snapshot) {
+      for (const s of snapshot) {
+        const r = this.robots.find((x) => x.id === s.id);
+        if (!r) continue;
+        if (s.status) r.status = s.status;
+        if (typeof s.battery === "number") r.battery = s.battery;
+        if (typeof s.x === "number") r.pos.x = s.x;
+        if (typeof s.y === "number") r.pos.y = s.y;
+        if (typeof s.heading === "number") r.heading = s.heading;
+      }
+    }
+  };
+
+  /* RENDERER */
+  const NS = "http://www.w3.org/2000/svg";
+  const renderer = {
+    svg: null, viewport: null, layers: {},
+    scale: 1, tx: 0, ty: 0,
+    selectedRouteDone: null, selectedRouteLeft: null,
+    startMarker: null, endMarker: null,
+    alertLayer: null, _alertSig: "", _alertNodes: [],
+
+    init() {
+      this.svg = $("#mapSvg");
+      this.viewport = $("#viewport");
+      this.layers.zones = $("#layerZones");
+      this.layers.racks = $("#layerRacks");
+      this.layers.walls = $("#layerWalls");
+      this.layers.routes = $("#layerRoutes");
+      this.layers.nodes = $("#layerNodes");
+      this.layers.robots = $("#layerRobots");
+      this.layers.overlay = $("#layerOverlay");
+
+      this.buildStatic();
+      this.buildSelectedRouteElements();
+      this.buildRobotLayer();
+      this.applyTransform();
+    },
+
+    el(tag, attrs, parent) {
+      const e = document.createElementNS(NS, tag);
+      if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+      if (parent) parent.appendChild(e);
+      return e;
+    },
+
+    buildStatic() {
+      for (const z of ZONES) {
+        this.el("rect", {
+          x: z.x, y: z.y, width: z.w, height: z.h, rx: 8,
+          fill: z.fill, stroke: z.stroke, "stroke-width": 1.2
+        }, this.layers.zones);
+        this.el("text", { x: z.x + 12, y: z.y + 20, class: "zone-label" }, this.layers.zones)
+          .textContent = z.label;
+      }
+      this.el("rect", {
+        x: RESTRICTED.x, y: RESTRICTED.y, width: RESTRICTED.w, height: RESTRICTED.h, rx: 8,
+        class: "restricted"
+      }, this.layers.zones);
+      this.el("text", { x: RESTRICTED.x + 12, y: RESTRICTED.y + 20, class: "zone-label" }, this.layers.zones)
+        .textContent = "Restricted Zone";
+
+      for (const p of PADS) {
+        this.el("rect", { x: p.x - 26, y: p.y - 16, width: 52, height: 32, rx: 6, class: "pad" }, this.layers.zones);
+        this.el("text", { x: p.x, y: p.y + 4, "text-anchor": "middle", class: "pad-label" }, this.layers.zones)
+          .textContent = p.label;
+      }
+
+      for (const r of RACKS) {
+        this.el("rect", { x: r.x, y: r.y, width: r.w, height: r.h, rx: 4, class: "rack" }, this.layers.racks);
+        for (let i = 1; i < 4; i++) {
+          this.el("line", {
+            x1: r.x + 6, y1: r.y + (r.h / 4) * i,
+            x2: r.x + r.w - 6, y2: r.y + (r.h / 4) * i,
+            class: "rack-slot"
+          }, this.layers.racks);
+        }
+        this.el("text", {
+          x: r.x + r.w / 2, y: r.y + r.h / 2 + 4,
+          "text-anchor": "middle", class: "rack-label"
+        }, this.layers.racks).textContent = r.label;
+      }
+
+      for (const w of WALLS) {
+        this.el("rect", { x: w.x, y: w.y, width: w.w, height: w.h, class: "wall" }, this.layers.walls);
+      }
+      this.alertLayer = this.el("g", null, this.layers.overlay);
+    },
+
+    buildSelectedRouteElements() {
+      this.selectedRouteDone = this.el("path", { class: "route-done", d: "" }, this.layers.routes);
+      this.selectedRouteLeft = this.el("path", {
+        class: "route-left", d: "", "marker-mid": "url(#arrowSel)"
+      }, this.layers.routes);
+      this.startMarker = this.el("circle", { r: 6, class: "node-start", cx: -100, cy: -100 }, this.layers.nodes);
+      this.endMarker = this.el("circle", { r: 6, class: "node-end", cx: -100, cy: -100 }, this.layers.nodes);
+    },
+
+    buildRobotLayer() { for (const r of Sim.robots) this.buildRobotLayerFor(r); },
+
+    buildRobotLayerFor(r) {
+      const g = this.el("g", { class: "robot", "data-id": r.id }, this.layers.robots);
+      const zone = this.el("circle", { class: "zone", r: SAFE_U }, g);
+      const rot = this.el("g", null, g);
+      this.el("rect", { class: "body", x: -8, y: -6.5, width: 16, height: 13, rx: 3.5 }, rot);
+      this.el("path", { class: "nose", d: "M8,-4.2 L12.6,0 L8,4.2 Z" }, rot);
+      const label = this.el("text", { class: "robot-label", x: 0, y: -20, "text-anchor": "middle" }, g);
+      label.textContent = r.id;
+      r.el = g; r.rotEl = rot; r.zoneEl = zone; r.labelEl = label;
+      g.addEventListener("click", (ev) => { ev.stopPropagation(); UI.select(r.id); });
+    },
+
+    syncRoute(r) {
+      if (r.routeEl && r.routeEl.parentNode) r.routeEl.parentNode.removeChild(r.routeEl);
+      if (!r.route.length) { r.routeEl = null; return; }
+      let d = "M" + r.route[0].x.toFixed(1) + " " + r.route[0].y.toFixed(1);
+      for (let i = 1; i < r.route.length; i++) {
+        d += " L" + r.route[i].x.toFixed(1) + " " + r.route[i].y.toFixed(1);
+      }
+      r.routeEl = this.el("path", { class: "route-dim", d: d }, this.layers.routes);
+      this.layers.routes.appendChild(this.selectedRouteDone);
+      this.layers.routes.appendChild(this.selectedRouteLeft);
+    },
+
+    applyTransform() {
+      this.viewport.setAttribute(
+        "transform",
+        "translate(" + this.tx.toFixed(2) + " " + this.ty.toFixed(2) + ") scale(" + this.scale.toFixed(4) + ")"
+      );
+      $("#zoomLabel").textContent = Math.round(this.scale * 100) + "%";
+    },
+
+    zoomAt(cx, cy, factor) {
+      const k2 = clamp(this.scale * factor, 0.5, 6);
+      const f = k2 / this.scale;
+      this.tx = cx - (cx - this.tx) * f;
+      this.ty = cy - (cy - this.ty) * f;
+      this.scale = k2;
+      this.applyTransform();
+    },
+
+    resetView() {
+      this.scale = 1; this.tx = 0; this.ty = 0;
+      this.applyTransform();
+    },
+
+    draw(selected) {
+      for (let i = 0; i < Sim.robots.length; i++) {
+        const r = Sim.robots[i];
+        if (!r.el) continue;
+        r.el.setAttribute("transform",
+          "translate(" + r.pos.x.toFixed(1) + " " + r.pos.y.toFixed(1) + ")");
+        r.rotEl.setAttribute("transform", "rotate(" + ((r.heading * 180) / Math.PI).toFixed(1) + ")");
+        const cls = this.robotClass(r, selected);
+        if (cls !== r._cls) { r.el.setAttribute("class", cls); r._cls = cls; }
+      }
+
+      if (selected && selected.route.length > 1 && selected.status !== "offline") {
+        const route = selected.route;
+        const si = selected.segIndex;
+        let done = "M" + route[0].x.toFixed(1) + " " + route[0].y.toFixed(1);
+        for (let i = 1; i <= si; i++) done += " L" + route[i].x.toFixed(1) + " " + route[i].y.toFixed(1);
+        done += " L" + selected.pos.x.toFixed(1) + " " + selected.pos.y.toFixed(1);
+
+        let left = "M" + selected.pos.x.toFixed(1) + " " + selected.pos.y.toFixed(1);
+        for (let i = si + 1; i < route.length; i++) left += " L" + route[i].x.toFixed(1) + " " + route[i].y.toFixed(1);
+
+        this.selectedRouteDone.setAttribute("d", done);
+        this.selectedRouteLeft.setAttribute("d", left);
+
+        const s = route[0], e = route[route.length - 1];
+        this.startMarker.setAttribute("cx", s.x);
+        this.startMarker.setAttribute("cy", s.y);
+        this.endMarker.setAttribute("cx", e.x);
+        this.endMarker.setAttribute("cy", e.y);
+      } else {
+        this.selectedRouteDone.setAttribute("d", "");
+        this.selectedRouteLeft.setAttribute("d", "");
+        this.startMarker.setAttribute("cx", -100);
+        this.startMarker.setAttribute("cy", -100);
+        this.endMarker.setAttribute("cx", -100);
+        this.endMarker.setAttribute("cy", -100);
+      }
+
+      this.drawAlertOverlay();
+    },
+
+    robotClass(r, selected) {
+      let c = "robot";
+      if (r.alert === "collision" || r.alert === "obstacle") c += " is-collision";
+      else if (r.alert === "warning") c += " is-warning";
+      else c += " is-" + r.status;
+      if (selected && selected.id === r.id) c += " is-selected";
+      return c;
+    },
+
+    drawAlertOverlay() {
+      const pairs = [];
+      const seen = new Set();
+      for (const r of Sim.robots) {
+        if (r.alert === "collision" && r.collisionPartner) {
+          const key = r.id < r.collisionPartner ? r.id + r.collisionPartner : r.collisionPartner + r.id;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const other = Sim.robots.find((x) => x.id === r.collisionPartner);
+          if (other) pairs.push([r, other]);
+        }
+      }
+      const sig = pairs.map((p) => p[0].id + p[1].id).join(",");
+      if (sig === this._alertSig) {
+        if (pairs.length) {
+          this._alertNodes.forEach((n, i) => {
+            if (!pairs[i]) return;
+            const mid = {
+              x: (pairs[i][0].pos.x + pairs[i][1].pos.x) / 2,
+              y: (pairs[i][0].pos.y + pairs[i][1].pos.y) / 2
+            };
+            n.line.setAttribute("x1", pairs[i][0].pos.x);
+            n.line.setAttribute("y1", pairs[i][0].pos.y);
+            n.line.setAttribute("x2", pairs[i][1].pos.x);
+            n.line.setAttribute("y2", pairs[i][1].pos.y);
+            n.text.setAttribute("x", mid.x);
+            n.text.setAttribute("y", mid.y - 8);
+          });
+        }
+        return;
+      }
+      this._alertSig = sig;
+
+      while (this.alertLayer.firstChild) this.alertLayer.removeChild(this.alertLayer.firstChild);
+      this._alertNodes = [];
+      for (const [a, b] of pairs) {
+        const line = this.el("line", {
+          class: "alert-line", x1: a.pos.x, y1: a.pos.y, x2: b.pos.x, y2: b.pos.y
+        }, this.alertLayer);
+        const text = this.el("text", {
+          class: "alert-text",
+          x: (a.pos.x + b.pos.x) / 2,
+          y: (a.pos.y + b.pos.y) / 2 - 8,
+          "text-anchor": "middle"
+        }, this.alertLayer);
+        text.textContent = "⚠ COLLISION RISK";
+        this._alertNodes.push({ line, text });
+      }
+    }
+  };
+
+  /* UI */
+  const UI = {
+    selected: null,
+    filter: { q: "", status: "all", sort: "id" },
+    rows: new Map(),
+
+    init() {
+      this.buildRobotList();
+      this.bindControls();
+      this.select(Sim.robots[0].id);
+      Activity.push("ok", "IR-001 started Order #1024");
+      Activity.push("info", "IR-003 started charging at Dock 2");
+      Activity.push("warn", "IR-001 / IR-002 proximity warning");
+      Activity.push("bad", "IR-004 connection lost");
+    },
+
+    buildRobotList() {
+      const list = $("#robotList");
+      list.innerHTML = "";
+      this.rows.clear();
+      for (const r of Sim.robots) {
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "robot-row";
+        row.dataset.id = r.id;
+        row.style.setProperty("--d", (this.rows.size * 10) + "ms");
+        row.setAttribute("role", "option");
+        row.innerHTML =
+          '<div class="rr-top">' +
+            '<span class="rr-id">' + r.id + '</span>' +
+            '<span class="badge" data-role="status"><i></i>Idle</span>' +
+          '</div>' +
+          '<div class="rr-meta">' +
+            '<span class="rr-batt" data-role="batt">—%</span>' +
+            '<span class="rr-task" data-role="task">—</span>' +
+          '</div>';
+        row.addEventListener("click", () => this.select(r.id));
+        list.appendChild(row);
+        r.rowEl = row;
+        this.rows.set(r.id, {
+          row,
+          status: row.querySelector('[data-role="status"]'),
+          batt: row.querySelector('[data-role="batt"]'),
+          task: row.querySelector('[data-role="task"]')
+        });
+      }
+    },
+
+    refreshUI() {
+      const r = this.selected;
+      if (!r) return;
+
+      for (let i = 0; i < Sim.robots.length; i++) {
+        const rob = Sim.robots[i];
+        const ref = this.rows.get(rob.id);
+        if (!ref) continue;
+
+        const st = displayStatus(rob);
+        if (ref._st !== st.key) {
+          ref.status.className = "badge " + st.cls;
+          ref.status.innerHTML = "<i></i>" + st.label;
+          ref._st = st.key;
+        }
+        const b = Math.round(rob.battery);
+        if (ref._b !== b) {
+          ref.batt.textContent = b + "%";
+          ref.batt.style.color = b <= 20 ? "var(--red)" : b <= 45 ? "var(--amber)" : "";
+          ref._b = b;
+        }
+        const taskText = rob.task
+          ? (rob.task.type === "Charging" ? "Charging" : rob.task.type + " #" + rob.task.orderId)
+          : (rob.status === "offline" ? "Offline" : "—");
+        if (ref._t !== taskText) { ref.task.textContent = taskText; ref._t = taskText; }
+      }
+
+      this.renderDetail(r);
+      this.renderTask(r);
+    },
+
+    applyFilters() {
+      const f = this.filter;
+      const q = f.q.trim().toLowerCase();
+      let visible = 0;
+      const sorted = Sim.robots.slice().sort((a, b) => {
+        switch (f.sort) {
+          case "battery-asc": return a.battery - b.battery;
+          case "battery-desc": return b.battery - a.battery;
+          case "status": return a.status.localeCompare(b.status) || a.id.localeCompare(b.id);
+          default: return a.id.localeCompare(b.id);
+        }
+      });
+      const frag = document.createDocumentFragment();
+      for (const r of sorted) {
+        const ref = this.rows.get(r.id);
+        if (!ref) continue;
+        let show = true;
+        if (q) {
+          const hay = (r.id + " " + r.name + " " +
+            (r.task ? r.task.type + " " + r.task.orderId : "")).toLowerCase();
+          if (hay.indexOf(q) === -1) show = false;
+        }
+        if (f.status !== "all") {
+          if (f.status === "alert") show = show && (r.alert === "warning" || r.alert === "collision" || r.alert === "obstacle");
+          else show = show && r.status === f.status;
+        }
+        ref.row.style.display = show ? "" : "none";
+        if (show) visible++;
+        frag.appendChild(ref.row);
+      }
+      $("#robotList").appendChild(frag);
+      $("#fleetCount").textContent = visible + " / " + Sim.robots.length;
+    },
+
+    select(id) {
+      const r = Sim.robots.find((x) => x.id === id);
+      if (!r) return;
+      this.selected = r;
+      Sim.selected = r;
+      for (let i = 0; i < Sim.robots.length; i++) {
+        const rob = Sim.robots[i];
+        if (!rob.rowEl) continue;
+        const sel = rob.id === id;
+        rob.rowEl.classList.toggle("is-selected", sel);
+        rob.rowEl.setAttribute("aria-selected", sel ? "true" : "false");
+      }
+      const ref = this.rows.get(id);
+      if (ref && ref.row.scrollIntoView) {
+        ref.row.scrollIntoView({ block: "nearest", behavior: REDUCED_MOTION ? "auto" : "smooth" });
+      }
+      renderer.draw(r);
+      this.renderDetail(r);
+      this.renderTask(r);
+    },
+
+    renderDetail(r) {
+      const st = displayStatus(r);
+      const badge = $("#dStatus");
+      const badgeKey = st.key;
+      if (r._ui.badge !== badgeKey) {
+        badge.className = "badge " + st.cls;
+        badge.innerHTML = "<i></i>" + st.label;
+        r._ui.badge = badgeKey;
+      }
+
+      const idShort = r.id.replace("IR-", "");
+      if (r._ui.avatar !== idShort) { $("#dAvatar").textContent = idShort; r._ui.avatar = idShort; }
+      if (r._ui.name !== r.id) { $("#dName").textContent = r.id; r._ui.name = r.id; }
+      if (r._ui.sub !== r.name) { $("#dSub").textContent = r.name; r._ui.sub = r.name; }
+
+      const batt = clamp(Math.round(r.battery), 0, 100);
+      if (r._ui.batt !== batt) {
+        $("#dBatt").textContent = batt + "%";
+        const bar = $("#dBattBar");
+        bar.querySelector("i").style.width = batt + "%";
+        bar.dataset.level = batt <= 20 ? "low" : batt <= 45 ? "mid" : "high";
+        r._ui.batt = batt;
+      }
+
+      const prog = clamp(Math.round(r.progress * 100), 0, 100);
+      if (r._ui.prog !== prog) {
+        $("#dProg").textContent = prog + "%";
+        $("#dProgBar").style.width = prog + "%";
+        r._ui.prog = prog;
+      }
+
+      const taskText = r.task
+        ? (r.task.type === "Charging" ? "Charging" : r.task.type + " #" + r.task.orderId)
+        : (r.status === "offline" ? "—" : "Idle");
+      if (r._ui.task !== taskText) { $("#dTask").textContent = taskText; r._ui.task = taskText; }
+
+      const loc = r.status === "offline" ? "Unknown" : r.currentLocationLabel;
+      if (r._ui.loc !== loc) { $("#dLoc").textContent = loc; r._ui.loc = loc; }
+
+      const dest = r.task && r.task.stops.length
+        ? r.task.stops[Math.min(r.stopIdx, r.task.stops.length - 1)].label
+        : "—";
+      if (r._ui.dest !== dest) { $("#dDest").textContent = dest; r._ui.dest = dest; }
+
+      const spd = (r.currentSpeed || 0).toFixed(1) + " m/s";
+      if (r._ui.spd !== spd) { $("#dSpeed").textContent = spd; r._ui.spd = spd; }
+
+      const conn = r.status === "offline" ? "Disconnected" : "Online";
+      if (r._ui.conn !== conn) { $("#dConn").textContent = conn; r._ui.conn = conn; }
+    },
+
+    renderTask(r) {
+      const robotLabel = r.id;
+      if (r._ui.taskRobot !== robotLabel) { $("#taskRobot").textContent = robotLabel; r._ui.taskRobot = robotLabel; }
+
+      if (!r.task) {
+        const orderText = r.status === "offline"
+          ? "Connection Lost"
+          : r.status === "charging" ? "Charging cycle" : "No active task";
+        const routeText = r.status === "offline" ? "Robot is offline" : "Awaiting dispatch";
+        if (r._ui.tOrder !== orderText) { $("#taskOrder").textContent = orderText; r._ui.tOrder = orderText; }
+        if (r._ui.tRoute !== routeText) { $("#taskRoute").textContent = routeText; r._ui.tRoute = routeText; }
+        if (r._ui.tPct !== 0) {
+          $("#taskBar").style.width = "0%";
+          $("#taskPct").textContent = "0%";
+          r._ui.tPct = 0;
+        }
+        const standbyKey = "standby";
+        if (r._ui.tPipe !== standbyKey) {
+          $("#pipeline").innerHTML =
+            '<div class="step is-current"><div class="bullet-col"><div class="bullet">○</div><div class="line"></div></div>' +
+            '<div class="step-label">Standby</div></div>';
+          r._ui.tPipe = standbyKey;
+        }
+        return;
+      }
+
+      const t = r.task;
+      const orderText = "Order #" + t.orderId;
+      if (r._ui.tOrder !== orderText) { $("#taskOrder").textContent = orderText; r._ui.tOrder = orderText; }
+
+      const routeText = t.type + " · " + t.stops.map((s) => s.label).join(" → ");
+      if (r._ui.tRoute !== routeText) { $("#taskRoute").textContent = routeText; r._ui.tRoute = routeText; }
+
+      const pct = clamp(Math.round(r.progress * 100), 0, 100);
+      if (r._ui.tPct !== pct) {
+        $("#taskBar").style.width = pct + "%";
+        $("#taskPct").textContent = pct + "%";
+        r._ui.tPct = pct;
+      }
+
+      let labels;
+      if (t.type === "Charging") {
+        labels = ["Assigned", "Navigate to " + t.stops[0].label, "Charge", "Complete"];
+      } else {
+        labels = [
+          "Assigned",
+          "Navigate to " + t.stops[0].label,
+          t.stops[0].kind === "pick" ? "Pick items" : "Load payload",
+          "Transport to " + t.stops[1].label,
+          "Complete"
+        ];
+      }
+
+      const f0 = t.legFractions[0] != null ? t.legFractions[0] : 0.5;
+      const prog = r.progress;
+      let phase;
+      if (t.type === "Charging") phase = prog >= 1 ? 4 : prog > 0 ? 1 : 0;
+      else phase = prog >= 1 ? 5 : prog >= f0 ? 3 : prog > 0.02 ? 1 : 0;
+
+      const pipeKey = phase + "|" + labels.join("|");
+      if (r._ui.tPipe !== pipeKey) {
+        let html = "";
+        labels.forEach((label, i) => {
+          const state = i < phase ? "is-done" : i === phase ? "is-current" : "";
+          const bullet = i < phase
+            ? '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>'
+            : i === phase ? "→" : "○";
+          html +=
+            '<div class="step ' + state + '">' +
+              '<div class="bullet-col">' +
+                '<div class="bullet">' + bullet + '</div>' +
+                '<div class="line"></div>' +
+              '</div>' +
+              '<div class="step-label">' + label + '</div>' +
+            '</div>';
+        });
+        $("#pipeline").innerHTML = html;
+        r._ui.tPipe = pipeKey;
+      }
+    },
+
+    bindControls() {
+      const stage = $("#mapStage");
+      const pointers = new Map();
+      let panning = false, last = null;
+      let pinchStart = 0, pinchScale = 1;
+
+      const svgPoint = (evt) => {
+        const pt = renderer.svg.createSVGPoint();
+        pt.x = evt.clientX; pt.y = evt.clientY;
+        return pt.matrixTransform(renderer.svg.getScreenCTM().inverse());
+      };
+
+      stage.addEventListener("pointerdown", (e) => {
+        if (e.target.closest(".robot") || e.target.closest(".map-float")) return;
+        stage.setPointerCapture(e.pointerId);
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pointers.size === 1) {
+          panning = true;
+          last = svgPoint(e);
+          stage.classList.add("is-panning");
+        } else if (pointers.size === 2) {
+          panning = false;
+          const p = Array.from(pointers.values());
+          pinchStart = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+          pinchScale = renderer.scale;
+        }
+      });
+
+      stage.addEventListener("pointermove", (e) => {
+        if (!pointers.has(e.pointerId)) return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pointers.size === 2 && pinchStart > 0) {
+          const p = Array.from(pointers.values());
+          const d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+          const mid = svgPoint({ clientX: (p[0].x + p[1].x) / 2, clientY: (p[0].y + p[1].y) / 2 });
+          const target = pinchScale * (d / pinchStart);
+          renderer.zoomAt(mid.x, mid.y, target / renderer.scale);
+          return;
+        }
+        if (panning && last) {
+          const p = svgPoint(e);
+          renderer.tx += p.x - last.x;
+          renderer.ty += p.y - last.y;
+          renderer.applyTransform();
+          last = p;
+        }
+      });
+
+      const endPointer = (e) => {
+        pointers.delete(e.pointerId);
+        if (pointers.size < 2) pinchStart = 0;
+        if (pointers.size === 0) {
+          panning = false;
+          stage.classList.remove("is-panning");
+          last = null;
+        }
+      };
+      stage.addEventListener("pointerup", endPointer);
+      stage.addEventListener("pointercancel", endPointer);
+      stage.addEventListener("pointerleave", endPointer);
+
+      stage.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const p = svgPoint(e);
+        const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+        renderer.zoomAt(p.x, p.y, factor);
+      }, { passive: false });
+
+      $("#btnZoomIn").addEventListener("click", () => renderer.zoomAt(600, 600, 1.2));
+      $("#btnZoomOut").addEventListener("click", () => renderer.zoomAt(600, 600, 1 / 1.2));
+      $("#btnResetView").addEventListener("click", () => renderer.resetView());
+
+      const expandBtn = $("#btnExpand");
+      const expandLabel = $("#expandLabel");
+      const setExpanded = (on) => {
+        document.body.classList.toggle("map-expanded", on);
+        expandLabel.textContent = on ? "Compress" : "Expand";
+        expandBtn.setAttribute("aria-label", on ? "Compress map" : "Expand map");
+      };
+      expandBtn.addEventListener("click", () => {
+        setExpanded(!document.body.classList.contains("map-expanded"));
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && document.body.classList.contains("map-expanded")) setExpanded(false);
+      });
+
+      $("#searchInput").addEventListener("input", (e) => { this.filter.q = e.target.value; this.applyFilters(); });
+      $("#statusFilter").addEventListener("change", (e) => { this.filter.status = e.target.value; this.applyFilters(); });
+      $("#sortSelect").addEventListener("change", (e) => { this.filter.sort = e.target.value; this.applyFilters(); });
+
+      $("#btnPlay").addEventListener("click", () => { Sim.running = true; updateSimStatus(); });
+      $("#btnPause").addEventListener("click", () => { Sim.running = false; updateSimStatus(); });
+      $("#btnReset").addEventListener("click", () => {
+        Sim.running = true;
+        for (const r of Sim.robots) {
+          r.alert = null; r.speedFactor = 1; r.waitTimer = 0; r.lastPathBlocked = false;
+          if (r.status === "active") Sim.assignTask(r);
+        }
+        Sim.pairState.clear();
+        updateSimStatus();
+        Toast.show("ok", "Simulation reset", "All robots returned to their routes.");
+      });
+
+      $("#btnRefresh").addEventListener("click", () => {
+        this.refreshUI();
+        Toast.show("ok", "Fleet synced", "Robot telemetry refreshed.");
+      });
+    }
+  };
+
+  function displayStatus(r) {
+    if (r.alert === "collision") return { key: "collision", label: "Collision", cls: "is-collision" };
+    if (r.alert === "obstacle") return { key: "obstacle", label: "Blocked", cls: "is-collision" };
+    if (r.alert === "warning") return { key: "warning", label: "Proximity", cls: "is-warning" };
+    switch (r.status) {
+      case "active": return { key: "active", label: "Active", cls: "is-active" };
+      case "charging": return { key: "charging", label: "Charging", cls: "is-charging" };
+      case "offline": return { key: "offline", label: "Offline", cls: "is-offline" };
+      case "maintenance": return { key: "maintenance", label: "Maintenance", cls: "is-maintenance" };
+      default: return { key: "idle", label: "Idle", cls: "is-idle" };
+    }
+  }
+
+  function updateSimStatus() {
+    const play = $("#btnPlay");
+    const pause = $("#btnPause");
+    if (Sim.running) {
+      play.classList.add("is-active");
+      pause.classList.remove("is-active");
+    } else {
+      play.classList.remove("is-active");
+      pause.classList.add("is-active");
+    }
+  }
+
+  const ICONS = {
+    ok: '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>',
+    warn: '<svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+    bad: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>'
+  };
+
+  const Activity = {
+    items: [],
+    push(tone, text) {
+      const item = { tone, text, at: Date.now() };
+      this.items.unshift(item);
+      if (this.items.length > 30) this.items.pop();
+      this.renderOne(item);
+      $("#activityCount").textContent = this.items.length + " events";
+    },
+    renderOne(item) {
+      const list = $("#activityList");
+      const el = document.createElement("div");
+      el.className = "act";
+      el.dataset.tone = item.tone;
+      el.innerHTML =
+        '<div class="ico">' + ICONS[item.tone] + '</div>' +
+        '<div><div class="txt">' + escapeHtml(item.text) + '</div>' +
+        '<div class="time">just now</div></div>';
+      list.insertBefore(el, list.firstChild);
+      while (list.children.length > 30) list.removeChild(list.lastChild);
+      this.scheduleAgo();
+    },
+    scheduleAgo() {
+      if (this._timer) return;
+      this._timer = setInterval(() => {
+        const list = $("#activityList");
+        const now = Date.now();
+        Array.from(list.children).forEach((el, i) => {
+          const item = this.items[i];
+          if (!item) return;
+          const s = Math.round((now - item.at) / 1000);
+          const t = el.querySelector(".time");
+          if (!t) return;
+          t.textContent = s < 60 ? s + " sec ago" : Math.round(s / 60) + " min ago";
+        });
+      }, 15000);
+    }
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => (
+      { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+    ));
+  }
+
+  const Toast = {
+    show(tone, title, message, ms) {
+      const wrap = $("#toasts");
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.dataset.tone = tone;
+      el.innerHTML =
+        '<div class="ico">' + ICONS[tone] + '</div>' +
+        '<div><div class="t-title">' + escapeHtml(title) + '</div>' +
+        '<div class="t-msg">' + escapeHtml(message || "") + '</div></div>';
+      wrap.appendChild(el);
+      const life = ms || (tone === "bad" ? 7000 : 4200);
+      setTimeout(() => {
+        el.classList.add("is-out");
+        setTimeout(() => el.remove(), 300);
+      }, life);
+      while (wrap.children.length > 4) wrap.removeChild(wrap.firstChild);
+    }
+  };
+
+  function boot() {
+    Sim.init(24);
+    renderer.init();
+
+    let delayed = 0;
+    for (const r of Sim.robots) {
+      if (r.status === "active") {
+        setTimeout(() => { if (r.status === "active") Sim.assignTask(r); }, delayed);
+        delayed += 30;
+      }
+    }
+
+    UI.init();
+    updateSimStatus();
+
+    let lastTs = performance.now();
+    let uiAcc = 0;
+    const UI_INTERVAL = 0.2;
+
+    function frame(ts) {
+      requestAnimationFrame(frame);
+      let dt = (ts - lastTs) / 1000;
+      lastTs = ts;
+      if (!isFinite(dt) || dt < 0) dt = 0;
+      dt = Math.min(dt, 0.05);
+
+      if (Sim.running) Sim.step(dt);
+      renderer.draw(Sim.selected);
+
+      uiAcc += dt;
+      if (uiAcc >= UI_INTERVAL) {
+        uiAcc = 0;
+        UI.refreshUI();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+
+  window.IronNestFleet = {
+    sim: Sim,
+    pushSnapshot: (rows) => Sim.applyServerSnapshot(rows),
+    toast: (tone, title, msg) => Toast.show(tone, title, msg),
+    activity: (tone, text) => Activity.push(tone, text),
+    config: CONFIG
+  };
+})();
+</script>
+</body>
+</html>
