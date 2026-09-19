@@ -14,6 +14,7 @@ from backend.app.routes.forecast import router as forecast_router
 
 
 
+
 app = FastAPI(
     title="AI/ML Warehouse Digital Twin",
     description="Warehouse Digital Twin and What-If Simulator",
@@ -56,6 +57,10 @@ def serve_dashboard():
     return FileResponse(
         FRONTEND_DIR / "Dashboard.html"
     )
+
+@app.get("/forecasting")
+def serve_forecasting():
+    return FileResponse(FRONTEND_DIR / "Forecasting.html")
 
 # Health check
 @app.get("/health")

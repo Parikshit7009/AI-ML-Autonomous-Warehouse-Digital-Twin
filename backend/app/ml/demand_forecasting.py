@@ -1,10 +1,20 @@
 from datetime import timedelta
 from collections import defaultdict
 import warnings
+import time
 
 from sklearn.ensemble import RandomForestRegressor
 
 from backend.app.database import get_database_connection
+
+
+# ============================================================
+# FORECAST CACHE
+# ============================================================
+
+_FORECAST_CACHE = None
+_FORECAST_CACHE_TIME = 0
+_FORECAST_CACHE_TTL = 300  # 5 minutes
 
 
 # ============================================================
@@ -63,33 +73,43 @@ def get_daily_demand_data():
 # ============================================================
 
 def fast_random_forest_predict(model, features):
-    """
-    Predict directly using the individual decision trees
-    of the trained Random Forest.
 
-    This avoids the repeated joblib Parallel wrapper used
-    by RandomForestRegressor.predict().
     """
+    Predict using all decision trees directly.
+
+    This avoids RandomForestRegressor.predict()
+    because of the Python 3.13 / joblib issue.
+    """
+
+    if not features:
+        return []
 
     predictions = []
 
     for tree in model.estimators_:
 
-        prediction = tree.predict(features)[0]
+        tree_predictions = tree.predict(features)
 
-        predictions.append(
-            float(prediction)
+        predictions.append(tree_predictions)
+
+    # Average prediction from all trees
+    final_predictions = []
+
+    number_of_trees = len(predictions)
+
+    for index in range(len(features)):
+
+        total = 0.0
+
+        for tree_prediction in predictions:
+
+            total += float(tree_prediction[index])
+
+        final_predictions.append(
+            total / number_of_trees
         )
 
-    if not predictions:
-
-        return 0.0
-
-    return (
-        sum(predictions)
-        /
-        len(predictions)
-    )
+    return final_predictions
 
 
 # ============================================================
@@ -98,9 +118,34 @@ def fast_random_forest_predict(model, features):
 
 def generate_demand_forecast(days=30):
 
-    # --------------------------------------------------------
+    global _FORECAST_CACHE
+    global _FORECAST_CACHE_TIME
+
+    # ========================================================
+    # CHECK CACHE
+    # ========================================================
+
+    current_time = time.time()
+
+    if (
+        _FORECAST_CACHE is not None
+        and current_time - _FORECAST_CACHE_TIME
+        < _FORECAST_CACHE_TTL
+    ):
+
+        print("==========================================")
+        print("Using cached demand forecast")
+        print("==========================================")
+
+        return _FORECAST_CACHE
+
+    print("==========================================")
+    print("Generating new demand forecast")
+    print("==========================================")
+
+    # ========================================================
     # LOAD DATA
-    # --------------------------------------------------------
+    # ========================================================
 
     records = get_daily_demand_data()
 
@@ -110,9 +155,9 @@ def generate_demand_forecast(days=30):
             "No warehouse demand data found."
         )
 
-    # --------------------------------------------------------
+    # ========================================================
     # GROUP DATA BY SKU
-    # --------------------------------------------------------
+    # ========================================================
 
     product_data = defaultdict(list)
 
@@ -128,9 +173,9 @@ def generate_demand_forecast(days=30):
         f"Found {total_skus} unique SKUs."
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # PREPARE MACHINE LEARNING DATA
-    # --------------------------------------------------------
+    # ========================================================
 
     X = []
     y = []
@@ -139,7 +184,7 @@ def generate_demand_forecast(days=30):
 
         rows.sort(
             key=lambda x:
-                x["demand_date"]
+            x["demand_date"]
         )
 
         history = []
@@ -159,9 +204,9 @@ def generate_demand_forecast(days=30):
 
                 continue
 
-            # ----------------------------------------------
+            # ------------------------------------------------
             # FEATURES
-            # ----------------------------------------------
+            # ------------------------------------------------
 
             previous_day_demand = (
                 history[-1]
@@ -173,8 +218,7 @@ def generate_demand_forecast(days=30):
 
             weekly_average = (
                 sum(history[-7:])
-                /
-                7
+                / 7
             )
 
             inventory_level = float(
@@ -216,9 +260,9 @@ def generate_demand_forecast(days=30):
 
             history.append(demand)
 
-    # --------------------------------------------------------
+    # ========================================================
     # VALIDATE TRAINING DATA
-    # --------------------------------------------------------
+    # ========================================================
 
     if len(X) < 10:
 
@@ -231,9 +275,9 @@ def generate_demand_forecast(days=30):
         f"{len(X)} samples..."
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # RANDOM FOREST MODEL
-    # --------------------------------------------------------
+    # ========================================================
 
     model = RandomForestRegressor(
 
@@ -246,9 +290,9 @@ def generate_demand_forecast(days=30):
         n_jobs=1
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # TRAIN MODEL
-    # --------------------------------------------------------
+    # ========================================================
 
     model.fit(
         X,
@@ -259,9 +303,9 @@ def generate_demand_forecast(days=30):
         "Random Forest training completed."
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # GENERATE FORECASTS
-    # --------------------------------------------------------
+    # ========================================================
 
     forecasts = []
 
@@ -280,7 +324,7 @@ def generate_demand_forecast(days=30):
 
         rows.sort(
             key=lambda x:
-                x["demand_date"]
+            x["demand_date"]
         )
 
         # ----------------------------------------------------
@@ -288,7 +332,6 @@ def generate_demand_forecast(days=30):
         # ----------------------------------------------------
 
         if len(rows) < 7:
-
             continue
 
         # ----------------------------------------------------
@@ -352,45 +395,40 @@ def generate_demand_forecast(days=30):
             latest["forecasted_demand"] or 0
         )
 
-        # ----------------------------------------------------
-        # DAILY FORECAST
-        # ----------------------------------------------------
+        # ====================================================
+        # BUILD ALL FUTURE FEATURES FIRST
+        # ====================================================
 
-        daily_forecast = []
+        future_features = []
 
-        # ----------------------------------------------------
-        # PREDICT FUTURE DAYS
-        # ----------------------------------------------------
+        future_dates = []
+
+        temp_history = history.copy()
+
+        temp_date = current_date
 
         for day_number in range(days):
 
-            current_date += timedelta(
-                days=1
-            )
-
-            # -----------------------------------------------
-            # CREATE FEATURES
-            # -----------------------------------------------
+            temp_date += timedelta(days=1)
 
             previous_day_demand = (
-                history[-1]
+                temp_history[-1]
             )
 
             previous_week_demand = (
-                history[-7]
+                temp_history[-7]
             )
 
             weekly_average = (
-                sum(history[-7:])
-                /
-                7
+                sum(temp_history[-7:])
+                / 7
             )
 
             day_of_week = (
-                current_date.weekday()
+                temp_date.weekday()
             )
 
-            features = [[
+            features = [
 
                 previous_day_demand,
 
@@ -405,59 +443,77 @@ def generate_demand_forecast(days=30):
                 existing_forecast,
 
                 day_of_week
+            ]
 
-            ]]
-
-            # -----------------------------------------------
-            # FAST RANDOM FOREST PREDICTION
-            # -----------------------------------------------
-
-            prediction = (
-                fast_random_forest_predict(
-                    model,
-                    features
-                )
+            future_features.append(
+                features
             )
 
-            # -----------------------------------------------
-            # PREVENT NEGATIVE DEMAND
-            # -----------------------------------------------
+            future_dates.append(
+                temp_date
+            )
 
-            prediction = max(
+            # Temporary placeholder.
+            # It will be replaced with the actual
+            # prediction after batch prediction.
+            temp_history.append(
+                weekly_average
+            )
+
+        # ====================================================
+        # BATCH RANDOM FOREST PREDICTION
+        # ====================================================
+
+        predictions = fast_random_forest_predict(
+            model,
+            future_features
+        )
+
+        # ====================================================
+        # BUILD DAILY FORECAST
+        # ====================================================
+
+        daily_forecast = []
+
+        # Reset history for recursive prediction
+        recursive_history = history.copy()
+
+        for day_index in range(days):
+
+            current_prediction = predictions[
+                day_index
+            ]
+
+            current_prediction = max(
                 0.0,
-                prediction
+                current_prediction
             )
 
-            prediction = round(
-                prediction,
+            current_prediction = round(
+                current_prediction,
                 2
             )
 
-            # -----------------------------------------------
-            # SAVE FORECAST
-            # -----------------------------------------------
+            forecast_date = future_dates[
+                day_index
+            ]
 
             daily_forecast.append({
 
                 "date":
-                    current_date.isoformat(),
+                    forecast_date.isoformat(),
 
                 "forecasted_demand":
-                    prediction
-
+                    current_prediction
             })
 
-            # -----------------------------------------------
-            # RECURSIVE FORECAST
-            # -----------------------------------------------
-
-            history.append(
-                prediction
+            recursive_history.append(
+                current_prediction
             )
 
-        # ----------------------------------------------------
-        # TOTAL 30-DAY FORECAST
-        # ----------------------------------------------------
+        # ====================================================
+        # TOTAL FORECAST
+        # ====================================================
 
         total_forecast = sum(
 
@@ -466,12 +522,11 @@ def generate_demand_forecast(days=30):
             ]
 
             for item in daily_forecast
-
         )
 
-        # ----------------------------------------------------
+        # ====================================================
         # RECENT 7-DAY DEMAND
-        # ----------------------------------------------------
+        # ====================================================
 
         recent_demands = [
 
@@ -482,7 +537,6 @@ def generate_demand_forecast(days=30):
             )
 
             for row in rows[-7:]
-
         ]
 
         if recent_demands:
@@ -498,28 +552,26 @@ def generate_demand_forecast(days=30):
                 len(
                     recent_demands
                 )
-
             )
 
         else:
 
             average_daily_demand = 0.0
 
-        # ----------------------------------------------------
+        # ====================================================
         # HISTORICAL 30-DAY BASELINE
-        # ----------------------------------------------------
+        # ====================================================
 
         historical_30_day_demand = (
 
             average_daily_demand
             *
             days
-
         )
 
-        # ----------------------------------------------------
+        # ====================================================
         # DEMAND CHANGE %
-        # ----------------------------------------------------
+        # ====================================================
 
         if historical_30_day_demand > 0:
 
@@ -541,9 +593,9 @@ def generate_demand_forecast(days=30):
 
             change_percent = 0.0
 
-        # ----------------------------------------------------
+        # ====================================================
         # FINAL SKU RESULT
-        # ----------------------------------------------------
+        # ====================================================
 
         forecasts.append({
 
@@ -579,7 +631,6 @@ def generate_demand_forecast(days=30):
 
             "forecast":
                 daily_forecast
-
         })
 
         # ----------------------------------------------------
@@ -601,27 +652,37 @@ def generate_demand_forecast(days=30):
                 f"Forecasted "
                 f"{product_index}/"
                 f"{total_skus} SKUs..."
-
             )
 
-    # --------------------------------------------------------
+    # ========================================================
     # SORT BY FORECASTED DEMAND
-    # --------------------------------------------------------
+    # ========================================================
 
     forecasts.sort(
 
         key=lambda item:
-            item[
-                "forecasted_demand_30_days"
-            ],
+        item[
+            "forecasted_demand_30_days"
+        ],
 
         reverse=True
-
     )
 
-    # --------------------------------------------------------
+    # ========================================================
+    # SAVE TO CACHE
+    # ========================================================
+
+    _FORECAST_CACHE = forecasts
+
+    _FORECAST_CACHE_TIME = time.time()
+
+    # ========================================================
     # COMPLETE
-    # --------------------------------------------------------
+    # ========================================================
+
+    print(
+        "=========================================="
+    )
 
     print(
         "Forecast generation completed."
@@ -630,6 +691,14 @@ def generate_demand_forecast(days=30):
     print(
         f"Generated forecasts for "
         f"{len(forecasts)} SKUs."
+    )
+
+    print(
+        "Forecast cached for 5 minutes."
+    )
+
+    print(
+        "=========================================="
     )
 
     return forecasts
