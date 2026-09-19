@@ -1,0 +1,5487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>IronNest | Forecasting</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+
+<style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background:#f3f7fc;
+    color:#10213f;
+}
+
+button,
+input,
+select{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+
+/* =========================================================
+   APPLICATION
+========================================================= */
+
+.app{
+    min-height:100vh;
+    display:flex;
+
+    border-top:
+        4px solid #4b354d;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+
+    width:260px;
+
+    background:#ffffff;
+
+    border-right:
+        1px solid #dce6f1;
+
+    padding:
+        26px 14px;
+
+    display:flex;
+    flex-direction:column;
+
+    flex-shrink:0;
+}
+
+
+.logo{
+
+    display:flex;
+    align-items:center;
+
+    gap:12px;
+
+    padding:
+        0 8px 48px;
+
+    font-size:21px;
+
+    font-weight:800;
+}
+
+
+.logo-box{
+
+    width:40px;
+    height:40px;
+
+    border-radius:12px;
+
+    background:#2864e8;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#fff;
+
+    font-size:20px;
+}
+
+
+.section-title{
+
+    margin:
+        0 12px 13px;
+
+    font-size:12px;
+
+    color:#8297b3;
+
+    font-weight:800;
+
+    letter-spacing:.7px;
+}
+
+
+.nav{
+
+    display:flex;
+    flex-direction:column;
+
+    gap:7px;
+}
+
+
+.nav-item{
+
+    height:56px;
+
+    padding:
+        0 15px;
+
+    border-radius:15px;
+
+    display:flex;
+    align-items:center;
+
+    gap:15px;
+
+    color:#263d5c;
+
+    font-size:16px;
+
+    text-decoration:none;
+
+    transition:.2s;
+}
+
+
+.nav-item:hover{
+    background:#f2f6fc;
+}
+
+
+.nav-item.active{
+
+    background:#edf4ff;
+
+    color:#1760e8;
+
+    font-weight:700;
+}
+
+
+.nav-icon{
+
+    width:24px;
+
+    text-align:center;
+
+    font-size:19px;
+}
+
+
+.badge{
+
+    margin-left:auto;
+
+    padding:
+        3px 8px;
+
+    border-radius:20px;
+
+    background:#ef4444;
+
+    color:#fff;
+
+    font-size:12px;
+
+    font-weight:800;
+}
+
+
+.sidebar-bottom{
+    margin-top:auto;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main{
+
+    flex:1;
+
+    min-width:0;
+
+    padding:
+        18px 28px 35px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8fbff,
+            #eef6fd
+        );
+}
+
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topbar{
+
+    min-height:55px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin-bottom:10px;
+}
+
+
+.search{
+
+    width:475px;
+
+    height:44px;
+
+    background:#fff;
+
+    border:
+        1px solid #dce7f3;
+
+    border-radius:13px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:
+        0 16px;
+
+    color:#8196b0;
+}
+
+
+.search input{
+
+    width:100%;
+
+    border:none;
+
+    outline:none;
+
+    background:transparent;
+
+    color:#526b88;
+
+    font-size:14px;
+}
+
+
+.top-actions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+}
+
+
+.icon-btn{
+
+    width:42px;
+    height:42px;
+
+    background:#fff;
+
+    border:
+        1px solid #dce7f3;
+
+    border-radius:13px;
+
+    font-size:17px;
+}
+
+
+.profile{
+
+    height:42px;
+
+    background:#fff;
+
+    border:
+        1px solid #dce7f3;
+
+    border-radius:13px;
+
+    padding:
+        0 12px 0 7px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    font-weight:700;
+
+    color:#172c48;
+}
+
+
+.avatar{
+
+    width:34px;
+    height:34px;
+
+    background:#2864e8;
+
+    color:#fff;
+
+    border-radius:10px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.page-header{
+
+    display:flex;
+
+    align-items:flex-end;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin:
+        8px 0 15px;
+}
+
+
+.page-title h1{
+
+    font-size:30px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+}
+
+
+.page-title .spark{
+    color:#2864e8;
+}
+
+
+.subtitle{
+
+    margin-left:40px;
+
+    margin-top:3px;
+
+    color:#68809d;
+
+    font-size:14px;
+}
+
+
+.header-actions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+}
+
+
+.btn{
+
+    height:40px;
+
+    padding:
+        0 15px;
+
+    border-radius:12px;
+
+    border:
+        1px solid #dce7f3;
+
+    background:#fff;
+
+    color:#47617e;
+
+    font-size:13px;
+
+    font-weight:700;
+}
+
+
+.btn:hover{
+    background:#f6f9fd;
+}
+
+
+.btn.primary{
+
+    background:#2864e8;
+
+    border-color:#2864e8;
+
+    color:#fff;
+
+    box-shadow:
+        0 7px 16px #2864e833;
+}
+
+
+.btn.primary:hover{
+    background:#1e57d5;
+}
+
+
+/* =========================================================
+   WAREHOUSE SELECTOR
+========================================================= */
+
+.warehouse-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:14px;
+}
+
+
+.warehouse-select{
+
+    height:40px;
+
+    padding:
+        0 35px 0 14px;
+
+    border:
+        1px solid #dce7f3;
+
+    border-radius:12px;
+
+    background:#fff;
+
+    color:#47617e;
+
+    font-weight:700;
+
+    outline:none;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.card{
+
+    background:#fff;
+
+    border:
+        1px solid #dce7f3;
+
+    border-radius:17px;
+
+    box-shadow:
+        0 8px 25px rgba(
+            42,
+            92,
+            150,
+            .07
+        );
+}
+
+
+/* =========================================================
+   KPI
+========================================================= */
+
+.kpi-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:13px;
+
+    margin-bottom:14px;
+}
+
+
+.kpi{
+
+    min-height:108px;
+
+    padding:17px;
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:13px;
+}
+
+
+.kpi-icon{
+
+    width:42px;
+    height:42px;
+
+    flex-shrink:0;
+
+    border-radius:13px;
+
+    background:#edf5ff;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    font-size:19px;
+}
+
+
+.kpi-content small{
+
+    color:#7188a5;
+
+    font-size:11px;
+
+    font-weight:800;
+}
+
+
+.kpi-value{
+
+    height:31px;
+
+    width:100px;
+
+    margin-top:6px;
+
+    border-radius:7px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #eef3f8,
+            #f8fafc,
+            #eef3f8
+        );
+
+    background-size:200% 100%;
+
+    animation:
+        shimmer 1.5s infinite;
+}
+
+
+.kpi-status{
+
+    width:75px;
+
+    height:20px;
+
+    margin-top:7px;
+
+    border-radius:10px;
+
+    background:#f1f5f9;
+}
+
+
+@keyframes shimmer{
+
+    0%{
+        background-position:-200% 0;
+    }
+
+    100%{
+        background-position:200% 0;
+    }
+
+}
+
+
+/* =========================================================
+   FORECAST + SUMMARY
+========================================================= */
+
+.forecast-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,2fr)
+        minmax(300px,.82fr);
+
+    gap:13px;
+
+    margin-bottom:14px;
+}
+
+
+.panel{
+
+    padding:17px;
+}
+
+
+.panel-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    margin-bottom:13px;
+}
+
+
+.panel-title{
+
+    font-size:16px;
+
+    font-weight:800;
+}
+
+
+.panel-tools{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+}
+
+
+.small-btn{
+
+    height:32px;
+
+    padding:
+        0 11px;
+
+    border:
+        1px solid #e1e9f2;
+
+    border-radius:9px;
+
+    background:#f8fafc;
+
+    color:#6f84a0;
+
+    font-size:10px;
+
+    font-weight:800;
+}
+
+
+.small-btn.active{
+
+    background:#eaf2ff;
+
+    color:#2864e8;
+
+    border-color:#d9e7ff;
+}
+
+
+/* =========================================================
+   CHART CONTAINER
+========================================================= */
+
+.chart-container{
+
+    height:260px;
+
+    border:
+        1px solid #edf2f7;
+
+    border-radius:13px;
+
+    background:#fbfdff;
+
+    position:relative;
+
+    overflow:hidden;
+}
+
+
+.chart-grid{
+
+    position:absolute;
+
+    left:50px;
+    right:20px;
+
+    top:20px;
+    bottom:45px;
+
+    background:
+
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 39px,
+            #eaf0f6 40px
+        );
+}
+
+
+.chart-y{
+
+    position:absolute;
+
+    left:13px;
+
+    top:20px;
+    bottom:45px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+    color:#8a9bb0;
+
+    font-size:9px;
+}
+
+
+.chart-x{
+
+    position:absolute;
+
+    left:50px;
+    right:20px;
+
+    bottom:16px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    color:#8a9bb0;
+
+    font-size:9px;
+}
+
+
+.chart-empty{
+
+    position:absolute;
+
+    inset:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-direction:column;
+
+    gap:7px;
+
+    color:#879bb4;
+
+    font-size:11px;
+}
+
+
+.chart-empty-icon{
+
+    width:40px;
+    height:40px;
+
+    border-radius:12px;
+
+    background:#edf4ff;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    color:#2864e8;
+
+    font-size:19px;
+}
+
+
+.chart-legend{
+
+    display:flex;
+
+    gap:18px;
+
+    margin-top:10px;
+
+    color:#7186a2;
+
+    font-size:10px;
+}
+
+
+.legend-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+}
+
+
+.legend-line{
+
+    width:20px;
+
+    height:2px;
+
+    background:#2864e8;
+}
+
+
+.legend-dashed{
+
+    width:20px;
+
+    border-top:
+        2px dashed #2864e8;
+}
+
+
+.legend-band{
+
+    width:20px;
+    height:7px;
+
+    background:#dceaff;
+
+    border-radius:3px;
+}
+
+
+/* =========================================================
+   FORECAST SUMMARY
+========================================================= */
+
+.confidence-placeholder{
+
+    width:90px;
+
+    height:24px;
+
+    border-radius:12px;
+
+    background:#eef3f8;
+}
+
+
+.summary-empty{
+
+    min-height:210px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-direction:column;
+
+    text-align:center;
+
+    color:#8195ad;
+
+    font-size:11px;
+
+    padding:20px;
+}
+
+
+.summary-icon{
+
+    width:45px;
+    height:45px;
+
+    border-radius:14px;
+
+    background:#edf5ff;
+
+    color:#2864e8;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:20px;
+
+    margin-bottom:10px;
+}
+
+
+.summary-empty strong{
+
+    color:#45617f;
+
+    margin-bottom:5px;
+}
+
+
+/* =========================================================
+   LOWER SECTION
+========================================================= */
+
+.lower-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        1.45fr
+        .9fr
+        .85fr;
+
+    gap:13px;
+
+    margin-bottom:14px;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-wrapper{
+
+    overflow-x:auto;
+}
+
+
+.forecast-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    font-size:10px;
+}
+
+
+.forecast-table th{
+
+    text-align:left;
+
+    color:#8194ad;
+
+    font-weight:800;
+
+    padding:
+        8px 5px;
+
+    border-bottom:
+        1px solid #edf2f7;
+}
+
+
+.forecast-table td{
+
+    padding:
+        13px 5px;
+
+    color:#526b88;
+
+    border-bottom:
+        1px solid #f0f4f8;
+}
+
+
+.table-empty{
+
+    text-align:center !important;
+
+    padding:
+        30px !important;
+
+    color:#8a9cb1 !important;
+}
+
+
+/* =========================================================
+   TOP PRODUCTS
+========================================================= */
+
+.empty-panel{
+
+    min-height:245px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-direction:column;
+
+    color:#8497ae;
+
+    font-size:10px;
+
+    text-align:center;
+}
+
+
+.empty-panel-icon{
+
+    width:43px;
+    height:43px;
+
+    background:#f0f5fb;
+
+    border-radius:13px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+
+    margin-bottom:9px;
+}
+
+
+/* =========================================================
+   ANOMALY
+========================================================= */
+
+.anomaly-empty{
+
+    min-height:245px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-direction:column;
+
+    text-align:center;
+
+    color:#8497ae;
+
+    font-size:10px;
+}
+
+
+.anomaly-icon{
+
+    width:43px;
+    height:43px;
+
+    border-radius:13px;
+
+    background:#f2f6fb;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+
+    margin-bottom:9px;
+}
+
+
+/* =========================================================
+   WHAT IF SIMULATOR
+========================================================= */
+
+.simulator{
+
+    padding:19px;
+
+    margin-bottom:14px;
+}
+
+
+.simulator-header{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin-bottom:18px;
+}
+
+
+.simulator-title{
+
+    font-size:18px;
+
+    font-weight:800;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+}
+
+
+.simulator-subtitle{
+
+    color:#7890ad;
+
+    font-size:10px;
+
+    margin-top:5px;
+}
+
+
+.ai-badge{
+
+    padding:
+        6px 10px;
+
+    border-radius:10px;
+
+    background:#edf5ff;
+
+    color:#2864e8;
+
+    font-size:9px;
+
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+
+.simulator-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        1.15fr
+        1fr
+        .9fr;
+
+    gap:15px;
+}
+
+
+/* =========================================================
+   SIMULATOR CONTROL CARD
+========================================================= */
+
+.sim-control-card{
+
+    border:
+        1px solid #e1eaf4;
+
+    background:#fbfdff;
+
+    border-radius:13px;
+
+    padding:15px;
+}
+
+
+.control-heading{
+
+    font-size:12px;
+
+    font-weight:800;
+
+    color:#314b69;
+
+    margin-bottom:15px;
+}
+
+
+.control-group{
+
+    margin-bottom:17px;
+}
+
+
+.control-label{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    color:#627994;
+
+    margin-bottom:8px;
+}
+
+
+.control-value{
+
+    color:#2864e8;
+
+    background:#edf4ff;
+
+    padding:
+        4px 8px;
+
+    border-radius:7px;
+}
+
+
+input[type="range"]{
+
+    width:100%;
+
+    accent-color:#2864e8;
+
+    cursor:pointer;
+}
+
+
+.number-input{
+
+    width:100%;
+
+    height:36px;
+
+    border:
+        1px solid #dce7f3;
+
+    border-radius:9px;
+
+    padding:
+        0 10px;
+
+    outline:none;
+
+    color:#4c6683;
+
+    background:#fff;
+}
+
+
+.select-input{
+
+    width:100%;
+
+    height:36px;
+
+    border:
+        1px solid #dce7f3;
+
+    border-radius:9px;
+
+    padding:
+        0 10px;
+
+    outline:none;
+
+    color:#4c6683;
+
+    background:#fff;
+}
+
+
+/* =========================================================
+   SIMULATION ACTION
+========================================================= */
+
+.sim-action{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    gap:10px;
+
+    border:
+        1px dashed #cfddec;
+
+    border-radius:13px;
+
+    padding:15px;
+
+    background:#fafdff;
+}
+
+
+.sim-action-title{
+
+    font-size:12px;
+
+    font-weight:800;
+
+    color:#314b69;
+}
+
+
+.sim-action-text{
+
+    color:#8195ad;
+
+    font-size:10px;
+
+    line-height:1.5;
+}
+
+
+.run-btn{
+
+    width:100%;
+
+    height:40px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#2864e8;
+
+    color:#fff;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    box-shadow:
+        0 7px 16px #2864e833;
+}
+
+
+/* =========================================================
+   RESULT PLACEHOLDER
+========================================================= */
+
+.sim-result{
+
+    border:
+        1px solid #e1eaf4;
+
+    background:#fff;
+
+    border-radius:13px;
+
+    padding:15px;
+}
+
+
+.result-heading{
+
+    font-size:12px;
+
+    font-weight:800;
+
+    color:#314b69;
+
+    margin-bottom:12px;
+}
+
+
+.result-placeholder{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+}
+
+
+.result-row{
+
+    height:35px;
+
+    border-radius:8px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #f0f4f8,
+            #fafcfd,
+            #f0f4f8
+        );
+
+    background-size:200% 100%;
+
+    animation:
+        shimmer 1.5s infinite;
+}
+
+
+.result-note{
+
+    margin-top:12px;
+
+    padding:10px;
+
+    border-radius:9px;
+
+    background:#f5f8fc;
+
+    color:#8195ad;
+
+    font-size:9px;
+
+    line-height:1.5;
+}
+
+
+/* =========================================================
+   FOOTER STATUS
+========================================================= */
+
+.system-status{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:flex-end;
+
+    gap:7px;
+
+    color:#8296af;
+
+    font-size:9px;
+}
+
+
+.status-dot{
+
+    width:7px;
+    height:7px;
+
+    border-radius:50%;
+
+    background:#cbd5e1;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1200px){
+
+    .sidebar{
+        width:225px;
+    }
+
+    .kpi-grid{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+    .lower-grid{
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .simulator-grid{
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+}
+
+
+@media(max-width:950px){
+
+    .sidebar{
+        width:75px;
+        padding:
+            20px 8px;
+    }
+
+    .logo span,
+    .section-title,
+    .nav-item span:not(.nav-icon),
+    .badge{
+        display:none;
+    }
+
+    .nav-item{
+        justify-content:center;
+        padding:0;
+    }
+
+    .main{
+        padding:
+            15px;
+    }
+
+    .forecast-grid{
+        grid-template-columns:1fr;
+    }
+
+    .lower-grid{
+        grid-template-columns:1fr;
+    }
+
+    .simulator-grid{
+        grid-template-columns:1fr;
+    }
+
+    .search{
+        width:300px;
+    }
+
+}
+
+
+@media(max-width:650px){
+
+    .topbar{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .search{
+        width:100%;
+    }
+
+    .top-actions{
+        justify-content:flex-end;
+    }
+
+    .page-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .header-actions{
+        flex-wrap:wrap;
+    }
+
+    .kpi-grid{
+        grid-template-columns:1fr;
+    }
+
+    .simulator-header{
+        flex-direction:column;
+    }
+
+}
+
+
+/* =========================================================
+   FORECAST CHART FIX — ensures Chart.js always has a
+   measurable box to render into
+========================================================= */
+
+.chart-container{
+    width:100% !important;
+    min-height:260px;
+}
+
+.chart-container canvas#forecastChart{
+    display:block !important;
+    width:100% !important;
+    height:100% !important;
+    max-width:100%;
+}
+
+
+/* =========================================================
+   KPI CARD FIX — real text no longer clipped by the
+   fixed-size shimmer/skeleton box
+========================================================= */
+
+.kpi-grid{
+    align-items:stretch;
+}
+
+.kpi-grid .kpi{
+    min-height:158px;
+    height:auto;
+}
+
+.kpi-content{
+    min-width:0;
+}
+
+.kpi-value{
+    height:auto;
+    min-height:40px;
+    width:auto;
+    display:flex;
+    align-items:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-size:1.45rem;
+    line-height:1.2;
+    background:none;
+    animation:none;
+}
+
+.kpi-status{
+    width:auto;
+    height:auto;
+    min-height:32px;
+    margin-top:10px;
+    line-height:1.35;
+    white-space:normal;
+    overflow-wrap:break-word;
+    font-size:0.78rem;
+    background:none;
+}
+
+
+/* =========================================================
+   WHAT-IF RESULT ROWS — real values, not the shimmer
+   skeleton used while nothing has run yet
+========================================================= */
+
+.sim-result-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:8px;
+    background:#f7faff;
+    border:1px solid #e7eff9;
+}
+
+.sim-result-row strong{
+    font-size:12px;
+    font-weight:700;
+    color:#314b69;
+}
+
+.sim-result-row span{
+    font-size:13px;
+    font-weight:700;
+    color:#1c2b3c;
+    text-align:right;
+}
+
+.sim-error{
+    padding:10px 12px;
+    border-radius:8px;
+    background:#fdecec;
+    color:#b3261e;
+    font-size:12px;
+    line-height:1.4;
+}
+
+
+/* =========================================================
+   FORECAST CHART CONTAINER — explicit ID hook, matches
+   the .chart-container fix above
+========================================================= */
+
+#forecastChartContainer{
+    width:100%;
+    min-height:260px;
+}
+
+#forecastChart{
+    display:block !important;
+    width:100% !important;
+    height:100% !important;
+}
+
+
+/* =========================================================
+   TEXT VISIBILITY — some title/label/table text was
+   rendering too faint against its background
+========================================================= */
+
+.section-title,
+.card-title,
+.panel-title,
+.kpi-label,
+.table-title,
+.forecast-title{
+    color:#102a43 !important;
+    opacity:1 !important;
+}
+
+.section-subtitle,
+.card-subtitle,
+.panel-subtitle{
+    color:#526987 !important;
+    opacity:1 !important;
+}
+
+table th{
+    color:#486581 !important;
+    opacity:1 !important;
+    font-weight:700 !important;
+}
+
+table td{
+    color:#334e68 !important;
+    opacity:1 !important;
+}
+
+.top-product-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid #e5e7eb;
+    color:#334e68 !important;
+    opacity:1 !important;
+}
+
+.top-product-row > div{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+}
+
+.top-product-row strong{
+    color:#243b53 !important;
+}
+
+.top-product-row span{
+    color:#526987 !important;
+    font-size:12.5px;
+}
+
+.anomaly-item{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding:12px;
+    margin-bottom:8px;
+    border-radius:10px;
+    background:#f8fafc;
+    color:#334e68 !important;
+}
+
+.anomaly-item strong{
+    color:#243b53 !important;
+}
+
+.anomaly-item span{
+    color:#526987 !important;
+    font-size:12.5px;
+}
+
+.view-all-btn,
+button{
+    opacity:1 !important;
+}
+
+.chart-legend{
+    color:#526987 !important;
+    opacity:1 !important;
+}
+
+
+/* =========================================================
+   VIEW ALL MODAL
+========================================================= */
+
+.view-all-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    visibility: hidden;
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+.view-all-modal.active {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.view-all-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.38);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.view-all-dialog {
+    position: relative;
+    width: min(1100px, 94vw);
+    max-height: min(760px, 88vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.97);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 24px;
+    box-shadow:
+        0 30px 80px rgba(15, 23, 42, 0.22),
+        0 8px 30px rgba(15, 23, 42, 0.10);
+    transform: translateY(28px) scale(0.96);
+    opacity: 0;
+    transition:
+        transform 0.35s cubic-bezier(.2,.8,.2,1),
+        opacity 0.25s ease;
+}
+
+.view-all-modal.active .view-all-dialog {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.view-all-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid #e7edf5;
+    background: rgba(255,255,255,0.96);
+}
+
+.view-all-title {
+    color: #102a43;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.view-all-subtitle {
+    margin-top: 5px;
+    color: #627d98;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.modal-close-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    background: #f7faff;
+    color: #486581;
+    font-size: 25px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background: #eaf2ff;
+    color: #102a43;
+    transform: rotate(90deg);
+}
+
+.view-all-content {
+    overflow-y: auto;
+    padding: 22px 28px 28px;
+    color: #334e68;
+}
+
+.view-all-content::-webkit-scrollbar {
+    width: 7px;
+}
+
+.view-all-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.view-all-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+}
+
+.view-all-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.view-all-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+}
+
+.view-all-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 13px 14px;
+    text-align: left;
+    background: #f5f8fc;
+    color: #486581;
+    font-size: 12px;
+    font-weight: 800;
+    border-bottom: 1px solid #d9e2ec;
+}
+
+.view-all-table th:first-child {
+    border-radius: 10px 0 0 0;
+}
+
+.view-all-table th:last-child {
+    border-radius: 0 10px 0 0;
+}
+
+.view-all-table td {
+    padding: 14px;
+    color: #334e68;
+    font-weight: 500;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.view-all-table tbody tr {
+    transition: background 0.18s ease;
+}
+
+.view-all-table tbody tr:hover {
+    background: #f7faff;
+}
+
+.modal-sku {
+    color: #1d4ed8 !important;
+    font-weight: 750 !important;
+}
+
+.modal-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.modal-badge.high {
+    background: #fff1f2;
+    color: #dc2626;
+}
+
+.modal-badge.medium {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.modal-badge.low {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.modal-product-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.modal-product-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #e3ebf5;
+    border-radius: 14px;
+    background: #fbfdff;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.modal-product-card:hover {
+    transform: translateY(-2px);
+    border-color: #bfd3f5;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.08);
+}
+
+.modal-product-rank {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #edf4ff;
+    color: #2563eb;
+    font-weight: 800;
+}
+
+.modal-product-info {
+    flex: 1;
+}
+
+.modal-product-sku {
+    color: #102a43;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.modal-product-demand {
+    margin-top: 4px;
+    color: #627d98;
+    font-size: 12px;
+}
+
+.modal-product-change {
+    color: #2563eb;
+    font-weight: 750;
+    font-size: 13px;
+}
+
+.modal-anomaly-list {
+    display: grid;
+    gap: 12px;
+}
+
+.modal-anomaly-card {
+    padding: 17px 18px;
+    border: 1px solid #e3ebf5;
+    border-radius: 15px;
+    background: #fbfdff;
+}
+
+.modal-anomaly-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.modal-anomaly-sku {
+    color: #102a43;
+    font-weight: 800;
+}
+
+.modal-anomaly-values {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    color: #526987;
+    font-size: 13px;
+}
+
+.modal-anomaly-values strong {
+    color: #334e68;
+}
+
+.modal-empty {
+    padding: 40px;
+    text-align: center;
+    color: #627d98;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+@media (max-width: 700px) {
+
+    .view-all-modal {
+        padding: 12px;
+    }
+
+    .view-all-dialog {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 20px;
+    }
+
+    .view-all-header {
+        padding: 18px;
+    }
+
+    .view-all-content {
+        padding: 16px;
+    }
+
+    .modal-product-list {
+        grid-template-columns: 1fr;
+    }
+
+    .view-all-table {
+        min-width: 700px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <div class="logo-box">
+            📦
+        </div>
+
+        <span>
+            IronNest
+        </span>
+
+    </div>
+
+
+    <div class="section-title">
+        OPERATIONS
+    </div>
+
+
+    <nav class="nav">
+
+        <a href="/dashboard" class="nav-item">
+
+            <span class="nav-icon">
+                📊
+            </span>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+
+        <div class="nav-item">
+
+            <span class="nav-icon">
+                🤖
+            </span>
+
+            <span>
+                Robots
+            </span>
+
+            <span class="badge">
+                2
+            </span>
+
+        </div>
+
+
+        <a href="/forecasting" class="nav-item active">
+
+            <span class="nav-icon">
+                📈
+            </span>
+
+            <span>
+                Forecasting
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <div
+        class="section-title"
+        style="margin-top:28px"
+    >
+        DATA
+    </div>
+
+
+    <nav class="nav">
+
+        <div class="nav-item">
+
+            <span class="nav-icon">
+                📁
+            </span>
+
+            <span>
+                Upload Dataset
+            </span>
+
+        </div>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="nav-item">
+
+            <span class="nav-icon">
+                ❓
+            </span>
+
+            <span>
+                Help & Support
+            </span>
+
+        </div>
+
+
+        <div class="nav-item" id="logoutBtn">
+
+            <span class="nav-icon">
+                🚪
+            </span>
+
+            <span>
+                Logout
+            </span>
+
+    </div>
+
+</aside>
+
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+
+<!-- =====================================================
+     TOP BAR
+===================================================== -->
+
+<div class="topbar">
+
+    <label class="search">
+
+        🔍
+
+        <input
+            type="text"
+            placeholder="Search inventory, orders, robots..."
+        >
+
+    </label>
+
+
+    <div class="top-actions">
+
+        <button class="icon-btn">
+            🔔
+        </button>
+
+        <button class="icon-btn">
+            ◔
+        </button>
+
+
+        <button class="profile">
+
+            <span class="avatar">
+                HK
+            </span>
+
+            <span>
+                Harry K.
+            </span>
+
+            <span>
+               ⌄
+            </span>
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     PAGE HEADER
+===================================================== -->
+
+<div class="page-header">
+
+    <div class="page-title">
+
+        <h1>
+
+            <span class="spark">
+                ✦
+            </span>
+
+            Forecasting
+
+        </h1>
+
+
+        <div class="subtitle">
+            AI-powered demand & inventory predictions
+        </div>
+
+    </div>
+
+
+    <div class="header-actions">
+
+        <button
+            class="btn"
+            data-range="7"
+        >
+            7 Days
+        </button>
+
+
+        <button
+            class="btn"
+            data-range="30"
+        >
+            30 Days
+        </button>
+
+
+        <button
+            class="btn"
+            data-range="90"
+        >
+            90 Days
+        </button>
+
+
+        <button
+            class="btn primary"
+            id="openSimulator"
+        >
+            ⚡ What-if Simulator
+        </button>
+
+
+        <button
+            class="btn"
+            id="exportForecastBtn"
+        >
+            📄 Export
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     WAREHOUSE SELECTOR
+===================================================== -->
+
+<div class="warehouse-row">
+
+    <select
+        class="warehouse-select"
+        id="warehouseSelect"
+    >
+
+        <option value="">
+            Select Warehouse
+        </option>
+
+        <!-- Backend can populate warehouses -->
+
+    </select>
+
+</div>
+
+
+
+<!-- =====================================================
+     KPI CARDS
+===================================================== -->
+
+<section class="kpi-grid">
+
+
+    <div class="card kpi">
+
+        <div class="kpi-icon">
+            🎯
+        </div>
+
+        <div class="kpi-content">
+
+            <small>
+                Forecast Accuracy
+            </small>
+
+            <div
+                class="kpi-value"
+                data-field="forecast_accuracy"
+            ></div>
+
+            <div
+                class="kpi-status"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card kpi">
+
+        <div class="kpi-icon">
+            📦
+        </div>
+
+        <div class="kpi-content">
+
+            <small>
+                Expected Demand
+            </small>
+
+            <div
+                class="kpi-value"
+                data-field="expected_demand"
+            ></div>
+
+            <div
+                class="kpi-status"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card kpi">
+
+        <div class="kpi-icon">
+            ⚠️
+        </div>
+
+        <div class="kpi-content">
+
+            <small>
+                Stockout Risk
+            </small>
+
+            <div
+                class="kpi-value"
+                data-field="stockout_risk"
+            ></div>
+
+            <div
+                class="kpi-status"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card kpi">
+
+        <div class="kpi-icon">
+            📦
+        </div>
+
+        <div class="kpi-content">
+
+            <small>
+                Overstock Risk
+            </small>
+
+            <div
+                class="kpi-value"
+                data-field="overstock_risk"
+            ></div>
+
+            <div
+                class="kpi-status"
+            ></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     FORECAST CHART + SUMMARY
+===================================================== -->
+
+<section class="forecast-grid">
+
+
+<!-- =====================================================
+     DEMAND FORECAST
+===================================================== -->
+
+<div class="card panel">
+
+    <div class="panel-header">
+
+        <div class="panel-title">
+            📦 Demand Forecast
+        </div>
+
+
+        <div class="panel-tools">
+
+            <button
+                class="small-btn range-btn active"
+                id="forecastRange7"
+                data-chart-range="7"
+                data-range="7"
+            >
+                7D
+            </button>
+
+            <button
+                class="small-btn range-btn"
+                id="forecastRange30"
+                data-chart-range="30"
+                data-range="30"
+            >
+                30D
+            </button>
+
+            <button
+                class="small-btn range-btn"
+                id="forecastRange90"
+                data-chart-range="90"
+                data-range="90"
+            >
+                90D
+            </button>
+
+            <select class="small-btn" id="productFilter">
+                <option value="all">All Products</option>
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div class="chart-container" id="forecastChartContainer">
+
+        <canvas id="forecastChart"></canvas>
+
+        <!-- Shown only while loading or on error -->
+        <div
+            class="chart-empty"
+            style="display:none;"
+        >
+
+            <div class="chart-empty-icon">
+                📈
+            </div>
+
+            <strong>
+                Forecast data will appear here
+            </strong>
+
+            <span>
+                Connect the forecasting API to load predictions
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="chart-legend">
+
+        <div class="legend-item">
+
+            <i class="legend-line"></i>
+
+            Actual
+
+        </div>
+
+
+        <div class="legend-item">
+
+            <i class="legend-dashed"></i>
+
+            Forecast
+
+        </div>
+
+
+        <div class="legend-item">
+
+            <i class="legend-band"></i>
+
+            Confidence Range
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     FORECAST SUMMARY
+===================================================== -->
+
+<div class="card panel">
+
+    <div class="panel-header">
+
+        <div class="panel-title">
+            🤖 Forecast Summary
+        </div>
+
+
+        <div
+            class="confidence-placeholder"
+            data-field="confidence"
+            style="display:none;"
+        ></div>
+
+    </div>
+
+
+    <div class="summary-empty">
+
+        <div class="summary-icon">
+            ✦
+        </div>
+
+        <strong>
+            Waiting for forecast data
+        </strong>
+
+        <span>
+            AI forecast insights will appear
+            here after the backend response.
+        </span>
+
+    </div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     LOWER GRID
+===================================================== -->
+
+<section class="lower-grid">
+
+
+<!-- =====================================================
+     INVENTORY FORECAST TABLE
+===================================================== -->
+
+<div class="card panel">
+
+    <div class="panel-header">
+
+        <div class="panel-title">
+            📦 Inventory Forecast
+        </div>
+
+
+        <button class="small-btn view-all-btn" id="viewAllInventory">
+            View All →
+        </button>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table class="forecast-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        SKU
+                    </th>
+
+                    <th>
+                        Current Stock
+                    </th>
+
+                    <th>
+                        Daily Avg
+                    </th>
+
+                    <th>
+                        30D Forecast
+                    </th>
+
+                    <th>
+                        Change
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="inventoryTable">
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     TOP PRODUCTS
+===================================================== -->
+
+<div class="card panel">
+
+    <div class="panel-header">
+
+        <div class="panel-title">
+            📊 Top Products
+        </div>
+
+
+        <div class="panel-tools" style="display:flex; gap:8px; align-items:center;">
+
+            <select class="small-btn" id="topProductsSort">
+
+                <option value="demand">
+                    Predicted Demand
+                </option>
+
+                <option value="stock">
+                    Current Stock
+                </option>
+
+            </select>
+
+            <button class="small-btn view-all-btn" id="viewAllProducts">
+                View All →
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="empty-panel"
+        id="topProducts"
+    >
+
+        <div class="empty-panel-icon">
+            📊
+        </div>
+
+        <strong>
+            No forecast data
+        </strong>
+
+        <span>
+            Product predictions
+            will appear here.
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     AI ANOMALY
+===================================================== -->
+
+<div class="card panel">
+
+    <div class="panel-header">
+
+        <div class="panel-title">
+            🚨 AI Anomaly Detector
+        </div>
+
+
+        <button class="small-btn view-all-btn" id="viewAllAnomalies">
+            View All →
+        </button>
+
+    </div>
+
+
+    <div
+        class="anomaly-empty"
+        id="anomalyContainer"
+    >
+
+        <div class="anomaly-icon">
+            ✦
+        </div>
+
+        <strong>
+            No anomaly data
+        </strong>
+
+        <span>
+            AI-detected anomalies
+            will appear here.
+        </span>
+
+    </div>
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     WHAT IF SIMULATOR
+===================================================== -->
+
+<section
+    class="card simulator"
+    id="simulator"
+>
+
+
+    <div class="simulator-header">
+
+        <div>
+
+            <div class="simulator-title">
+
+                ⚡
+                What-If Simulator
+
+            </div>
+
+
+            <div class="simulator-subtitle">
+
+                Change operational conditions
+                and send the scenario to the
+                forecasting engine.
+
+            </div>
+
+        </div>
+
+
+        <div class="ai-badge">
+            AI Scenario Analysis
+        </div>
+
+    </div>
+
+
+
+    <div class="simulator-grid">
+
+
+<!-- =====================================================
+     DEMAND CONTROL
+===================================================== -->
+
+        <div class="sim-control-card">
+
+            <div class="control-heading">
+                Scenario Parameters
+            </div>
+
+
+            <div class="control-group">
+
+                <div class="control-label">
+
+                    <span>
+                        Demand Change
+                    </span>
+
+                    <span
+                        class="control-value"
+                        id="demandDisplay"
+                    >
+                        0%
+                    </span>
+
+                </div>
+
+
+                <input
+                    type="range"
+                    id="demandChange"
+                    min="-50"
+                    max="100"
+                    value="0"
+                >
+
+            </div>
+
+
+
+            <div class="control-group">
+
+                <div class="control-label">
+
+                    <span>
+                        Lead Time
+                    </span>
+
+                    <span
+                        class="control-value"
+                        id="leadTimeDisplay"
+                    >
+                        0 days
+                    </span>
+
+                </div>
+
+
+                <input
+                    type="range"
+                    id="leadTime"
+                    min="0"
+                    max="30"
+                    value="0"
+                >
+
+            </div>
+
+        </div>
+
+
+
+<!-- =====================================================
+     PRODUCT / INVENTORY
+===================================================== -->
+
+        <div class="sim-control-card">
+
+            <div class="control-heading">
+                Product Configuration
+            </div>
+
+
+            <div class="control-group">
+
+                <div class="control-label">
+
+                    <span>
+                        Product Category
+                    </span>
+
+                </div>
+
+
+                <select
+                    class="select-input"
+                    id="productCategory"
+                >
+
+                    <option value="">
+                        Select category
+                    </option>
+
+                    <!-- Backend categories can be inserted -->
+
+                </select>
+
+            </div>
+
+
+
+            <div class="control-group">
+
+                <div class="control-label">
+
+                    <span>
+                        Additional Inventory
+                    </span>
+
+                </div>
+
+
+                <input
+                    type="number"
+                    class="number-input"
+                    id="additionalInventory"
+                    placeholder="Enter units"
+                    min="0"
+                >
+
+            </div>
+
+        </div>
+
+
+
+<!-- =====================================================
+     ACTION + RESULT
+===================================================== -->
+
+        <div class="sim-action">
+
+            <div class="sim-action-title">
+                Run Scenario
+            </div>
+
+
+            <div class="sim-action-text">
+
+                Configure the scenario and
+                send it to the backend
+                forecasting model.
+
+            </div>
+
+
+            <button
+                class="run-btn"
+                id="runSimulation"
+            >
+                ⚡ Run AI Simulation
+            </button>
+
+
+            <div class="sim-result">
+
+                <div class="result-heading">
+                    Simulation Result
+                </div>
+
+
+                <div
+                    class="result-placeholder"
+                    id="simulationResult"
+                >
+
+                    <!-- Backend response will be inserted here -->
+
+                    <div class="result-row"></div>
+
+                    <div class="result-row"></div>
+
+                    <div class="result-row"></div>
+
+                </div>
+
+
+                <div class="result-note">
+
+                    Results will be generated by
+                    the connected forecasting
+                    backend.
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     SYSTEM STATUS
+===================================================== -->
+
+<div class="system-status">
+
+    <span class="status-dot"></span>
+
+    Forecasting engine
+    awaiting backend connection
+
+</div>
+
+
+</main>
+
+</div>
+
+
+
+<script>
+/* ============================================================
+   IRONNEST — FORECASTING ENGINE
+   ============================================================ */
+
+
+let forecastData = [];
+let forecastChartInstance = null;
+let selectedForecastRange = 7;
+
+
+/* ============================================================
+   LOAD FORECAST DATA
+   ============================================================ */
+
+async function loadDemandForecast() {
+
+    const token =
+        localStorage.getItem("access_token");
+
+    if (!token) {
+        window.location.href = "/";
+        return;
+    }
+
+    try {
+
+        console.log("Loading demand forecast...");
+
+        setSystemStatus("loading");
+
+        const response = await fetch(
+            "/forecast/demand",
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization":
+                        "Bearer " + token
+                }
+            }
+        );
+
+        if (response.status === 401) {
+
+            localStorage.removeItem(
+                "access_token"
+            );
+
+            window.location.href = "/";
+
+            return;
+        }
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Forecast API error: "
+                + response.status
+            );
+        }
+
+        const data =
+            await response.json();
+
+        console.log(
+            "Forecast API response:",
+            data
+        );
+
+        forecastData =
+            data.forecasts || [];
+
+        if (!forecastData.length) {
+
+            console.warn(
+                "No forecast data available."
+            );
+
+            return;
+        }
+
+
+        /* ====================================================
+           BUILD UI
+           ==================================================== */
+
+        createForecastSelector();
+
+        createProductFilter();
+
+        setupForecastRangeButtons();
+
+        setupViewAllButtons();
+
+        updateForecastKPIs();
+
+        updateForecastSummary();
+
+        updateInventoryForecast();
+
+        updateTopProducts();
+
+        updateAnomalyDetector();
+
+
+        /* ====================================================
+           INITIAL CHART
+           ==================================================== */
+
+        updateForecastChart(
+            forecastData[0]
+        );
+
+
+        console.log(
+            "Forecast page loaded successfully."
+        );
+
+        setSystemStatus("ready");
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error loading demand forecast:",
+            error
+        );
+
+        setSystemStatus("error");
+
+    }
+
+}
+
+
+/* ============================================================
+   SKU SELECTOR
+   ============================================================ */
+
+function createForecastSelector() {
+
+    const oldSelector =
+        document.getElementById(
+            "forecastSelectorWrapper"
+        );
+
+    if (oldSelector) {
+        oldSelector.remove();
+    }
+
+
+    const canvas =
+        document.getElementById(
+            "forecastChart"
+        );
+
+    if (!canvas) {
+        return;
+    }
+
+
+    const wrapper =
+        document.createElement("div");
+
+    wrapper.id =
+        "forecastSelectorWrapper";
+
+    wrapper.style.display =
+        "flex";
+
+    wrapper.style.alignItems =
+        "center";
+
+    wrapper.style.gap =
+        "10px";
+
+    wrapper.style.marginBottom =
+        "12px";
+
+
+    const label =
+        document.createElement("label");
+
+    label.textContent =
+        "Select SKU:";
+
+    label.style.fontWeight =
+        "600";
+
+
+    const select =
+        document.createElement("select");
+
+    select.id =
+        "forecastSkuSelector";
+
+    select.style.padding =
+        "7px 12px";
+
+    select.style.borderRadius =
+        "8px";
+
+    select.style.border =
+        "1px solid #e2e8f0";
+
+
+    forecastData.forEach(
+        item => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                item.product_id;
+
+            option.textContent =
+                item.product_id;
+
+            select.appendChild(
+                option
+            );
+        }
+    );
+
+
+    select.value =
+        forecastData[0].product_id;
+
+
+    select.addEventListener(
+        "change",
+        function () {
+
+            const selected =
+                forecastData.find(
+                    item =>
+                        String(
+                            item.product_id
+                        ) ===
+                        String(
+                            this.value
+                        )
+                );
+
+            if (selected) {
+
+                updateForecastChart(
+                    selected
+                );
+            }
+        }
+    );
+
+
+    wrapper.appendChild(label);
+
+    wrapper.appendChild(select);
+
+
+    const chartContainer =
+        canvas.parentElement;
+
+    chartContainer.parentElement.insertBefore(
+        wrapper,
+        chartContainer
+    );
+}
+
+
+/* ============================================================
+   PRODUCT FILTER
+   ============================================================ */
+
+function createProductFilter() {
+
+    const filter =
+        document.getElementById(
+            "productFilter"
+        );
+
+    if (!filter) {
+        return;
+    }
+
+    filter.innerHTML =
+        `<option value="all">
+            All Products
+        </option>`;
+
+
+    forecastData.forEach(
+        item => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                item.product_id;
+
+            option.textContent =
+                item.product_id;
+
+            filter.appendChild(
+                option
+            );
+        }
+    );
+
+
+    filter.onchange =
+        function () {
+
+            if (
+                this.value === "all"
+            ) {
+
+                updateForecastChart("ALL");
+
+                return;
+            }
+
+
+            const selected =
+                forecastData.find(
+                    item =>
+                        String(
+                            item.product_id
+                        ) ===
+                        String(
+                            this.value
+                        )
+                );
+
+
+            if (selected) {
+
+                const skuSelector =
+                    document.getElementById(
+                        "forecastSkuSelector"
+                    );
+
+                if (skuSelector) {
+
+                    skuSelector.value =
+                        selected.product_id;
+                }
+
+                updateForecastChart(
+                    selected
+                );
+            }
+        };
+}
+
+
+/* ============================================================
+   FORECAST RANGE BUTTONS
+   ============================================================ */
+
+function setupForecastRangeButtons() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".range-btn"
+        );
+
+
+    buttons.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    buttons.forEach(
+                        b =>
+                            b.classList.remove(
+                                "active"
+                            )
+                    );
+
+
+                    this.classList.add(
+                        "active"
+                    );
+
+
+                    selectedForecastRange =
+                        Number(
+                            this.dataset.range
+                        );
+
+
+                    const filter =
+                        document.getElementById(
+                            "productFilter"
+                        );
+
+                    if (
+                        filter &&
+                        filter.value === "all"
+                    ) {
+
+                        updateForecastChart("ALL");
+
+                        return;
+                    }
+
+
+                    const selector =
+                        document.getElementById(
+                            "forecastSkuSelector"
+                        );
+
+
+                    if (selector) {
+
+                        const selected =
+                            forecastData.find(
+                                item =>
+                                    String(
+                                        item.product_id
+                                    ) ===
+                                    String(
+                                        selector.value
+                                    )
+                            );
+
+
+                        if (selected) {
+
+                            updateForecastChart(
+                                selected
+                            );
+                        }
+                    }
+
+                }
+            );
+        }
+    );
+}
+
+
+/* ============================================================
+   FORECAST KPI CARDS
+   ============================================================ */
+
+function updateForecastKPIs() {
+
+    if (!forecastData.length) {
+        return;
+    }
+
+
+    const totalDemand =
+        forecastData.reduce(
+            (sum, item) =>
+                sum +
+                Number(
+                    item.forecasted_demand_30_days
+                    || 0
+                ),
+            0
+        );
+
+
+    const stockoutCount =
+        forecastData.filter(
+            item =>
+                Number(
+                    item.forecasted_demand_30_days
+                    || 0
+                )
+                >
+                Number(
+                    item.current_stock
+                    || 0
+                )
+        ).length;
+
+
+    const overstockCount =
+        forecastData.filter(
+            item =>
+                Number(
+                    item.current_stock
+                    || 0
+                )
+                >
+                Number(
+                    item.forecasted_demand_30_days
+                    || 0
+                ) * 1.5
+        ).length;
+
+
+    const accuracy =
+        document.querySelector(
+            '[data-field="forecast_accuracy"]'
+        );
+
+    const expected =
+        document.querySelector(
+            '[data-field="expected_demand"]'
+        );
+
+    const stockout =
+        document.querySelector(
+            '[data-field="stockout_risk"]'
+        );
+
+    const overstock =
+        document.querySelector(
+            '[data-field="overstock_risk"]'
+        );
+
+
+    if (accuracy) {
+
+        accuracy.textContent =
+            "N/A";
+    }
+
+
+    if (expected) {
+
+        expected.textContent =
+            totalDemand.toLocaleString(
+                undefined,
+                {
+                    maximumFractionDigits: 0
+                }
+            );
+    }
+
+
+    if (stockout) {
+
+        stockout.textContent =
+            Math.round(
+                (
+                    stockoutCount /
+                    forecastData.length
+                ) * 100
+            ) + "%";
+    }
+
+
+    if (overstock) {
+
+        overstock.textContent =
+            Math.round(
+                (
+                    overstockCount /
+                    forecastData.length
+                ) * 100
+            ) + "%";
+    }
+
+
+    const statusElements =
+        document.querySelectorAll(
+            ".kpi-status"
+        );
+
+
+    if (statusElements[0]) {
+
+        statusElements[0].textContent =
+            "Accuracy unavailable — future actuals required";
+    }
+
+
+    if (statusElements[1]) {
+
+        statusElements[1].textContent =
+            "Next 30 days";
+    }
+
+
+    if (statusElements[2]) {
+
+        statusElements[2].textContent =
+            stockoutCount +
+            " of " +
+            forecastData.length +
+            " SKUs at risk";
+    }
+
+
+    if (statusElements[3]) {
+
+        statusElements[3].textContent =
+            overstockCount +
+            " of " +
+            forecastData.length +
+            " SKUs";
+    }
+}
+
+
+/* ============================================================
+   FORECAST SUMMARY
+   ============================================================ */
+
+function updateForecastSummary() {
+
+    const container =
+        document.querySelector(
+            ".summary-empty"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!forecastData.length) {
+        return;
+    }
+
+
+    const totalDemand =
+        forecastData.reduce(
+            (sum, item) =>
+                sum +
+                Number(
+                    item.forecasted_demand_30_days
+                    || 0
+                ),
+            0
+        );
+
+
+    const averageDemand =
+        totalDemand /
+        forecastData.length;
+
+
+    const highest =
+        [...forecastData].sort(
+            (a, b) =>
+                Number(
+                    b.forecasted_demand_30_days
+                    || 0
+                )
+                -
+                Number(
+                    a.forecasted_demand_30_days
+                    || 0
+                )
+        )[0];
+
+
+    container.innerHTML = `
+
+        <div style="
+            display:grid;
+            gap:16px;
+        ">
+
+            <div>
+                <small>Forecast Horizon</small>
+                <strong>30 Days</strong>
+            </div>
+
+            <div>
+                <small>Total Predicted Demand</small>
+                <strong>
+                    ${totalDemand.toLocaleString()}
+                    units
+                </strong>
+            </div>
+
+            <div>
+                <small>Average per SKU</small>
+                <strong>
+                    ${averageDemand.toFixed(1)}
+                </strong>
+            </div>
+
+            <div>
+                <small>Highest Predicted SKU</small>
+                <strong>
+                    ${escapeHTML(
+                        highest.product_id
+                    )}
+                </strong>
+
+                <span>
+                    ${Number(
+                        highest.forecasted_demand_30_days
+                        || 0
+                    ).toLocaleString()}
+                    units
+                </span>
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* ============================================================
+   INVENTORY FORECAST
+   ============================================================ */
+
+function updateInventoryForecast() {
+
+    const table =
+        document.getElementById(
+            "inventoryTable"
+        );
+
+    if (!table || !forecastData.length) {
+        return;
+    }
+
+
+    const products =
+        [...forecastData]
+        .sort(
+            (a, b) =>
+                Number(
+                    b.forecasted_demand_30_days
+                    || 0
+                )
+                -
+                Number(
+                    a.forecasted_demand_30_days
+                    || 0
+                )
+        )
+        .slice(0, 10);
+
+
+    table.innerHTML =
+        products.map(
+            item => `
+
+            <tr>
+
+                <td>
+                    ${escapeHTML(
+                        item.product_id
+                    )}
+                </td>
+
+                <td>
+                    ${Number(
+                        item.current_stock
+                        || 0
+                    ).toLocaleString()}
+                </td>
+
+                <td>
+                    ${Number(
+                        item.average_daily_demand
+                        || 0
+                    ).toFixed(1)}
+                </td>
+
+                <td>
+                    ${Number(
+                        item.forecasted_demand_30_days
+                        || 0
+                    ).toLocaleString()}
+                </td>
+
+                <td>
+                    ${
+                        Number(
+                            item.change_percent
+                            || 0
+                        ) >= 0
+                            ? "+"
+                            : ""
+                    }${Number(
+                        item.change_percent
+                        || 0
+                    ).toFixed(1)}%
+                </td>
+
+            </tr>
+
+        `
+        ).join("");
+}
+
+
+/* ============================================================
+   TOP PRODUCTS
+   ============================================================ */
+
+function updateTopProducts() {
+
+    const container =
+        document.getElementById(
+            "topProducts"
+        );
+
+    if (!container || !forecastData.length) {
+        return;
+    }
+
+
+    const sortSelect =
+        document.getElementById(
+            "topProductsSort"
+        );
+
+    const sortField =
+        sortSelect
+            ? sortSelect.value
+            : "demand";
+
+    const sortKey =
+        sortField === "stock"
+            ? "current_stock"
+            : "forecasted_demand_30_days";
+
+
+    const products =
+        [...forecastData]
+        .sort(
+            (a, b) =>
+                Number(
+                    b[sortKey]
+                    || 0
+                )
+                -
+                Number(
+                    a[sortKey]
+                    || 0
+                )
+        )
+        .slice(0, 5);
+
+
+    container.innerHTML =
+        products.map(
+            (item, index) => `
+
+            <div class="top-product-row">
+
+                <div>
+
+                    <strong>
+                        #${index + 1}
+                        ${escapeHTML(
+                            item.product_id
+                        )}
+                    </strong>
+
+                    <span>
+                        ${Number(
+                            item.forecasted_demand_30_days
+                            || 0
+                        ).toLocaleString()}
+                        units
+                    </span>
+
+                </div>
+
+                <strong>
+                    ${
+                        Number(
+                            item.change_percent
+                            || 0
+                        ) >= 0
+                            ? "+"
+                            : ""
+                    }${Number(
+                        item.change_percent
+                        || 0
+                    ).toFixed(1)}%
+                </strong>
+
+            </div>
+
+        `
+        ).join("");
+}
+
+
+/* ============================================================
+   ANOMALY DETECTOR
+   ============================================================ */
+
+function updateAnomalyDetector() {
+
+    const container =
+        document.getElementById(
+            "anomalyContainer"
+        );
+
+    if (!container || !forecastData.length) {
+        return;
+    }
+
+
+    const anomalies =
+        forecastData
+        .filter(item => {
+
+            const stock =
+                Number(
+                    item.current_stock
+                    || 0
+                );
+
+            const demand =
+                Number(
+                    item.forecasted_demand_30_days
+                    || 0
+                );
+
+            const change =
+                Number(
+                    item.change_percent
+                    || 0
+                );
+
+
+            return (
+                stock <= 0 && demand > 0
+            )
+            ||
+            demand > stock
+            ||
+            change >= 50
+            ||
+            stock > demand * 2;
+        })
+        .slice(0, 5);
+
+
+    if (!anomalies.length) {
+
+        container.innerHTML = `
+            <div class="anomaly-icon">
+                ✓
+            </div>
+
+            <strong>
+                No significant anomalies detected
+            </strong>
+
+            <span>
+                Current forecast patterns are within
+                the configured thresholds.
+            </span>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        anomalies.map(
+            item => `
+
+            <div class="anomaly-item">
+
+                <strong>
+                    ${escapeHTML(
+                        item.product_id
+                    )}
+                </strong>
+
+                <span>
+                    Stock:
+                    ${Number(
+                        item.current_stock
+                        || 0
+                    ).toLocaleString()}
+                </span>
+
+                <span>
+                    30D Demand:
+                    ${Number(
+                        item.forecasted_demand_30_days
+                        || 0
+                    ).toLocaleString()}
+                </span>
+
+            </div>
+
+        `
+        ).join("");
+}
+
+
+/* ============================================================
+   FORECAST CHART
+   ============================================================ */
+
+/* ============================================================
+   CHART DATE FORMATTER
+   ============================================================ */
+
+function formatChartDate(dateValue) {
+
+    if (!dateValue) {
+        return "";
+    }
+
+    const date =
+        new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return String(dateValue);
+    }
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short"
+        }
+    );
+}
+
+
+/* ============================================================
+   ALL PRODUCTS CHART (aggregated demand across every SKU)
+   ============================================================ */
+
+function drawAllProductsChart(canvas) {
+
+    if (!forecastData || !forecastData.length) {
+        return;
+    }
+
+    const range =
+        Number(selectedForecastRange || 7);
+
+    const historicalMap = new Map();
+
+    forecastData.forEach(item => {
+
+        const history =
+            Array.isArray(item.historical_demand)
+                ? item.historical_demand
+                : [];
+
+        history.slice(-range).forEach(point => {
+
+            const date = point.date;
+            const existing = historicalMap.get(date) || 0;
+
+            historicalMap.set(
+                date,
+                existing + Number(point.demand || 0)
+            );
+        });
+    });
+
+    const forecastMap = new Map();
+
+    forecastData.forEach(item => {
+
+        const forecast =
+            Array.isArray(item.forecast)
+                ? item.forecast
+                : [];
+
+        forecast.forEach(point => {
+
+            const date = point.date;
+            const existing = forecastMap.get(date) || 0;
+
+            forecastMap.set(
+                date,
+                existing + Number(point.forecasted_demand || 0)
+            );
+        });
+    });
+
+    const historicalDates = [...historicalMap.keys()].sort();
+    const forecastDates = [...forecastMap.keys()].sort();
+
+    const labels = [
+        ...historicalDates.map(formatChartDate),
+        ...forecastDates.map(formatChartDate)
+    ];
+
+    const actualValues = [
+        ...historicalDates.map(date => historicalMap.get(date)),
+        ...new Array(forecastDates.length).fill(null)
+    ];
+
+    const forecastValues = [
+        ...new Array(Math.max(historicalDates.length - 1, 0)).fill(null),
+        historicalDates.length
+            ? historicalMap.get(historicalDates[historicalDates.length - 1])
+            : null,
+        ...forecastDates.map(date => forecastMap.get(date))
+    ];
+
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+        console.error("Unable to get forecast chart context.");
+        return;
+    }
+
+    forecastChartInstance =
+        new Chart(
+            ctx,
+            {
+                type: "line",
+
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "All Products — Actual",
+                            data: actualValues,
+                            borderColor: "#2563eb",
+                            borderWidth: 3,
+                            tension: 0.35,
+                            pointRadius: 2,
+                            fill: false
+                        },
+                        {
+                            label: "All Products — Forecast",
+                            data: forecastValues,
+                            borderColor: "#7c3aed",
+                            borderWidth: 3,
+                            borderDash: [7, 5],
+                            tension: 0.35,
+                            pointRadius: 2,
+                            fill: false
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+
+                    plugins: {
+                        legend: { display: false }
+                    },
+
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: "#526987",
+                                maxTicksLimit: 10
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "rgba(148,163,184,0.16)" },
+                            ticks: { color: "#526987" },
+                            title: {
+                                display: true,
+                                text: "Demand (units)"
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+    console.log("Forecast chart created for: ALL PRODUCTS");
+}
+
+
+/* ============================================================
+   FORECAST CHART
+   ============================================================ */
+
+async function updateForecastChart(selectedSKU) {
+
+    const canvas =
+        document.getElementById("forecastChart");
+
+    if (!canvas) {
+        console.error("forecastChart canvas not found.");
+        return;
+    }
+
+    if (!forecastData || !forecastData.length) {
+        console.warn("No forecast data available.");
+        return;
+    }
+
+
+    /* ========================================================
+       MAKE SURE CHART.JS IS AVAILABLE
+       ======================================================== */
+
+    if (typeof Chart === "undefined") {
+
+        console.log("Loading Chart.js...");
+
+        await new Promise((resolve, reject) => {
+
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+
+    if (forecastChartInstance) {
+        forecastChartInstance.destroy();
+        forecastChartInstance = null;
+    }
+
+
+    /* ========================================================
+       ALL PRODUCTS
+       ======================================================== */
+
+    if (
+        selectedSKU === "ALL"
+        || selectedSKU === null
+        || selectedSKU === undefined
+    ) {
+        drawAllProductsChart(canvas);
+        return;
+    }
+
+
+    /* ========================================================
+       ACCEPT OBJECT OR SKU STRING
+       ======================================================== */
+
+    let item = null;
+
+    if (typeof selectedSKU === "object") {
+        item = selectedSKU;
+    } else {
+        item = forecastData.find(
+            x => String(x.product_id) === String(selectedSKU)
+        );
+    }
+
+    if (!item) {
+        item = forecastData[0];
+    }
+
+
+    const historical =
+        Array.isArray(item.historical_demand)
+            ? item.historical_demand
+            : [];
+
+    const forecast =
+        Array.isArray(item.forecast)
+            ? item.forecast
+            : [];
+
+    if (historical.length === 0 && forecast.length === 0) {
+        console.warn("No chart data for SKU:", item.product_id);
+        return;
+    }
+
+
+    const history =
+        historical.slice(-Number(selectedForecastRange || 7));
+
+    const historicalLabels =
+        history.map(x => formatChartDate(x.date));
+
+    const forecastLabels =
+        forecast.map(x => formatChartDate(x.date));
+
+    const labels = [
+        ...historicalLabels,
+        ...forecastLabels
+    ];
+
+    const actualValues = [
+        ...history.map(x => Number(x.demand || 0)),
+        ...new Array(forecast.length).fill(null)
+    ];
+
+    const forecastValues = [
+        ...new Array(Math.max(history.length - 1, 0)).fill(null),
+        history.length
+            ? Number(history[history.length - 1].demand || 0)
+            : null,
+        ...forecast.map(x => Number(x.forecasted_demand || 0))
+    ];
+
+
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+        console.error("Unable to get forecast chart context.");
+        return;
+    }
+
+    forecastChartInstance =
+        new Chart(
+            ctx,
+            {
+                type: "line",
+
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Actual",
+                            data: actualValues,
+                            borderColor: "#2563eb",
+                            backgroundColor: "rgba(37,99,235,0.08)",
+                            borderWidth: 3,
+                            pointRadius: 2,
+                            pointHoverRadius: 5,
+                            tension: 0.35,
+                            fill: false
+                        },
+                        {
+                            label: "Forecast",
+                            data: forecastValues,
+                            borderColor: "#7c3aed",
+                            backgroundColor: "rgba(124,58,237,0.08)",
+                            borderWidth: 3,
+                            borderDash: [7, 5],
+                            pointRadius: 2,
+                            pointHoverRadius: 5,
+                            tension: 0.35,
+                            fill: false
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 500 },
+
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                title: function (tooltipItems) {
+                                    return tooltipItems[0].label;
+                                }
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: "#526987",
+                                maxTicksLimit: 10,
+                                font: { size: 11 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "rgba(148,163,184,0.16)" },
+                            ticks: {
+                                color: "#526987",
+                                callback: function (value) {
+                                    return Number(value).toLocaleString();
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: "Demand (units)",
+                                color: "#334e68",
+                                font: { weight: "600" }
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+    console.log("Chart rendered:", item.product_id);
+}
+
+
+/* ============================================================
+   ESCAPE HTML
+   ============================================================ */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+/* ============================================================
+   LOGOUT
+   ============================================================ */
+
+function setupLogout() {
+
+    const logoutBtn =
+        document.getElementById("logoutBtn");
+
+    if (!logoutBtn) {
+        return;
+    }
+
+    logoutBtn.addEventListener(
+        "click",
+        function () {
+
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user");
+
+            window.location.href = "/";
+        }
+    );
+}
+
+
+/* ============================================================
+   SIMULATOR SLIDER DISPLAYS
+   ============================================================ */
+
+function setupSimulatorSliders() {
+
+    const demandSlider =
+        document.getElementById("demandChange");
+
+    const demandDisplay =
+        document.getElementById("demandDisplay");
+
+    if (demandSlider && demandDisplay) {
+
+        demandSlider.addEventListener(
+            "input",
+            function () {
+
+                const value = Number(this.value);
+
+                demandDisplay.textContent =
+                    (value >= 0 ? "+" : "") + value + "%";
+            }
+        );
+    }
+
+
+    const leadTimeSlider =
+        document.getElementById("leadTime");
+
+    const leadTimeDisplay =
+        document.getElementById("leadTimeDisplay");
+
+    if (leadTimeSlider && leadTimeDisplay) {
+
+        leadTimeSlider.addEventListener(
+            "input",
+            function () {
+
+                leadTimeDisplay.textContent =
+                    this.value + " days";
+            }
+        );
+    }
+}
+
+
+/* ============================================================
+   WHAT-IF SIMULATOR
+   ============================================================ */
+
+function setupWhatIfSimulator() {
+
+    const runBtn =
+        document.getElementById("runSimulation");
+
+    if (!runBtn) {
+        return;
+    }
+
+    runBtn.addEventListener(
+        "click",
+        runWhatIfSimulation
+    );
+}
+
+
+async function runWhatIfSimulation() {
+
+    const token =
+        localStorage.getItem("access_token");
+
+    if (!token) {
+        window.location.href = "/";
+        return;
+    }
+
+    const demandSlider =
+        document.getElementById("demandChange");
+
+    const leadTimeSlider =
+        document.getElementById("leadTime");
+
+    const category =
+        document.getElementById("productCategory");
+
+    const inventory =
+        document.getElementById("additionalInventory");
+
+    const button =
+        document.getElementById("runSimulation");
+
+    const result =
+        document.getElementById("simulationResult");
+
+    const note =
+        document.querySelector(".result-note");
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Running...";
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/forecast/what-if",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token,
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        demand_change:
+                            demandSlider
+                                ? Number(demandSlider.value)
+                                : 0,
+                        lead_time_days:
+                            leadTimeSlider
+                                ? Number(leadTimeSlider.value)
+                                : 0,
+                        product_category:
+                            category && category.value
+                                ? category.value
+                                : null,
+                        additional_inventory:
+                            inventory
+                                ? Number(inventory.value || 0)
+                                : 0
+                    })
+                }
+            );
+
+        if (response.status === 401) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                "Simulation failed: " + response.status
+            );
+        }
+
+        const data = await response.json();
+
+        if (result) {
+
+            result.innerHTML = `
+                <div class="sim-result-row">
+                    <strong>Baseline Demand</strong>
+                    <span>${Number(
+                        data.baseline.forecast_demand_30_days
+                    ).toLocaleString()} units</span>
+                </div>
+                <div class="sim-result-row">
+                    <strong>Scenario Demand</strong>
+                    <span>${Number(
+                        data.scenario_result.forecast_demand_30_days
+                    ).toLocaleString()} units</span>
+                </div>
+                <div class="sim-result-row">
+                    <strong>Stockout SKUs</strong>
+                    <span>${escapeHTML(
+                        String(data.scenario_result.stockout_skus)
+                    )}</span>
+                </div>
+                <div class="sim-result-row">
+                    <strong>Available Inventory</strong>
+                    <span>${Number(
+                        data.scenario_result.available_inventory
+                    ).toLocaleString()} units</span>
+                </div>
+            `;
+        }
+
+        if (note) {
+            note.textContent =
+                "Scenario run against the connected forecasting backend.";
+        }
+
+    }
+
+    catch (error) {
+
+        console.error("What-if error:", error);
+
+        if (result) {
+            result.innerHTML =
+                `<div class="sim-error">${escapeHTML(error.message)}</div>`;
+        }
+
+    }
+
+    finally {
+
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = "⚡ Run AI Simulation";
+        }
+    }
+}
+
+
+/* ============================================================
+   VIEW ALL
+   ============================================================ */
+
+function setupViewAllButtons() {
+
+    const inventoryButton =
+        document.getElementById("viewAllInventory");
+
+    const productsButton =
+        document.getElementById("viewAllProducts");
+
+    const anomaliesButton =
+        document.getElementById("viewAllAnomalies");
+
+
+    if (inventoryButton) {
+
+        inventoryButton.addEventListener(
+            "click",
+            function () {
+                openViewAllModal("inventory");
+            }
+        );
+    }
+
+
+    if (productsButton) {
+
+        productsButton.addEventListener(
+            "click",
+            function () {
+                openViewAllModal("products");
+            }
+        );
+    }
+
+
+    if (anomaliesButton) {
+
+        anomaliesButton.addEventListener(
+            "click",
+            function () {
+                openViewAllModal("anomalies");
+            }
+        );
+    }
+}
+
+
+/* ============================================================
+   VIEW ALL MODAL
+   ============================================================ */
+
+function openViewAllModal(type) {
+
+    const modal =
+        document.getElementById("viewAllModal");
+
+    const title =
+        document.getElementById("viewAllTitle");
+
+    const subtitle =
+        document.getElementById("viewAllSubtitle");
+
+    const content =
+        document.getElementById("viewAllContent");
+
+    if (!modal || !title || !subtitle || !content) {
+        return;
+    }
+
+
+    if (type === "inventory") {
+
+        title.textContent = "Inventory Forecast";
+
+        subtitle.textContent =
+            `${forecastData.length} SKUs with 30-day demand forecasts`;
+
+        content.innerHTML = buildInventoryModal();
+
+    }
+
+    else if (type === "products") {
+
+        title.textContent = "All Products";
+
+        subtitle.textContent =
+            `${forecastData.length} forecasted warehouse SKUs`;
+
+        content.innerHTML = buildProductsModal();
+
+    }
+
+    else if (type === "anomalies") {
+
+        const anomalies = getForecastAnomalies();
+
+        title.textContent = "AI Anomaly Detector";
+
+        subtitle.textContent =
+            `${anomalies.length} forecast-based anomalies detected`;
+
+        content.innerHTML = buildAnomaliesModal(anomalies);
+
+    }
+
+
+    modal.classList.add("active");
+
+    document.body.classList.add("modal-open");
+}
+
+
+function setupViewAllModal() {
+
+    const modal =
+        document.getElementById("viewAllModal");
+
+    const closeButton =
+        document.getElementById("closeViewAll");
+
+    const backdrop =
+        modal
+            ? modal.querySelector(".view-all-backdrop")
+            : null;
+
+
+    function closeModal() {
+
+        if (!modal) {
+            return;
+        }
+
+        modal.classList.remove("active");
+
+        document.body.classList.remove("modal-open");
+    }
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeModal
+        );
+    }
+
+
+    if (backdrop) {
+
+        backdrop.addEventListener(
+            "click",
+            closeModal
+        );
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape"
+                && modal
+                && modal.classList.contains("active")
+            ) {
+                closeModal();
+            }
+        }
+    );
+}
+
+
+/* ============================================================
+   INVENTORY MODAL CONTENT
+   ============================================================ */
+
+function buildInventoryModal() {
+
+    if (!forecastData || !forecastData.length) {
+
+        return `
+            <div class="modal-empty">
+                No inventory forecast data available.
+            </div>
+        `;
+    }
+
+
+    const sorted =
+        [...forecastData].sort(
+            (a, b) =>
+                Number(b.forecasted_demand_30_days || 0)
+                -
+                Number(a.forecasted_demand_30_days || 0)
+        );
+
+
+    return `
+        <div style="overflow-x:auto">
+            <table class="view-all-table">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Current Stock</th>
+                        <th>Daily Avg</th>
+                        <th>30D Forecast</th>
+                        <th>Change</th>
+                        <th>Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${
+                        sorted.map(item => {
+
+                            const stock =
+                                Number(item.current_stock || 0);
+
+                            const demand =
+                                Number(item.forecasted_demand_30_days || 0);
+
+                            const change =
+                                Number(item.change_percent || 0);
+
+                            let risk = "Low";
+                            let riskClass = "low";
+
+                            if (demand > stock) {
+                                risk = "High";
+                                riskClass = "high";
+                            }
+                            else if (stock < demand * 1.25) {
+                                risk = "Medium";
+                                riskClass = "medium";
+                            }
+
+                            return `
+                                <tr>
+                                    <td class="modal-sku">${escapeHTML(item.product_id)}</td>
+                                    <td>${stock.toLocaleString()}</td>
+                                    <td>${Number(item.average_daily_demand || 0).toFixed(1)}</td>
+                                    <td>${demand.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                                    <td>${change >= 0 ? "+" : ""}${change.toFixed(1)}%</td>
+                                    <td><span class="modal-badge ${riskClass}">${risk}</span></td>
+                                </tr>
+                            `;
+                        }).join("")
+                    }
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+
+/* ============================================================
+   TOP PRODUCTS MODAL CONTENT
+   ============================================================ */
+
+function buildProductsModal() {
+
+    if (!forecastData || !forecastData.length) {
+
+        return `
+            <div class="modal-empty">
+                No forecast data available.
+            </div>
+        `;
+    }
+
+
+    const sorted =
+        [...forecastData].sort(
+            (a, b) =>
+                Number(b.forecasted_demand_30_days || 0)
+                -
+                Number(a.forecasted_demand_30_days || 0)
+        );
+
+
+    return `
+        <div class="modal-product-list">
+            ${
+                sorted.map((item, index) => {
+
+                    const demand =
+                        Number(item.forecasted_demand_30_days || 0);
+
+                    const change =
+                        Number(item.change_percent || 0);
+
+                    return `
+                        <div class="modal-product-card">
+                            <div class="modal-product-rank">${index + 1}</div>
+                            <div class="modal-product-info">
+                                <div class="modal-product-sku">${escapeHTML(item.product_id)}</div>
+                                <div class="modal-product-demand">
+                                    ${demand.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                    units predicted
+                                </div>
+                            </div>
+                            <div class="modal-product-change">
+                                ${change >= 0 ? "+" : ""}${change.toFixed(1)}%
+                            </div>
+                        </div>
+                    `;
+                }).join("")
+            }
+        </div>
+    `;
+}
+
+
+/* ============================================================
+   ANOMALY MODAL CONTENT
+   ============================================================ */
+
+function getForecastAnomalies() {
+
+    return forecastData
+        .filter(item => {
+
+            const stock =
+                Number(item.current_stock || 0);
+
+            const demand =
+                Number(item.forecasted_demand_30_days || 0);
+
+            const change =
+                Number(item.change_percent || 0);
+
+            return (
+                (stock <= 0 && demand > 0)
+                ||
+                demand > stock
+                ||
+                change >= 50
+                ||
+                stock > demand * 2
+            );
+        })
+        .sort((a, b) => {
+
+            const aChange = Number(a.change_percent || 0);
+            const bChange = Number(b.change_percent || 0);
+
+            return bChange - aChange;
+        });
+}
+
+
+function buildAnomaliesModal(anomalies) {
+
+    if (!anomalies.length) {
+
+        return `
+            <div style="padding:50px; text-align:center; color:#526987;">
+                <div style="font-size:38px; margin-bottom:12px;">✓</div>
+                <strong style="color:#102a43; font-size:16px;">
+                    No significant anomalies detected
+                </strong>
+                <div style="margin-top:6px;">
+                    Current forecast values are within
+                    the configured thresholds.
+                </div>
+            </div>
+        `;
+    }
+
+
+    return `
+        <div class="modal-anomaly-list">
+            ${
+                anomalies.map(item => {
+
+                    const stock =
+                        Number(item.current_stock || 0);
+
+                    const demand =
+                        Number(item.forecasted_demand_30_days || 0);
+
+                    const change =
+                        Number(item.change_percent || 0);
+
+                    let severity = "Medium";
+                    let severityClass = "medium";
+
+                    if (demand > stock) {
+                        severity = "High";
+                        severityClass = "high";
+                    }
+                    else if (stock > demand * 2) {
+                        severity = "Low";
+                        severityClass = "low";
+                    }
+
+                    return `
+                        <div class="modal-anomaly-card">
+                            <div class="modal-anomaly-header">
+                                <div class="modal-anomaly-sku">${escapeHTML(item.product_id)}</div>
+                                <span class="modal-badge ${severityClass}">${severity}</span>
+                            </div>
+                            <div class="modal-anomaly-values">
+                                <span>Stock: <strong>${stock.toLocaleString()}</strong></span>
+                                <span>30D Demand: <strong>${demand.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong></span>
+                                <span>Change: <strong>${change >= 0 ? "+" : ""}${change.toFixed(1)}%</strong></span>
+                            </div>
+                        </div>
+                    `;
+                }).join("")
+            }
+        </div>
+    `;
+}
+
+
+/* ============================================================
+   TOP PRODUCTS SORT
+   ============================================================ */
+
+function setupTopProductsSort() {
+
+    const sortSelect =
+        document.getElementById("topProductsSort");
+
+    if (!sortSelect) {
+        return;
+    }
+
+    sortSelect.addEventListener(
+        "change",
+        function () {
+
+            const container =
+                document.getElementById("topProducts");
+
+            const productsButton =
+                document.getElementById("viewAllProducts");
+
+            if (container) {
+                container.dataset.showingAll = "false";
+            }
+
+            if (productsButton) {
+                productsButton.textContent = "View All →";
+            }
+
+            updateTopProducts();
+        }
+    );
+}
+
+
+/* ============================================================
+   EXPORT FORECAST (CSV)
+   ============================================================ */
+
+function setupExportForecast() {
+
+    const exportBtn =
+        document.getElementById("exportForecastBtn");
+
+    if (!exportBtn) {
+        return;
+    }
+
+    exportBtn.addEventListener(
+        "click",
+        function () {
+
+            if (!forecastData.length) {
+                return;
+            }
+
+            const headers = [
+                "product_id",
+                "current_stock",
+                "average_daily_demand",
+                "forecasted_demand_30_days",
+                "change_percent"
+            ];
+
+            const rows =
+                forecastData.map(
+                    item =>
+                        headers.map(
+                            key => item[key] ?? ""
+                        ).join(",")
+                );
+
+            const csv =
+                [headers.join(","), ...rows]
+                    .join("\n");
+
+            const blob =
+                new Blob(
+                    [csv],
+                    { type: "text/csv" }
+                );
+
+            const url =
+                URL.createObjectURL(blob);
+
+            const link =
+                document.createElement("a");
+
+            link.href = url;
+            link.download = "demand_forecast.csv";
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            URL.revokeObjectURL(url);
+        }
+    );
+}
+
+
+/* ============================================================
+   SYSTEM STATUS
+   ============================================================ */
+
+function setSystemStatus(state) {
+
+    const status =
+        document.querySelector(".system-status");
+
+    if (!status) {
+        return;
+    }
+
+    const messages = {
+        loading: "Loading forecast data...",
+        ready: "Forecasting engine connected",
+        error: "Unable to reach forecasting engine"
+    };
+
+    status.lastChild.textContent =
+        " " + (messages[state] || messages.loading);
+}
+
+
+/* ============================================================
+   START
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        setupLogout();
+        setupSimulatorSliders();
+        setupWhatIfSimulator();
+        setupTopProductsSort();
+        setupExportForecast();
+        setupViewAllModal();
+
+        loadDemandForecast();
+
+    }
+);
+
+</script>
+
+<!-- =========================================================
+     VIEW ALL MODAL
+========================================================= -->
+
+<div id="viewAllModal" class="view-all-modal">
+
+    <div class="view-all-backdrop"></div>
+
+    <div class="view-all-dialog">
+
+        <div class="view-all-header">
+
+            <div>
+                <div class="view-all-title" id="viewAllTitle">
+                    View All
+                </div>
+
+                <div class="view-all-subtitle" id="viewAllSubtitle">
+                    Complete data
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close-btn"
+                id="closeViewAll"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+            class="view-all-content"
+            id="viewAllContent"
+        >
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

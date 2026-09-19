@@ -37,6 +37,7 @@
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
     button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; }
+    a.nav-item { text-decoration: none; cursor: pointer; }
     input, select { font-family: inherit; outline: none; border: none; }
 
     #app {
@@ -786,9 +787,9 @@
         <span class="icon">🤖</span> Robots
         <span class="badge">2</span>
       </button>
-      <button class="nav-item" data-page="forecast">
+      <a href="/forecasting" class="nav-item">
         <span class="icon">📈</span> Forecasting
-      </button>
+      </a>
       <div class="nav-section">Data</div>
       <button class="nav-item" data-page="upload">
         <span class="icon">📁</span> Upload Dataset
@@ -2128,5 +2129,221 @@ async function loadOperationsKPIs() {
 // Load KPIs when dashboard opens
 loadOperationsKPIs();
   </script>
+<script>
+/* =========================================================
+   DASHBOARD — LIVE DEMAND FORECAST
+   ========================================================= */
+
+let dashboardForecastChart = null;
+
+async function loadDashboardForecast() {
+
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+        console.error("Dashboard: JWT token not found.");
+        return;
+    }
+
+    try {
+
+        console.log("Dashboard: Loading demand forecast...");
+
+        const response = await fetch("/forecast/demand", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (response.status === 401) {
+            console.error("Dashboard: Authentication expired.");
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                "Forecast API returned " + response.status
+            );
+        }
+
+        const data = await response.json();
+
+        console.log(
+            "Dashboard forecast response:",
+            data
+        );
+
+        const forecasts = data.forecasts || [];
+
+        if (forecasts.length === 0) {
+            console.warn("No forecast data returned.");
+            return;
+        }
+
+        /*
+         * Use the first SKU returned by the backend.
+         * The backend already sorts forecasts by
+         * 30-day demand.
+         */
+        const selectedSKU = forecasts[0];
+
+        const historical =
+            selectedSKU.historical_demand || [];
+
+        const forecast =
+            selectedSKU.forecast || [];
+
+        const canvas =
+            document.getElementById("forecastChart");
+
+        if (!canvas) {
+            console.error(
+                "Dashboard: forecastChart not found."
+            );
+            return;
+        }
+
+        /*
+         * Destroy old Chart.js instance
+         * before creating a new one.
+         */
+        if (dashboardForecastChart) {
+            dashboardForecastChart.destroy();
+        }
+
+        const labels = [
+            ...historical.map(item => item.date),
+            ...forecast.map(item => item.date)
+        ];
+
+        const historicalValues = [
+            ...historical.map(
+                item => Number(item.demand || 0)
+            ),
+            ...forecast.map(() => null)
+        ];
+
+        const forecastValues = [
+            ...historical.map(() => null),
+            ...forecast.map(
+                item =>
+                    Number(
+                        item.forecasted_demand || 0
+                    )
+            )
+        ];
+
+        dashboardForecastChart =
+            new Chart(canvas, {
+
+                type: "line",
+
+                data: {
+
+                    labels: labels,
+
+                    datasets: [
+
+                        {
+                            label: "Historical Demand",
+
+                            data: historicalValues,
+
+                            borderWidth: 2,
+
+                            tension: 0.35,
+
+                            pointRadius: 2,
+
+                            fill: false
+                        },
+
+                        {
+                            label: "Forecasted Demand",
+
+                            data: forecastValues,
+
+                            borderWidth: 2,
+
+                            borderDash: [6, 5],
+
+                            tension: 0.35,
+
+                            pointRadius: 2,
+
+                            fill: false
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+                            display: true
+                        },
+
+                        tooltip: {
+                            mode: "index",
+                            intersect: false
+                        }
+
+                    },
+
+                    scales: {
+
+                        x: {
+                            ticks: {
+                                maxTicksLimit: 8
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true
+                        }
+
+                    }
+
+                }
+
+            });
+
+        console.log(
+            "Dashboard forecast chart created for:",
+            selectedSKU.product_id
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard forecast error:",
+            error
+        );
+
+    }
+}
+
+
+/* =========================================================
+   LOAD FORECAST WHEN DASHBOARD OPENS
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        loadDashboardForecast();
+
+    }
+);
+</script>
 </body>
 </html>
