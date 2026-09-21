@@ -19,7 +19,7 @@ CSV_FILE = BASE_DIR / "data" / "iot_warehouse_optimization_dataset.csv"
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="6618",
+    password="1638",
     database="warehouse_twin"
 )
 
