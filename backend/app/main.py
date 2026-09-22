@@ -47,21 +47,22 @@ app.add_middleware(
 
 @app.get("/")
 def serve_login():
-    return FileResponse(
-        FRONTEND_DIR / "login.html"
-    )
+    return FileResponse(FRONTEND_DIR / "login.html")
 
 
 @app.get("/dashboard")
 def serve_dashboard():
-    return FileResponse(
-        FRONTEND_DIR / "Dashboard.html"
-    )
+    return FileResponse(FRONTEND_DIR / "Dashboard.html")
+
+
+@app.get("/robot-fleet")
+def serve_robot_fleet():
+    return FileResponse(FRONTEND_DIR / "robots.html")
+
 
 @app.get("/forecasting")
 def serve_forecasting():
-    return FileResponse(FRONTEND_DIR / "Forecasting.html")
-
+    return FileResponse(FRONTEND_DIR / "forecasting.html")
 # Health check
 @app.get("/health")
 def health():
