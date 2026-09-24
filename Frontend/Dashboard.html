@@ -31,9 +31,10 @@
       --ink-4: #9ca3af;
 
       --bg-base: #eef1f7;
-      --glass: rgba(255, 255, 255, 0.55);
-      --glass-2: rgba(255, 255, 255, 0.75);
-      --glass-3: rgba(255, 255, 255, 0.4);
+      /* PERF: More opaque, less reliance on blur for glass effect */
+      --glass: rgba(255, 255, 255, 0.78);
+      --glass-2: rgba(255, 255, 255, 0.88);
+      --glass-3: rgba(255, 255, 255, 0.6);
 
       --line: rgba(255, 255, 255, 0.7);
       --line-2: rgba(226, 232, 240, 0.7);
@@ -70,9 +71,9 @@
       --ink-4: #4b5563;
 
       --bg-base: #050810;
-      --glass: rgba(15, 22, 40, 0.55);
-      --glass-2: rgba(18, 26, 46, 0.75);
-      --glass-3: rgba(10, 16, 32, 0.4);
+      --glass: rgba(15, 22, 40, 0.78);
+      --glass-2: rgba(18, 26, 46, 0.88);
+      --glass-3: rgba(10, 16, 32, 0.6);
 
       --line: rgba(255, 255, 255, 0.08);
       --line-2: rgba(255, 255, 255, 0.06);
@@ -108,21 +109,18 @@
 
     body { background: var(--bg-base); }
 
+    /* PERF: single gradient instead of two for cheaper paint */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 0;
-      background:
-        radial-gradient(900px 700px at 15% 20%, rgba(99, 102, 241, 0.14), transparent 60%),
-        radial-gradient(800px 700px at 90% 85%, rgba(14, 165, 233, 0.1), transparent 60%);
+      background: radial-gradient(1200px 900px at 15% 20%, rgba(99, 102, 241, 0.14), transparent 60%);
     }
 
     html[data-theme="dark"] body::before {
-      background:
-        radial-gradient(900px 700px at 15% 20%, rgba(99, 102, 241, 0.16), transparent 60%),
-        radial-gradient(800px 700px at 90% 85%, rgba(14, 165, 233, 0.12), transparent 60%);
+      background: radial-gradient(1200px 900px at 15% 20%, rgba(99, 102, 241, 0.18), transparent 60%);
     }
 
     ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -159,7 +157,7 @@
     ::view-transition-new(root) { z-index: 2; }
 
     /* ============================================================
-       SCROLL PROGRESS
+       SCROLL PROGRESS — PERF: removed box-shadow
        ============================================================ */
     .scroll-progress {
       position: fixed;
@@ -170,7 +168,7 @@
       background: linear-gradient(90deg, #6366f1, #a855f7, #06b6d4);
       z-index: 9998;
       pointer-events: none;
-      box-shadow: 0 0 12px rgba(99, 102, 241, 0.7);
+      will-change: width;
     }
 
     /* ============================================================
@@ -187,7 +185,7 @@
     }
 
     /* ============================================================
-       SIDEBAR
+       SIDEBAR — only remaining backdrop-filter (small area)
        ============================================================ */
     .sidebar {
       display: flex;
@@ -196,8 +194,8 @@
       padding: 18px 12px;
       border-radius: var(--r-lg);
       background: var(--glass);
-      -webkit-backdrop-filter: blur(20px) saturate(160%);
-      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      backdrop-filter: blur(10px) saturate(140%);
       border: 1px solid var(--line);
       box-shadow: var(--shadow-soft);
       overflow-y: auto;
@@ -280,7 +278,7 @@
     .nav-spacer { flex: 1; }
 
     /* ============================================================
-       MAIN
+       MAIN — PERF: no backdrop-filter, use translucent solid
        ============================================================ */
     .main {
       position: relative;
@@ -289,12 +287,10 @@
       padding: 22px 26px 120px;
       border-radius: var(--r-lg);
       background: var(--glass);
-      -webkit-backdrop-filter: blur(20px) saturate(160%);
-      backdrop-filter: blur(20px) saturate(160%);
       border: 1px solid var(--line);
       box-shadow: var(--shadow-soft);
       scroll-behavior: smooth;
-      contain: layout style;
+      contain: layout style paint;
     }
 
     /* ============================================================
@@ -330,6 +326,7 @@
 
     .deck-actions { display: flex; gap: 8px; align-items: center; }
 
+    /* PERF: act-btn no longer uses backdrop-filter */
     .act-btn {
       display: inline-flex;
       align-items: center;
@@ -341,21 +338,19 @@
       letter-spacing: -0.005em;
       border: 1px solid var(--line);
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
       color: var(--ink-2);
       transition: transform 0.2s var(--ease), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       white-space: nowrap;
     }
     .act-btn:hover {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.95);
       border-color: var(--line);
       color: var(--ink);
       transform: translateY(-1px);
       box-shadow: var(--shadow-soft);
     }
     html[data-theme="dark"] .act-btn:hover {
-      background: rgba(30, 41, 62, 0.85);
+      background: rgba(30, 41, 62, 0.95);
     }
     .act-btn:active { transform: translateY(0) scale(0.98); }
     .act-btn.primary {
@@ -381,19 +376,18 @@
     #theme-toggle:hover .theme-icon { transform: rotate(-15deg) scale(1.1); }
 
     /* ============================================================
-       METRIC RIBBON
+       METRIC RIBBON — PERF: no backdrop-filter
        ============================================================ */
     .metric-ribbon {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       margin-bottom: 20px;
       overflow: hidden;
       box-shadow: var(--shadow-soft);
+      contain: layout paint;
     }
 
     .metric {
@@ -449,7 +443,9 @@
       height: 6px;
       border-radius: 50%;
       background: var(--green);
+      /* PERF: use will-change to hint GPU compositing */
       animation: livePulse 2s ease-in-out infinite;
+      will-change: opacity;
     }
     @keyframes livePulse {
       0%, 100% { opacity: 1; }
@@ -466,17 +462,17 @@
       margin-bottom: 16px;
     }
 
+    /* PERF: removed backdrop-filter from deck-hero */
     .deck-hero {
       display: flex;
       flex-direction: column;
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       overflow: hidden;
       min-height: 520px;
       box-shadow: var(--shadow-soft);
+      contain: layout paint;
     }
     .hero-head {
       display: flex;
@@ -516,6 +512,7 @@
       border-radius: 50%;
       background: var(--green);
       animation: livePulse 1.6s ease-in-out infinite;
+      will-change: opacity;
     }
 
     .scene-wrapper {
@@ -524,6 +521,7 @@
       min-height: 0;
       background: #030712;
       overflow: hidden;
+      contain: strict;
     }
     #three-container { width: 100%; height: 100%; }
     #three-container canvas { display: block; }
@@ -557,10 +555,9 @@
 
     .deck-rail { display: flex; flex-direction: column; gap: 12px; }
 
+    /* PERF: removed backdrop-filter from rail-card */
     .rail-card {
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       padding: 16px 18px;
@@ -568,6 +565,7 @@
       flex-direction: column;
       box-shadow: var(--shadow-soft);
       transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.3s var(--ease);
+      contain: layout paint;
     }
     .rail-card:hover {
       border-color: rgba(99, 102, 241, 0.3);
@@ -760,16 +758,15 @@
     #forecastSkuSelector option { background: var(--glass-2); color: var(--ink); }
 
     /* ============================================================
-       INVENTORY TABLE
+       INVENTORY TABLE — PERF: no backdrop-filter
        ============================================================ */
     .deck-table {
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       overflow: hidden;
       box-shadow: var(--shadow-soft);
+      contain: layout paint;
     }
 
     .table-head {
@@ -888,15 +885,15 @@
     }
     .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+    /* PERF: card no backdrop-filter */
     .card {
       padding: 20px 22px;
       border-radius: var(--r-lg);
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       margin-bottom: 14px;
       box-shadow: var(--shadow-soft);
+      contain: layout paint;
     }
     .card-header {
       display: flex;
@@ -947,8 +944,6 @@
       padding: 20px;
       border-radius: var(--r-lg);
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       box-shadow: var(--shadow-soft);
       transition: transform 0.3s var(--ease), border-color 0.25s ease, box-shadow 0.25s ease;
@@ -1049,7 +1044,7 @@
     }
 
     /* ============================================================
-       SEARCH BAR — BOTTOM RIGHT, EXPANDABLE GRADIENT PROMPT
+       SEARCH BAR — PERF: reduced blur radii (40px → 18px)
        ============================================================ */
     .liquid-search-wrapper {
       position: fixed;
@@ -1066,7 +1061,6 @@
       to   { opacity: 1; transform: translateX(0) scale(1); }
     }
 
-    /* The Gradient Ring */
     .search-gradient-ring {
       position: relative;
       border-radius: 50px;
@@ -1081,25 +1075,23 @@
       box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
     }
 
-    /* The Inner Search Pill / Box */
     .search-input-pill {
       position: relative;
       width: 260px;
       max-width: calc(100vw - 120px);
       height: 46px;
       border-radius: 48px;
-      /* Transparent blur background */
-      background: rgba(15, 23, 42, 0.65);
-      -webkit-backdrop-filter: blur(40px) saturate(190%);
-      backdrop-filter: blur(40px) saturate(190%);
+      background: rgba(15, 23, 42, 0.85);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      backdrop-filter: blur(18px) saturate(170%);
       display: flex;
       align-items: center;
       padding: 0 18px;
       overflow: hidden;
-      transition: all 0.4s var(--spring);
+      transition: width 0.4s var(--spring), height 0.4s var(--spring), border-radius 0.4s var(--spring), background 0.3s ease;
       box-sizing: border-box;
     }
-    
+
     .search-gradient-ring.expanded .search-input-pill {
       width: 580px;
       max-width: calc(100vw - 40px);
@@ -1107,10 +1099,9 @@
       border-radius: 22px;
       padding: 0 24px;
       justify-content: flex-start;
-      /* Keep the transparent blur but slightly darker for contrast */
-      background: rgba(15, 23, 42, 0.75);
-      -webkit-backdrop-filter: blur(50px) saturate(200%);
-      backdrop-filter: blur(50px) saturate(200%);
+      background: rgba(15, 23, 42, 0.92);
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      backdrop-filter: blur(22px) saturate(180%);
     }
 
     .search-input-pill .search-icon {
@@ -1149,7 +1140,6 @@
       color: #fff;
     }
 
-    /* The original circular button — hide it when expanded */
     .search-circle-btn {
       position: relative;
       width: 46px;
@@ -1161,15 +1151,14 @@
       cursor: pointer;
       flex-shrink: 0;
       color: #ffffff;
-      background: rgba(12, 18, 34, 0.85);
-      -webkit-backdrop-filter: blur(40px) saturate(190%);
-      backdrop-filter: blur(40px) saturate(190%);
+      background: rgba(12, 18, 34, 0.92);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      backdrop-filter: blur(18px) saturate(170%);
       border: 2px solid transparent;
       background-clip: padding-box;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-      transition: all 0.4s var(--spring);
+      transition: transform 0.4s var(--spring), opacity 0.3s ease;
     }
-    /* Apply gradient border to the circular button too */
     .search-circle-btn::before {
       content: '';
       position: absolute;
@@ -1198,30 +1187,22 @@
     }
     .search-circle-btn:hover svg { transform: rotate(-8deg) scale(1.08); }
 
-    /* Collapse circular button when expanded */
     .search-gradient-ring.expanded ~ .search-circle-btn {
       opacity: 0;
       pointer-events: none;
       transform: scale(0.8);
     }
 
-    /* Fallback for backdrop-filter */
-    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-      .search-input-pill,
-      .search-circle-btn { background: rgba(12, 18, 34, 0.95); }
-      .search-gradient-ring.expanded .search-input-pill { background: rgba(12, 18, 34, 0.98); }
-    }
-
     /* ============================================================
-       FLEET MODAL (POPUP CENTER WITH BLUR)
+       FLEET MODAL — reduced blur
        ============================================================ */
     .fleet-modal-overlay {
       position: fixed;
       inset: 0;
       z-index: 9999;
-      background: rgba(11, 15, 26, 0.4);
-      -webkit-backdrop-filter: blur(12px) saturate(120%);
-      backdrop-filter: blur(12px) saturate(120%);
+      background: rgba(11, 15, 26, 0.5);
+      -webkit-backdrop-filter: blur(8px) saturate(120%);
+      backdrop-filter: blur(8px) saturate(120%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1234,13 +1215,11 @@
       pointer-events: auto;
     }
     html[data-theme="dark"] .fleet-modal-overlay {
-      background: rgba(2, 4, 10, 0.65);
+      background: rgba(2, 4, 10, 0.72);
     }
 
     .fleet-modal-content {
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(30px) saturate(200%);
-      backdrop-filter: blur(30px) saturate(200%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       width: 90%;
@@ -1301,7 +1280,6 @@
       padding-right: 4px;
     }
 
-    /* List view items */
     .fleet-list-item {
       display: flex;
       align-items: center;
@@ -1311,7 +1289,7 @@
       border: 1px solid var(--line-2);
       border-radius: var(--r-md);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
     }
     .fleet-list-item:hover {
       background: var(--glass-2);
@@ -1336,7 +1314,6 @@
     .fl-status.charging { color: var(--sky);   background: var(--sky-soft); }
     .fl-status.warning  { color: var(--red);   background: var(--red-soft); }
 
-    /* Detail view */
     .fleet-detail-view {
       display: flex;
       flex-direction: column;
@@ -1347,7 +1324,7 @@
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
+
     .fd-header {
       display: flex;
       align-items: center;
@@ -1446,7 +1423,7 @@
     }
 
     /* ============================================================
-       PROFILE CHIP + PANEL
+       PROFILE CHIP + PANEL — reduced blur
        ============================================================ */
     .profile-chip {
       display: flex;
@@ -1456,17 +1433,15 @@
       border-radius: var(--r-sm);
       cursor: pointer;
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
       border: 1px solid var(--line);
       transition: background 0.2s ease, border-color 0.2s ease, transform 0.25s var(--ease);
       user-select: none;
     }
     .profile-chip:hover {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.95);
       transform: translateY(-1px);
     }
-    html[data-theme="dark"] .profile-chip:hover { background: rgba(30, 41, 62, 0.85); }
+    html[data-theme="dark"] .profile-chip:hover { background: rgba(30, 41, 62, 0.95); }
     .profile-chip:active { transform: translateY(0) scale(0.98); }
     .profile-chip.open {
       background: var(--accent-soft);
@@ -1496,8 +1471,6 @@
       position: fixed;
       inset: 0;
       background: rgba(11, 15, 26, 0.2);
-      -webkit-backdrop-filter: blur(2px);
-      backdrop-filter: blur(2px);
       z-index: 998;
       opacity: 0;
       pointer-events: none;
@@ -1512,8 +1485,8 @@
       right: 22px;
       width: 300px;
       background: var(--glass-2);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(170%);
+      backdrop-filter: blur(14px) saturate(170%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       box-shadow: var(--shadow-lift);
@@ -2041,24 +2014,16 @@
     </main>
   </div>
 
-  <!-- ============================================================
-       FLEET MODAL (POPUP CENTER WITH BLUR)
-       ============================================================ -->
   <div class="fleet-modal-overlay" id="fleet-modal">
     <div class="fleet-modal-content">
       <div class="fleet-modal-header">
         <h3 class="fleet-modal-title" id="fleet-modal-title">Fleet Diagnostics</h3>
         <button class="fleet-modal-close" id="fleet-modal-close">&times;</button>
       </div>
-      <div class="fleet-modal-body" id="fleet-modal-body">
-        <!-- Content will be injected by JS -->
-      </div>
+      <div class="fleet-modal-body" id="fleet-modal-body"></div>
     </div>
   </div>
 
-  <!-- ============================================================
-       EXPANDABLE SEARCH PROMPT
-       ============================================================ -->
   <div class="liquid-search-wrapper" id="search-wrapper">
     <div class="search-gradient-ring" id="search-ring">
       <div class="search-input-pill">
@@ -2069,8 +2034,7 @@
         <input type="text" placeholder="Ask anything..." id="search-input" />
       </div>
     </div>
-    
-    <!-- Original circular search button (hidden when expanded) -->
+
     <button class="search-circle-btn" aria-label="Search" id="search-circle-btn">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="7"></circle>
@@ -2317,10 +2281,8 @@
     })();
   </script>
 
-  <!-- FLEET MODAL INTERACTION & DYNAMIC CONTENT -->
   <script>
     (function() {
-      // Mock robot data
       const robots = [
         { id: 'AGV-014', name: 'AGV-014', status: 'Active', battery: 92, location: 'Zone A', speed: '1.2 m/s', payload: '45 kg', lastMaintenance: '2024-10-12' },
         { id: 'AGV-027', name: 'AGV-027', status: 'Charging', battery: 34, location: 'Charging Station', speed: '0 m/s', payload: '0 kg', lastMaintenance: '2024-10-10' },
@@ -2338,14 +2300,12 @@
       const goToRobotsBtn = document.getElementById('go-to-robots');
       const fleetSummary = document.getElementById('fleet-summary');
 
-      // Helper to get status class
       function getStatusClass(status) {
         if (status === 'Active') return 'active';
         if (status === 'Charging') return 'charging';
         return 'warning';
       }
 
-      // Populate sidebar fleet summary
       function renderFleetSummary() {
         if (!fleetSummary) return;
         fleetSummary.innerHTML = robots.slice(0, 4).map(robot => `
@@ -2354,8 +2314,7 @@
             <span class="fs-status ${getStatusClass(robot.status)}">${robot.status} · ${robot.battery}%</span>
           </div>
         `).join('');
-        
-        // Add click listeners to sidebar items
+
         fleetSummary.querySelectorAll('.fleet-stat').forEach(item => {
           item.addEventListener('click', function() {
             const robotId = this.getAttribute('data-robot-id');
@@ -2364,7 +2323,6 @@
         });
       }
 
-      // Render list view for modal
       function renderFleetList() {
         fleetModalTitle.textContent = 'Fleet Diagnostics';
         fleetModalBody.innerHTML = robots.map(robot => `
@@ -2374,7 +2332,6 @@
           </div>
         `).join('');
 
-        // Add click listeners for list items
         fleetModalBody.querySelectorAll('.fleet-list-item').forEach(item => {
           item.addEventListener('click', function() {
             const robotId = this.getAttribute('data-robot-id');
@@ -2383,13 +2340,12 @@
         });
       }
 
-      // Render detail view for modal
       function openFleetDetail(robotId) {
         const robot = robots.find(r => r.id === robotId);
         if (!robot) return;
 
         fleetModalTitle.textContent = `Robot Details: ${robot.name}`;
-        
+
         let batteryClass = 'high';
         if (robot.battery < 30) batteryClass = 'low';
         else if (robot.battery < 60) batteryClass = 'medium';
@@ -2431,7 +2387,6 @@
           </div>
         `;
 
-        // Add back button listener
         const backBtn = document.getElementById('fd-back-btn');
         if (backBtn) {
           backBtn.addEventListener('click', function() {
@@ -2440,24 +2395,15 @@
         }
       }
 
-      // Open modal (list view)
       function openFleetModalList() {
         renderFleetList();
         fleetModal.classList.add('open');
       }
 
-      // Open modal (detail view directly)
-      function openFleetModalDetail(robotId) {
-        openFleetDetail(robotId);
-        fleetModal.classList.add('open');
-      }
-
-      // Close modal
       function closeFleetModal() {
         fleetModal.classList.remove('open');
       }
 
-      // Event Listeners
       if (goToRobotsBtn) {
         goToRobotsBtn.addEventListener('click', function(e) {
           e.preventDefault();
@@ -2483,12 +2429,10 @@
         }
       });
 
-      // Initialize
       renderFleetSummary();
     })();
   </script>
 
-  <!-- SEARCH BAR INTERACTION -->
   <script>
     (function() {
       const searchRing = document.getElementById('search-ring');
@@ -2497,7 +2441,6 @@
       const searchCircleBtn = document.getElementById('search-circle-btn');
       const searchPill = document.querySelector('.search-input-pill');
 
-      // Expand on click of the entire search pill
       searchPill.addEventListener('click', function(e) {
         e.stopPropagation();
         searchRing.classList.add('expanded');
@@ -2512,14 +2455,12 @@
         });
       }
 
-      // Collapse when clicking outside
       document.addEventListener('click', function(e) {
         if (!searchWrapper.contains(e.target)) {
           searchRing.classList.remove('expanded');
         }
       });
 
-      // Prevent clicking inside the wrapper from collapsing it
       searchWrapper.addEventListener('click', function(e) {
         e.stopPropagation();
       });
@@ -2834,16 +2775,23 @@ loadOperationsKPIs();
     const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 200);
     camera.position.set(14, 15, 16);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    // PERF: reduced pixel ratio from 1.5 to 1 — massive GPU savings on retina
+    const renderer = new THREE.WebGLRenderer({
+      antialias: false,               // PERF: turned off MSAA — biggest single win
+      powerPreference: 'high-performance',
+      stencil: false,
+      depth: true,
+      alpha: false
+    });
+    renderer.setPixelRatio(1);
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
+    // PERF: disable damping so we don't trigger rAF loops during idle
+    controls.enableDamping = false;
     controls.maxPolarAngle = Math.PI / 2.15;
     controls.minDistance = 12;
     controls.maxDistance = 32;
@@ -2869,43 +2817,62 @@ loadOperationsKPIs();
     ground.position.y = -0.02;
     warehouse.add(ground);
 
+    // PERF: share geometry & materials across repeated meshes
+    const sharedPlateGeometries = {};
+    const sharedPlateMaterials = {};
+    const sharedEdgeGeometries = {};
+    const sharedEdgeMaterials = {};
+    const sharedShelfGeo = new THREE.BoxGeometry(1, 0.28, 1);
+    const sharedShelfMat = new THREE.MeshStandardMaterial({
+      color: 0x3b82f6, emissive: 0x3b82f6, emissiveIntensity: 0.5,
+      roughness: 0.5, metalness: 0.4
+    });
+
     function buildSection(opts) {
       const { x, z, w, d, baseColor, labelText, labelColor, shelves = null } = opts;
       const group = new THREE.Group();
       group.position.set(x, 0, z);
 
-      const plateGeo = new THREE.BoxGeometry(w, 0.06, d);
-      const plateMat = new THREE.MeshStandardMaterial({
-        color: baseColor, emissive: baseColor, emissiveIntensity: 0.35,
-        transparent: true, opacity: 0.42, roughness: 0.7, metalness: 0.2
-      });
-      const plate = new THREE.Mesh(plateGeo, plateMat);
+      const key = w + '_' + d;
+      if (!sharedPlateGeometries[key]) {
+        sharedPlateGeometries[key] = new THREE.BoxGeometry(w, 0.06, d);
+        sharedEdgeGeometries[key] = new THREE.EdgesGeometry(sharedPlateGeometries[key]);
+      }
+      if (!sharedPlateMaterials[baseColor]) {
+        sharedPlateMaterials[baseColor] = new THREE.MeshStandardMaterial({
+          color: baseColor, emissive: baseColor, emissiveIntensity: 0.35,
+          transparent: true, opacity: 0.42, roughness: 0.7, metalness: 0.2
+        });
+        sharedEdgeMaterials[baseColor] = new THREE.LineBasicMaterial({
+          color: baseColor, transparent: true, opacity: 0.85
+        });
+      }
+
+      const plate = new THREE.Mesh(sharedPlateGeometries[key], sharedPlateMaterials[baseColor]);
       plate.position.y = 0.03;
       group.add(plate);
 
-      const edgesGeo = new THREE.EdgesGeometry(plateGeo);
-      const edgesMat = new THREE.LineBasicMaterial({ color: baseColor, transparent: true, opacity: 0.85 });
-      const edges = new THREE.LineSegments(edgesGeo, edgesMat);
+      const edges = new THREE.LineSegments(sharedEdgeGeometries[key], sharedEdgeMaterials[baseColor]);
       edges.position.y = 0.03;
       group.add(edges);
 
       if (shelves) {
         const { rows, cols, shelfColor } = shelves;
-        const shelfMat = new THREE.MeshStandardMaterial({
+        const shelfMat = shelfColor === 0x3b82f6 ? sharedShelfMat : new THREE.MeshStandardMaterial({
           color: shelfColor, emissive: shelfColor, emissiveIntensity: 0.5,
           roughness: 0.5, metalness: 0.4
         });
         const padX = w * 0.1, padZ = d * 0.12;
         const availW = w - padX * 2, availD = d - padZ * 2;
         const cellW = availW / cols, cellD = availD / rows;
-        const shelfW = cellW * 0.68, shelfD = cellD * 0.68, shelfH = 0.28;
+        const shelfW = cellW * 0.68, shelfD = cellD * 0.68;
         const startX = -availW / 2 + cellW / 2;
         const startZ = -availD / 2 + cellD / 2;
-        const sharedGeo = new THREE.BoxGeometry(shelfW, shelfH, shelfD);
         for (let r = 0; r < rows; r++) {
           for (let c = 0; c < cols; c++) {
-            const mesh = new THREE.Mesh(sharedGeo, shelfMat);
-            mesh.position.set(startX + c * cellW, shelfH / 2 + 0.06, startZ + r * cellD);
+            const mesh = new THREE.Mesh(sharedShelfGeo, shelfMat);
+            mesh.scale.set(shelfW, 1, shelfD);
+            mesh.position.set(startX + c * cellW, 0.14 + 0.06, startZ + r * cellD);
             group.add(mesh);
           }
         }
@@ -2987,20 +2954,20 @@ loadOperationsKPIs();
       { x: 1.5, z: 1.5, color: 0xef4444 }
     ];
 
-    const sharedSphereGeo = new THREE.SphereGeometry(0.16, 16, 16);
+    const sharedSphereGeo = new THREE.SphereGeometry(0.16, 12, 12);
     const glowTextures = new Map();
     function getGlowTexture(color) {
       if (glowTextures.has(color)) return glowTextures.get(color);
       const canvas = document.createElement('canvas');
-      canvas.width = 128; canvas.height = 128;
+      canvas.width = 64; canvas.height = 64;
       const ctx = canvas.getContext('2d');
       const c = new THREE.Color(color);
-      const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
       grad.addColorStop(0, `rgba(${c.r*255|0}, ${c.g*255|0}, ${c.b*255|0}, 1)`);
       grad.addColorStop(0.4, `rgba(${c.r*255|0}, ${c.g*255|0}, ${c.b*255|0}, 0.4)`);
       grad.addColorStop(1, `rgba(${c.r*255|0}, ${c.g*255|0}, ${c.b*255|0}, 0)`);
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillRect(0, 0, 64, 64);
       const tex = new THREE.CanvasTexture(canvas);
       tex.minFilter = THREE.LinearFilter;
       tex.generateMipmaps = false;
@@ -3008,13 +2975,17 @@ loadOperationsKPIs();
       return tex;
     }
 
+    // PERF: share the mesh material per color
+    const robotMats = new Map();
     robotData.forEach(r => {
       const g = new THREE.Group();
       g.position.set(r.x, 0.32, r.z);
-      const mat = new THREE.MeshStandardMaterial({
-        color: r.color, emissive: r.color, emissiveIntensity: 1.6, roughness: 0.3
-      });
-      g.add(new THREE.Mesh(sharedSphereGeo, mat));
+      if (!robotMats.has(r.color)) {
+        robotMats.set(r.color, new THREE.MeshStandardMaterial({
+          color: r.color, emissive: r.color, emissiveIntensity: 1.6, roughness: 0.3
+        }));
+      }
+      g.add(new THREE.Mesh(sharedSphereGeo, robotMats.get(r.color)));
       const glowMat = new THREE.SpriteMaterial({
         map: getGlowTexture(r.color), transparent: true,
         blending: THREE.AdditiveBlending, depthWrite: false
@@ -3041,6 +3012,13 @@ loadOperationsKPIs();
     buildPath([[-6, -4.5], [-2, -5], [2, -5], [5.5, -5]], 0xfbbf24);
     buildPath([[5.5, -2.2], [3, -1], [1, 1], [-1, 2.5]], 0x3b82f6);
 
+    let needsRender = true;
+    function renderScene() {
+      if (!needsRender) return;
+      needsRender = false;
+      renderer.render(scene, camera);
+    }
+
     const ro = new ResizeObserver(() => {
       const w = container.clientWidth, h = container.clientHeight;
       if (w === 0 || h === 0) return;
@@ -3051,13 +3029,6 @@ loadOperationsKPIs();
       renderScene();
     });
     ro.observe(container);
-
-    let needsRender = true;
-    function renderScene() {
-      if (!needsRender) return;
-      needsRender = false;
-      renderer.render(scene, camera);
-    }
 
     controls.addEventListener('change', () => { needsRender = true; renderScene(); });
     renderScene();
