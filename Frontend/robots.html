@@ -58,7 +58,7 @@ svg{display:block}
 .app{display:flex;min-height:100vh}
 
 /* =========================================================
-   Sidebar (redesigned)
+   Sidebar
    ========================================================= */
 .sidebar{
   width:260px;flex:0 0 260px;
@@ -130,7 +130,7 @@ svg{display:block}
 
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 
-/* Topbar — BLANK WHITE STRIP (no content) */
+/* Topbar — BLANK WHITE STRIP */
 .topbar{
   height:56px;flex:0 0 56px;
   background:var(--panel);
@@ -518,17 +518,45 @@ svg{display:block}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* =========================================================
-   Current Task panel
+   Current Task panel — FIXED
    ========================================================= */
 .task-body{padding:16px;display:flex;flex-direction:column;gap:16px;flex:1}
-.task-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.task-order{font-size:14.5px;font-weight:700;letter-spacing:-.2px;font-family:var(--mono)}
-.task-route{font-size:12px;color:var(--text-2);font-weight:600;margin-top:3px}
-.task-progress{display:flex;align-items:center;gap:10px;min-width:180px;flex:1;max-width:340px}
-.task-progress .bar{height:7px}
+.task-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;flex-wrap:wrap;
+}
+.task-order{
+  font-size:14.5px;font-weight:700;letter-spacing:-.2px;font-family:var(--mono);
+}
+.task-route{
+  font-size:12px;color:var(--text-2);font-weight:600;margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;
+}
+.task-progress{
+  display:flex;align-items:center;gap:10px;
+  min-width:200px;flex:1;max-width:360px;
+}
+/* FIX: give the bar explicit flex so it actually takes up space */
+.task-progress .bar{
+  flex:1 1 auto;
+  min-width:0;
+  height:8px;
+  background:#e9eef6;
+  border-radius:99px;
+  overflow:hidden;
+  position:relative;
+}
+.task-progress .bar > i{
+  height:100%;
+  border-radius:99px;
+  background:linear-gradient(90deg,#2563eb 0%,#3b82f6 60%,#60a5fa 100%);
+  transition:width .5s cubic-bezier(.22,.9,.3,1);
+  box-shadow:0 0 0 1px rgba(37,99,235,.08);
+}
 .task-progress .pct{
   font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums;
-  letter-spacing:-.3px;min-width:40px;text-align:right;
+  letter-spacing:-.3px;min-width:44px;text-align:right;
+  color:var(--text);
 }
 
 .pipeline{display:flex;flex-direction:column;gap:0}
@@ -679,6 +707,7 @@ body.map-expanded .map-panel{
   .map-hint{display:none;}
   .map-sim-controls{top:10px;left:10px;}
   .toasts{left:14px;right:14px;max-width:none;}
+  .task-progress{min-width:0;width:100%;max-width:none;}
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -693,7 +722,7 @@ body.map-expanded .map-panel{
 <body>
 
 <div class="app">
-  <!-- ===================== SIDEBAR (redesigned) ===================== -->
+  <!-- ===================== SIDEBAR ===================== -->
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark">📦</div>
@@ -708,13 +737,15 @@ body.map-expanded .map-panel{
         Dashboard
       </a>
 
-      <a class="nav-item" href="/robot-fleet">
+      <!-- FIX: Robots is the active page -->
+      <a class="nav-item is-active" href="/robot-fleet" aria-current="page">
         <span class="nav-emoji">🤖</span>
         Robots
-        <span class="nav-badge">2</span>
+        <span class="nav-badge" id="navRobotCount">0</span>
       </a>
 
-      <a class="nav-item is-active" href="/forecasting" aria-current="page">
+      <!-- FIX: Forecasting no longer active -->
+      <a class="nav-item" href="/forecasting">
         <span class="nav-emoji">📈</span>
         Forecasting
       </a>
@@ -731,12 +762,10 @@ body.map-expanded .map-panel{
   </aside>
 
   <div class="main">
-    <!-- ============ TOPBAR — completely blank ============ -->
     <header class="topbar" aria-hidden="true"></header>
 
     <main class="page">
 
-      <!-- ===================== PAGE HEADER ===================== -->
       <div class="page-head">
         <div>
           <h1>Robot Fleet</h1>
@@ -751,10 +780,9 @@ body.map-expanded .map-panel{
         </div>
       </div>
 
-      <!-- ===================== WORKSPACE ===================== -->
       <section class="workspace">
 
-        <!-- ---------- MAP ---------- -->
+        <!-- MAP -->
         <div class="panel map-panel">
           <div class="map-head">
             <div class="map-head-left">
@@ -827,7 +855,7 @@ body.map-expanded .map-panel{
           </div>
         </div>
 
-        <!-- ---------- ROBOT DETAILS ---------- -->
+        <!-- ROBOT DETAILS -->
         <div class="panel detail-panel">
           <div class="panel-head">
             <h2>Robot Details</h2>
@@ -862,7 +890,7 @@ body.map-expanded .map-panel{
           </div>
         </div>
 
-        <!-- ---------- FLEET ---------- -->
+        <!-- FLEET -->
         <div class="panel fleet-panel">
           <div class="panel-head">
             <h2>Fleet</h2>
@@ -893,7 +921,7 @@ body.map-expanded .map-panel{
           <div class="robot-list" id="robotList" role="listbox" aria-label="Robot fleet"></div>
         </div>
 
-        <!-- ---------- CURRENT TASK ---------- -->
+        <!-- CURRENT TASK -->
         <div class="panel task-panel">
           <div class="panel-head">
             <h2>Current Task</h2>
@@ -915,7 +943,7 @@ body.map-expanded .map-panel{
         </div>
       </section>
 
-      <!-- ===================== ACTIVITY ===================== -->
+      <!-- ACTIVITY -->
       <section class="panel activity-panel">
         <div class="panel-head">
           <h2>Live Activity</h2>
@@ -933,7 +961,6 @@ body.map-expanded .map-panel{
 <script>
 /* =========================================================================
    IronNest — Robot Fleet
-   Single source of truth: UI.selected (a Robot instance).
    ========================================================================= */
 (function () {
   "use strict";
@@ -1991,7 +2018,7 @@ body.map-expanded .map-panel{
     init() {
       this.buildRobotList();
       this.bindControls();
-      this.select(Sim.robots[0].id);
+      if (Sim.robots[0]) this.select(Sim.robots[0].id);
       Activity.push("ok", "IR-001 started Order #1024");
       Activity.push("info", "IR-003 started charging at Dock 2");
       Activity.push("warn", "IR-001 / IR-002 proximity warning");
@@ -2455,111 +2482,105 @@ body.map-expanded .map-panel{
     }
   };
 
+  /* FIX: Update the sidebar badge with live count */
+  function updateNavBadge() {
+    const badge = document.getElementById("navRobotCount");
+    if (badge) badge.textContent = String(Sim.robots.length);
+  }
+
   async function loadRealRobots() {
     try {
-        const response = await fetch("http://127.0.0.1:8000/robots");
+      const response = await fetch("http://127.0.0.1:8000/robots");
 
-        if (!response.ok) {
-            throw new Error(`Robot API returned ${response.status}`);
-        }
+      if (!response.ok) {
+        throw new Error(`Robot API returned ${response.status}`);
+      }
 
-        const data = await response.json();
+      const data = await response.json();
 
-        const rows = Array.isArray(data)
-            ? data
-            : (data.robots || []);
+      const rows = Array.isArray(data)
+        ? data
+        : (data.robots || []);
 
-        if (!rows.length) {
-            console.warn("No robots found in database.");
-            return;
-        }
+      if (!rows.length) {
+        console.warn("No robots found in database.");
+        return;
+      }
 
-        // Replace simulated robots with database robots
-        Sim.robots = [];
+      // Replace simulated robots with database robots
+      Sim.robots = [];
 
-        rows.forEach((item, index) => {
+      // Use proper aisle spawn points to avoid spawning inside racks
+      const spawns = Sim.spawnPoints();
 
-            const robot = new Robot({
-                id: String(item.robot_id),
+      rows.forEach((item, index) => {
+        const sp = spawns[index % spawns.length];
 
-                name: item.robot_name || `Robot-${item.robot_id}`,
-
-                warehouse: "WH-A",
-
-                x: 100 + (index % 5) * 170,
-
-                y: 200 + Math.floor(index / 5) * 160,
-
-                heading: 0,
-
-                battery: Number(item.battery_level) || 0,
-
-                speed: 1.2,
-
-                laneOffset:
-                    index % 2 === 0
-                        ? CONFIG.LANE_OFFSET
-                        : -CONFIG.LANE_OFFSET
-            });
-
-            // Store database information
-            robot.dbStatus = item.status;
-
-            robot._locLabel =
-                item.current_location || "Unknown";
-
-            robot.dbTask =
-                item.current_task || null;
-
-            // Convert database status to simulator status
-            const status =
-                String(item.status || "").toLowerCase();
-
-            if (status === "working") {
-                robot.status = "active";
-            }
-            else if (status === "charging") {
-                robot.status = "charging";
-            }
-            else if (status === "offline") {
-                robot.status = "offline";
-            }
-            else {
-                robot.status = "idle";
-            }
-
-            Sim.robots.push(robot);
+        const robot = new Robot({
+          id: String(item.robot_id),
+          name: item.robot_name || `Robot-${item.robot_id}`,
+          warehouse: "WH-A",
+          x: sp.x + (Math.random() * 10 - 5),
+          y: sp.y + (Math.random() * 10 - 5),
+          heading: 0,
+          battery: Number(item.battery_level) || 0,
+          speed: 1.2,
+          laneOffset: index % 2 === 0
+            ? CONFIG.LANE_OFFSET
+            : -CONFIG.LANE_OFFSET
         });
 
-        // Select first robot
-        Sim.selected = Sim.robots[0] || null;
+        robot.dbStatus = item.status;
+        robot._locLabel = item.current_location || "Unknown";
+        robot.dbTask = item.current_task || null;
 
-        console.log(
-            "Real robots loaded from database:",
-            Sim.robots
-        );
+        const status = String(item.status || "").toLowerCase();
+
+        if (status === "working") {
+          robot.status = "active";
+        } else if (status === "charging") {
+          robot.status = "charging";
+        } else if (status === "offline") {
+          robot.status = "offline";
+        } else {
+          robot.status = "idle";
+        }
+
+        // Keep DB task info as a label if there's no simulator task
+        if (item.current_task) {
+          robot._dbTaskLabel = item.current_task;
+        }
+
+        Sim.robots.push(robot);
+      });
+
+      Sim.selected = Sim.robots[0] || null;
+
+      // FIX: if no robot is "active", make the first one active so the
+      // task panel has something to show.
+      const anyActive = Sim.robots.some((r) => r.status === "active");
+      if (!anyActive && Sim.robots.length) {
+        Sim.robots[0].status = "active";
+      }
+
+      console.log("Real robots loaded from database:", Sim.robots);
 
     } catch (error) {
-
-        console.error(
-            "Failed to load robots:",
-            error
+      console.error("Failed to load robots:", error);
+      if (typeof Toast !== "undefined") {
+        Toast.show(
+          "bad",
+          "Robot data unavailable",
+          "Could not load robot data from the warehouse API."
         );
-
-        if (typeof Toast !== "undefined") {
-            Toast.show(
-                "bad",
-                "Robot data unavailable",
-                "Could not load robot data from the warehouse API."
-            );
-        }
+      }
     }
   }
 
   async function boot() {
     Sim.init(24);
-
     await loadRealRobots();
+    updateNavBadge(); // FIX: update sidebar badge
 
     renderer.init();
 
