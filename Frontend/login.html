@@ -10,6 +10,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      --ink: #0f172a;
+      --ink-2: #334155;
+      --ink-3: #64748b;
+      --ink-4: #94a3b8;
+
+      --bg-base: #f8fafc;
+      --glass: rgba(255, 255, 255, 0.72);
+
+      --line: rgba(0, 0, 0, 0.06);
+
+      --accent: #3b82f6;
+      --accent-2: #2563eb;
+      --accent-soft: rgba(59, 130, 246, 0.1);
+
+      --green: #10b981;
+      --green-soft: rgba(16, 185, 129, 0.1);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.1);
+      --amber: #f59e0b;
+
+      --r-lg: 24px;
+      --r-md: 14px;
+      --r-sm: 10px;
+
+      --shadow-lift: 0 20px 50px -20px rgba(15, 23, 42, 0.15);
+
+      --ease: cubic-bezier(0.32, 0.72, 0, 1);
+      --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
@@ -20,13 +51,24 @@
     }
 
     body {
-      background: #f7f7f8;
-      color: #0f172a;
+      background: var(--bg-base);
+      color: var(--ink);
       padding: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(700px 700px at 10% 10%, rgba(59, 130, 246, 0.08), transparent 60%),
+        radial-gradient(700px 700px at 90% 90%, rgba(168, 85, 247, 0.08), transparent 60%);
     }
 
     button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; }
@@ -42,246 +84,666 @@
       left: 40px;
       font-size: 1.3rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--ink);
       letter-spacing: -0.03em;
+      z-index: 10;
     }
     .brand-logo .logo-mark {
       width: 38px;
       height: 38px;
-      background: #2563eb;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
       font-size: 1.2rem;
+      box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.4);
+    }
+
+    /* ── AUTH WRAPPER ── */
+    .auth-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      z-index: 1;
+      isolation: isolate;
+    }
+
+    .auth-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: -14px;
+      border-radius: calc(var(--r-lg) + 14px);
+      background: linear-gradient(120deg, #93c5fd, #c4b5fd, #f9a8d4, #93c5fd);
+      background-size: 300% 300%;
+      animation: borderGlow 8s ease infinite;
+      filter: blur(22px);
+      opacity: 0.55;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .auth-wrapper::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: calc(var(--r-lg) + 2px);
+      background: linear-gradient(120deg, #bfdbfe, #ddd6fe, #fbcfe8, #bfdbfe);
+      background-size: 300% 300%;
+      animation: borderGlow 8s ease infinite;
+      filter: blur(4px);
+      opacity: 0.7;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    @keyframes borderGlow {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     /* ── AUTH CARD ── */
     .auth-card {
+      position: relative;
       width: 100%;
-      max-width: 440px;
-      background: #ffffff;
-      border: 1px solid #ebedf0;
-      border-radius: 16px;
-      padding: 48px 44px 36px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.03);
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      backdrop-filter: blur(28px) saturate(180%);
+      border-radius: var(--r-lg);
+      padding: 48px 44px 40px;
+      box-shadow: var(--shadow-lift);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      background-image: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 40%);
     }
 
     .auth-card .card-eyebrow {
       font-size: 0.85rem;
-      color: #94a3b8;
-      font-weight: 400;
+      color: var(--ink-3);
+      font-weight: 500;
       margin-bottom: 6px;
     }
 
     .auth-card h1 {
       font-size: 2rem;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--ink);
       letter-spacing: -0.035em;
       margin-bottom: 32px;
       line-height: 1.15;
     }
 
-    .field { margin-bottom: 16px; }
+    /* ============================================================
+       🎭 EMOJI STAGE
+       ============================================================ */
+    .emoji-stage {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      height: 0;
+      margin: 0;
+      overflow: visible;
+      pointer-events: none;
+      transition: height 0.4s var(--spring), margin 0.4s var(--spring);
+    }
+    .emoji-stage.active {
+      height: 82px;
+      margin: 0 0 8px;
+    }
+
+    .emoji-companion {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 76px;
+      height: 76px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, 20px) scale(0.5);
+      transition:
+        opacity 0.4s ease,
+        transform 0.55s var(--spring);
+    }
+    .emoji-stage.active .emoji-companion {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+      animation: emojiFloat 4s ease-in-out infinite;
+      animation-delay: 0.5s;
+    }
+
+    @keyframes emojiFloat {
+      0%, 100% { transform: translate(-50%, 0); }
+      50%      { transform: translate(-50%, -6px); }
+    }
+
+    .emoji-face {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fde047 0%, #fbbf24 45%, #f59e0b 100%);
+      box-shadow:
+        inset 0 -6px 12px rgba(180, 83, 9, 0.25),
+        inset 0 3px 6px rgba(255, 255, 255, 0.5),
+        0 10px 24px -8px rgba(245, 158, 11, 0.6);
+      transition: transform 0.35s var(--spring);
+    }
+
+    .emoji-face::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.35) 0%, transparent 70%);
+      z-index: -1;
+      animation: emojiPulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes emojiPulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50%      { transform: scale(1.15); opacity: 0.4; }
+    }
+
+    .emoji-eyes {
+      position: absolute;
+      top: 24px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    .emoji-eye {
+      position: relative;
+      width: 14px;
+      height: 16px;
+      background: #ffffff;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
+      transition: all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+      transform-origin: center;
+    }
+    .emoji-pupil {
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      background: #1a1a2e;
+      border-radius: 50%;
+      top: 5px;
+      left: 4px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .emoji-pupil::after {
+      content: '';
+      position: absolute;
+      width: 2.5px;
+      height: 2.5px;
+      background: #ffffff;
+      border-radius: 50%;
+      top: 1px;
+      left: 1px;
+      opacity: 0.9;
+    }
+
+    .emoji-companion[data-look="email"] .emoji-pupil    { transform: translate(2px, 3px); }
+    .emoji-companion[data-look="password"] .emoji-pupil { transform: translate(-2px, 4px); }
+    .emoji-companion[data-look="name"] .emoji-pupil     { transform: translate(2px, 2px); }
+    .emoji-companion[data-look="contact"] .emoji-pupil  { transform: translate(-2px, 3px); }
+    .emoji-companion[data-look="confirm"] .emoji-pupil  { transform: translate(0, 4px); }
+    .emoji-companion[data-look="newpass"] .emoji-pupil  { transform: translate(-2px, 4px); }
+
+    .emoji-companion[data-expression="excited"] .emoji-eye {
+      width: 16px;
+      height: 18px;
+      transform: scale(1.05);
+    }
+    .emoji-companion[data-expression="excited"] .emoji-pupil {
+      width: 8px;
+      height: 8px;
+      top: 5px;
+      left: 4px;
+    }
+    .emoji-companion[data-expression="thinking"] .emoji-eye:nth-child(1) {
+      transform: scaleY(0.45);
+    }
+    .emoji-companion[data-expression="thinking"] .emoji-eye:nth-child(2) {
+      transform: scaleY(1);
+    }
+    .emoji-companion[data-expression="surprised"] .emoji-eye {
+      width: 16px;
+      height: 18px;
+    }
+    .emoji-companion[data-expression="surprised"] .emoji-pupil {
+      width: 6px;
+      height: 6px;
+      top: 5px;
+      left: 4px;
+    }
+    .emoji-companion[data-expression="sleepy"] .emoji-eye {
+      transform: scaleY(0.35);
+    }
+    .emoji-companion[data-expression="focused"] .emoji-eye {
+      transform: scaleY(0.7);
+    }
+
+    .emoji-eye.blink { animation: blink 0.2s ease; }
+    @keyframes blink {
+      0%, 100% { transform: scaleY(1); }
+      50%      { transform: scaleY(0.1); }
+    }
+
+    .emoji-mouth {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 10px;
+      border-radius: 0 0 22px 22px;
+      background: #1a1a2e;
+      transition: all 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+      overflow: hidden;
+    }
+
+    .emoji-companion[data-expression="happy"] .emoji-mouth {
+      width: 26px;
+      height: 12px;
+      border-radius: 0 0 26px 26px;
+      bottom: 17px;
+    }
+    .emoji-companion[data-expression="excited"] .emoji-mouth {
+      width: 32px;
+      height: 20px;
+      border-radius: 0 0 32px 32px;
+      bottom: 14px;
+    }
+    .emoji-companion[data-expression="excited"] .emoji-mouth::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 9px;
+      border-radius: 0 0 22px 22px;
+      background: #f472b6;
+    }
+    .emoji-companion[data-expression="thinking"] .emoji-mouth {
+      width: 14px;
+      height: 10px;
+      border-radius: 50% 50% 40% 40%;
+      bottom: 20px;
+      left: 55%;
+    }
+    .emoji-companion[data-expression="surprised"] .emoji-mouth {
+      width: 14px;
+      height: 16px;
+      border-radius: 50%;
+      bottom: 18px;
+    }
+    .emoji-companion[data-expression="focused"] .emoji-mouth {
+      width: 22px;
+      height: 3px;
+      border-radius: 22px;
+      bottom: 22px;
+    }
+    .emoji-companion[data-expression="sleepy"] .emoji-mouth {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      bottom: 20px;
+    }
+
+    .emoji-companion[data-look="password"] .emoji-mouth,
+    .emoji-companion[data-look="newpass"] .emoji-mouth {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      bottom: 20px;
+    }
+
+    .emoji-cheek {
+      position: absolute;
+      top: 40px;
+      width: 10px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(244, 63, 94, 0.35);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .emoji-cheek.left  { left: 10px; }
+    .emoji-cheek.right { right: 10px; }
+    .emoji-companion[data-expression="happy"] .emoji-cheek,
+    .emoji-companion[data-expression="excited"] .emoji-cheek,
+    .emoji-companion[data-expression="surprised"] .emoji-cheek {
+      opacity: 1;
+    }
+
+    .emoji-hand {
+      position: absolute;
+      top: 22px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fde047, #f59e0b);
+      box-shadow: 0 2px 4px rgba(180, 83, 9, 0.3);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+      pointer-events: none;
+      z-index: 3;
+    }
+    .emoji-hand.left  { left: 2px; transform: translateY(20px) rotate(-20deg); }
+    .emoji-hand.right { right: 2px; transform: translateY(20px) rotate(20deg); }
+    .emoji-companion[data-look="password"] .emoji-hand,
+    .emoji-companion[data-look="newpass"] .emoji-hand {
+      opacity: 1;
+      transform: translateY(0) rotate(0);
+    }
+    .emoji-companion[data-look="password"] .emoji-hand.left,
+    .emoji-companion[data-look="newpass"] .emoji-hand.left  { left: 14px; }
+    .emoji-companion[data-look="password"] .emoji-hand.right,
+    .emoji-companion[data-look="newpass"] .emoji-hand.right { right: 14px; }
+
+    .emoji-companion.typing .emoji-face {
+      animation: emojiBounce 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    @keyframes emojiBounce {
+      0%   { transform: scale(1) rotate(0deg); }
+      35%  { transform: scale(1.12) rotate(-6deg); }
+      70%  { transform: scale(0.96) rotate(3deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    .emoji-ripple {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2.5px solid rgba(251, 191, 36, 0.7);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .emoji-companion.typing .emoji-ripple {
+      animation: emojiRipple 0.6s cubic-bezier(0.2, 0.6, 0.4, 1);
+    }
+    @keyframes emojiRipple {
+      0%   { transform: scale(0.9); opacity: 0.9; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+
+    /* ============================================================
+       📝 FIELD WRAPPER — border & background now on .field,
+       so the input text can be blurred independently.
+       ============================================================ */
+    .field {
+      position: relative;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1.5px solid var(--line);
+      border-radius: var(--r-md);
+      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .field:focus-within {
+      background: #ffffff;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft), 0 4px 12px rgba(59, 130, 246, 0.05);
+      transform: translateY(-1px);
+    }
+
+    /* Invalid state via :has() — falls back gracefully */
+    .field:has(input.invalid) {
+      border-color: var(--red);
+      background: rgba(239, 68, 68, 0.02);
+    }
+    .field:has(input.invalid):focus-within {
+      box-shadow: 0 0 0 4px var(--red-soft);
+    }
+
     .field input {
       width: 100%;
-      padding: 15px 18px;
-      background: #ffffff;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 10px;
+      padding: 18px 44px 14px 16px;
+      background: transparent;
+      border: none;
+      border-radius: var(--r-md);
       font-size: 0.9rem;
-      color: #0f172a;
-      transition: all 0.15s ease;
+      color: var(--ink);
+      transition: color 0.25s ease, filter 0.35s ease;
     }
-    .field input::placeholder { color: #9ca3af; }
-    .field input:focus {
-      outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+
+    /* 🔒 Real gaussian blur — text becomes a soft haze that blends into the field */
+    .field input.password-hidden {
+      color: rgba(15, 23, 42, 0.75);
+      filter: blur(7px);
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      letter-spacing: 0.02em;
+      transform: translateZ(0);
+      will-change: filter;
     }
-    .field input.invalid {
-      border-color: #dc2626;
-      background: #fef2f2;
+    .field input.password-hidden::selection {
+      background: transparent;
     }
-    .field input.invalid:focus {
-      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+
+    .field label {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-3);
+      font-size: 0.9rem;
+      font-weight: 400;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    .field input.letter-pop {
+      animation: letterPop 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    @keyframes letterPop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.015); }
+      100% { transform: scale(1); }
+    }
+
+    .field input:focus + label,
+    .field input:not(:placeholder-shown) + label {
+      top: 8px;
+      font-size: 0.7rem;
+      color: var(--accent);
+      font-weight: 500;
+      transform: translateY(0);
+    }
+
+    /* Show Password Toggle */
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--ink-3);
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s ease, transform 0.25s var(--spring);
+      z-index: 2;
+    }
+    .toggle-password:hover { color: var(--accent); transform: translateY(-50%) scale(1.12); }
+    .toggle-password:active { transform: translateY(-50%) scale(0.94); }
+    .toggle-password svg { width: 18px; height: 18px; }
 
     .field-hint {
       font-size: 0.7rem;
-      color: #94a3b8;
+      color: var(--ink-3);
       margin-top: 6px;
       padding-left: 4px;
       display: none;
+      transition: all 0.3s ease;
     }
     .field-hint.show { display: block; }
-    .field-hint.error { color: #dc2626; }
-    .field-hint.success { color: #059669; }
+    .field-hint.error { color: var(--red); }
+    .field-hint.success { color: var(--green); }
 
     /* Password strength meter */
-    .password-strength {
-      margin-top: 8px;
-      display: none;
-    }
+    .password-strength { margin-top: 8px; display: none; }
     .password-strength.show { display: block; }
-    .strength-bars {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 6px;
-    }
+    .strength-bars { display: flex; gap: 4px; margin-bottom: 6px; }
     .strength-bars .bar {
-      flex: 1;
-      height: 3px;
-      background: #e5e7eb;
+      flex: 1; height: 3px;
+      background: rgba(0, 0, 0, 0.06);
       border-radius: 10px;
       transition: background 0.3s ease;
     }
-    .strength-bars .bar.active.weak { background: #ef4444; }
-    .strength-bars .bar.active.fair { background: #f59e0b; }
+    .strength-bars .bar.active.weak { background: var(--red); }
+    .strength-bars .bar.active.fair { background: var(--amber); }
     .strength-bars .bar.active.good { background: #3b82f6; }
-    .strength-bars .bar.active.strong { background: #10b981; }
-    .strength-text {
-      font-size: 0.7rem;
-      color: #94a3b8;
-    }
-    .strength-text.weak { color: #ef4444; }
-    .strength-text.fair { color: #f59e0b; }
+    .strength-bars .bar.active.strong { background: var(--green); }
+    .strength-text { font-size: 0.7rem; color: var(--ink-3); transition: color 0.3s ease; }
+    .strength-text.weak { color: var(--red); }
+    .strength-text.fair { color: var(--amber); }
     .strength-text.good { color: #3b82f6; }
-    .strength-text.strong { color: #10b981; }
+    .strength-text.strong { color: var(--green); }
 
+    /* ── ROW HELPER ── */
     .row-helper {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin: 8px 0 28px;
+      justify-content: flex-end;
+      margin: 4px 0 28px;
       font-size: 0.85rem;
     }
-    .row-helper .remember {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #334155;
-      cursor: pointer;
-      user-select: none;
-    }
-    .row-helper .remember input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      border: 1.5px solid #d1d5db;
-      border-radius: 5px;
-      cursor: pointer;
-      accent-color: #2563eb;
-    }
     .row-helper .forgot {
-      color: #2563eb;
+      color: var(--accent);
       font-weight: 500;
       cursor: pointer;
       text-decoration: none;
       text-underline-offset: 3px;
+      transition: color 0.2s ease;
     }
-    .row-helper .forgot:hover { text-decoration: underline; }
+    .row-helper .forgot:hover { color: var(--accent-2); text-decoration: underline; }
 
+    /* ── BUTTONS ── */
     .btn-primary-full {
       width: 100%;
-      padding: 15px;
-      background: #2563eb;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
       color: #ffffff;
-      border-radius: 10px;
+      border-radius: var(--r-md);
       font-size: 0.95rem;
       font-weight: 600;
       letter-spacing: -0.01em;
       cursor: pointer;
-      transition: all 0.15s ease;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+      transition: all 0.3s var(--ease);
+      box-shadow: 0 8px 20px -8px rgba(37, 99, 235, 0.4);
     }
     .btn-primary-full:hover {
-      background: #1d4ed8;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.5);
+      transform: translateY(-1px);
     }
-    .btn-primary-full:active { transform: translateY(1px); }
-    .btn-primary-full:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-primary-full:active { transform: translateY(0) scale(0.98); }
+    .btn-primary-full:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
+    /* ── CARD FOOTER ── */
     .card-footer {
       text-align: center;
       margin-top: 24px;
       font-size: 0.85rem;
-      color: #6b7280;
+      color: var(--ink-3);
     }
     .card-footer a {
-      color: #2563eb;
-      font-weight: 500;
+      color: var(--accent);
+      font-weight: 600;
       cursor: pointer;
       margin-left: 4px;
       text-decoration: none;
+      transition: color 0.2s ease;
     }
-    .card-footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .card-footer a:hover { color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
 
-    .demo-note {
-      margin-top: 16px;
-      padding: 10px 14px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 10px;
-      font-size: 0.7rem;
-      color: #1e40af;
-      text-align: center;
-      line-height: 1.5;
-    }
-    .demo-note strong { color: #1e3a8a; }
-
+    /* ── FORM MESSAGES ── */
     .form-error, .form-success {
       font-size: 0.8rem;
-      padding: 12px 14px;
-      border-radius: 10px;
+      padding: 12px 16px;
+      border-radius: var(--r-md);
       margin-bottom: 16px;
       display: none;
       line-height: 1.5;
+      animation: fadeSlide 0.3s ease;
     }
-    .form-error { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; }
+    .form-error { color: var(--red); background: var(--red-soft); border: 1px solid rgba(239, 68, 68, 0.2); }
     .form-error.show { display: block; }
-    .form-success { color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; }
+    .form-success { color: var(--green); background: var(--green-soft); border: 1px solid rgba(16, 185, 129, 0.2); }
     .form-success.show { display: block; }
 
     .auth-view { display: none; }
-    .auth-view.active { display: block; animation: fadeSlide 0.25s ease; }
+    .auth-view.active { display: block; animation: fadeSlide 0.3s var(--ease); }
 
     @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Toast */
+    /* ── TOAST ── */
     .toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: #0f172a;
-      color: #ffffff;
+      background: rgba(255, 255, 255, 0.9);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--line);
+      color: var(--ink);
       padding: 14px 20px;
-      border-radius: 14px;
+      border-radius: var(--r-md);
       font-size: 0.8rem;
       font-weight: 500;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--shadow-lift);
       z-index: 10000;
       display: flex;
       align-items: center;
       gap: 10px;
       opacity: 0;
       transform: translateY(20px);
-      transition: all 0.3s ease;
+      transition: all 0.3s var(--ease);
       pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
     .toast .toast-icon { font-size: 1.1rem; }
 
+    /* ── RESPONSIVE ── */
     @media (max-width: 520px) {
       body { padding: 20px; }
       .brand-logo { top: 20px; left: 20px; font-size: 1.1rem; }
       .brand-logo .logo-mark { width: 32px; height: 32px; font-size: 1rem; }
-      .auth-card { padding: 36px 24px 28px; border-radius: 14px; }
+      .auth-card { padding: 32px 24px 28px; border-radius: 20px; }
+      .auth-wrapper::before { inset: -10px; border-radius: 30px; filter: blur(18px); }
+      .auth-wrapper::after { inset: -2px; border-radius: 22px; }
       .auth-card h1 { font-size: 1.6rem; }
+      .emoji-stage.active { height: 68px; }
+      .emoji-companion { width: 62px; height: 62px; }
+      .emoji-face { width: 62px; height: 62px; }
+      .emoji-eyes { top: 19px; padding: 0 13px; }
+      .emoji-eye { width: 12px; height: 14px; }
+      .emoji-pupil { width: 6px; height: 6px; top: 4px; left: 3px; }
+      .emoji-mouth { bottom: 14px; width: 18px; height: 8px; }
+      .emoji-cheek { top: 33px; }
+      .emoji-hand { top: 18px; }
+      .field input.password-hidden { filter: blur(6px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .emoji-companion, .emoji-face::before, .auth-wrapper::before, .auth-wrapper::after {
+        animation: none !important;
+      }
     }
   </style>
 </head>
@@ -292,119 +754,140 @@
     <div>IronNest</div>
   </div>
 
-  <div class="auth-card">
+  <div class="auth-wrapper">
+    <div class="auth-card">
 
-    <!-- ═══ LOGIN VIEW ═══ -->
-    <div class="auth-view active" id="view-login">
-      <div class="card-eyebrow">Please enter your details</div>
-      <h1>Welcome back</h1>
+      <!-- ═══ LOGIN VIEW ═══ -->
+      <div class="auth-view active" id="view-login">
+        <div class="card-eyebrow">Please enter your details</div>
+        <h1>Welcome back</h1>
 
-      <div class="form-error" id="login-error"></div>
+        <div class="emoji-stage" id="emoji-stage-login"></div>
 
-      <form id="login-form" novalidate>
-        <div class="field">
-          <input type="email" id="login-email" placeholder="Email address" required autocomplete="email" />
-        </div>
-        <div class="field">
-          <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
-        </div>
+        <div class="form-error" id="login-error"></div>
 
-        <div class="row-helper">
-          <label class="remember">
-            <input type="checkbox" id="remember-check" />
-            <span>Remember for 30 days</span>
-          </label>
-          <a class="forgot" id="link-forgot">Forgot password</a>
-        </div>
-
-        <button type="submit" class="btn-primary-full" id="login-btn">Sign In</button>
-      </form>
-
-      <div class="demo-note">
-        <strong>Demo credentials:</strong><br>
-        📧 admin@warehouse.com · 🔒 Admin@123
-      </div>
-
-      <div class="card-footer">
-        Don't have an account? <a id="link-signup">Sign up</a>
-      </div>
-    </div>
-
-    <!-- ═══ SIGNUP VIEW ═══ -->
-    <div class="auth-view" id="view-signup">
-      <div class="card-eyebrow">Create your account</div>
-      <h1>Get started</h1>
-
-      <div class="form-error" id="signup-error"></div>
-      <div class="form-success" id="signup-success"></div>
-
-      <form id="signup-form" novalidate>
-        <div class="field">
-          <input type="text" id="signup-name" placeholder="Full name" required autocomplete="name" />
-          <div class="field-hint" id="hint-name"></div>
-        </div>
-        <div class="field">
-          <input type="email" id="signup-email" placeholder="Email address" required autocomplete="email" />
-          <div class="field-hint" id="hint-email"></div>
-        </div>
-        <div class="field">
-          <input type="tel" id="signup-contact" placeholder="Contact number (10 digits)" required maxlength="14" autocomplete="tel" />
-          <div class="field-hint" id="hint-contact"></div>
-        </div>
-        <div class="field">
-          <input type="password" id="signup-password" placeholder="Password" required minlength="8" autocomplete="new-password" />
-          <div class="password-strength" id="password-strength">
-            <div class="strength-bars">
-              <div class="bar" id="bar1"></div>
-              <div class="bar" id="bar2"></div>
-              <div class="bar" id="bar3"></div>
-              <div class="bar" id="bar4"></div>
-            </div>
-            <div class="strength-text" id="strength-text">Enter password</div>
+        <form id="login-form" novalidate>
+          <div class="field">
+            <input type="email" id="login-email" placeholder=" " required autocomplete="email" data-emoji-look="email" />
+            <label for="login-email">Email address</label>
           </div>
-          <div class="field-hint" id="hint-password"></div>
-        </div>
-        <div class="field">
-          <input type="password" id="signup-confirm" placeholder="Confirm password" required autocomplete="new-password" />
-          <div class="field-hint" id="hint-confirm"></div>
-        </div>
+          <div class="field">
+            <input type="text" id="login-password" class="password-hidden" placeholder=" " required autocomplete="current-password" data-emoji-look="password" data-password="true" />
+            <label for="login-password">Password</label>
+            <button type="button" class="toggle-password" data-target="login-password">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
 
-        <button type="submit" class="btn-primary-full" id="signup-btn" style="margin-top:12px;">Create Account</button>
-      </form>
+          <div class="row-helper">
+            <a class="forgot" id="link-forgot">Forgot password</a>
+          </div>
 
-      <div class="card-footer">
-        Already have an account? <a id="link-login">Sign in</a>
+          <button type="submit" class="btn-primary-full" id="login-btn">Sign In</button>
+        </form>
+
+        <div class="card-footer">
+          Don't have an account? <a id="link-signup">Sign up</a>
+        </div>
       </div>
-    </div>
 
-    <!-- ═══ FORGOT VIEW ═══ -->
-    <div class="auth-view" id="view-forgot">
-      <div class="card-eyebrow">Reset your password</div>
-      <h1>Forgot password?</h1>
+      <!-- ═══ SIGNUP VIEW ═══ -->
+      <div class="auth-view" id="view-signup">
+        <div class="card-eyebrow">Create your account</div>
+        <h1>Get started</h1>
 
-      <div class="form-error" id="forgot-error"></div>
-      <div class="form-success" id="forgot-success"></div>
+        <div class="emoji-stage" id="emoji-stage-signup"></div>
 
-      <form id="forgot-form" novalidate>
-        <div class="field">
-          <input type="email" id="forgot-email" placeholder="Email address" required autocomplete="email" />
+        <div class="form-error" id="signup-error"></div>
+        <div class="form-success" id="signup-success"></div>
+
+        <form id="signup-form" novalidate>
+          <div class="field">
+            <input type="text" id="signup-name" placeholder=" " required autocomplete="name" data-emoji-look="name" />
+            <label for="signup-name">Full name</label>
+            <div class="field-hint" id="hint-name"></div>
+          </div>
+          <div class="field">
+            <input type="email" id="signup-email" placeholder=" " required autocomplete="email" data-emoji-look="email" />
+            <label for="signup-email">Email address</label>
+            <div class="field-hint" id="hint-email"></div>
+          </div>
+          <div class="field">
+            <input type="tel" id="signup-contact" placeholder=" " required maxlength="14" autocomplete="tel" data-emoji-look="contact" />
+            <label for="signup-contact">Contact number (10 digits)</label>
+            <div class="field-hint" id="hint-contact"></div>
+          </div>
+          <div class="field">
+            <input type="text" id="signup-password" class="password-hidden" placeholder=" " required minlength="8" autocomplete="new-password" data-emoji-look="password" data-password="true" />
+            <label for="signup-password">Password</label>
+            <button type="button" class="toggle-password" data-target="signup-password">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+            <div class="password-strength" id="password-strength">
+              <div class="strength-bars">
+                <div class="bar" id="bar1"></div>
+                <div class="bar" id="bar2"></div>
+                <div class="bar" id="bar3"></div>
+                <div class="bar" id="bar4"></div>
+              </div>
+              <div class="strength-text" id="strength-text">Enter password</div>
+            </div>
+            <div class="field-hint" id="hint-password"></div>
+          </div>
+          <div class="field">
+            <input type="text" id="signup-confirm" class="password-hidden" placeholder=" " required autocomplete="new-password" data-emoji-look="confirm" data-password="true" />
+            <label for="signup-confirm">Confirm password</label>
+            <button type="button" class="toggle-password" data-target="signup-confirm">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+            <div class="field-hint" id="hint-confirm"></div>
+          </div>
+
+          <button type="submit" class="btn-primary-full" id="signup-btn" style="margin-top:12px;">Create Account</button>
+        </form>
+
+        <div class="card-footer">
+          Already have an account? <a id="link-login">Sign in</a>
         </div>
-        <div class="field">
-          <input type="tel" id="forgot-contact" placeholder="Contact number (10 digits)" required maxlength="14" />
-        </div>
-        <div class="field" id="new-pass-group" style="display:none;">
-          <input type="password" id="forgot-newpass" placeholder="New password (min 8 chars)" minlength="8" />
-          <div class="field-hint" id="hint-forgot-pass"></div>
-        </div>
-
-        <button type="submit" class="btn-primary-full" id="forgot-btn" style="margin-top:12px;">Verify Identity</button>
-      </form>
-
-      <div class="card-footer">
-        Remember your password? <a id="link-login-2">Sign in</a>
       </div>
-    </div>
 
+      <!-- ═══ FORGOT VIEW ═══ -->
+      <div class="auth-view" id="view-forgot">
+        <div class="card-eyebrow">Reset your password</div>
+        <h1>Forgot password?</h1>
+
+        <div class="emoji-stage" id="emoji-stage-forgot"></div>
+
+        <div class="form-error" id="forgot-error"></div>
+        <div class="form-success" id="forgot-success"></div>
+
+        <form id="forgot-form" novalidate>
+          <div class="field">
+            <input type="email" id="forgot-email" placeholder=" " required autocomplete="email" data-emoji-look="email" />
+            <label for="forgot-email">Email address</label>
+          </div>
+          <div class="field">
+            <input type="tel" id="forgot-contact" placeholder=" " required maxlength="14" data-emoji-look="contact" />
+            <label for="forgot-contact">Contact number (10 digits)</label>
+          </div>
+          <div class="field" id="new-pass-group" style="display:none;">
+            <input type="text" id="forgot-newpass" class="password-hidden" placeholder=" " minlength="8" data-emoji-look="newpass" data-password="true" />
+            <label for="forgot-newpass">New password (min 8 chars)</label>
+            <button type="button" class="toggle-password" data-target="forgot-newpass">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+            <div class="field-hint" id="hint-forgot-pass"></div>
+          </div>
+
+          <button type="submit" class="btn-primary-full" id="forgot-btn" style="margin-top:12px;">Verify Identity</button>
+        </form>
+
+        <div class="card-footer">
+          Remember your password? <a id="link-login-2">Sign in</a>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <div class="toast" id="toast">
@@ -413,6 +896,209 @@
   </div>
 
   <script>
+    // ═══════════════════════════════════════════════════════
+    //  🎭 EMOJI TEMPLATE & INJECTION
+    // ═══════════════════════════════════════════════════════
+    const EMOJI_HTML = `
+      <div class="emoji-companion" data-look="idle" data-expression="idle">
+        <div class="emoji-face">
+          <div class="emoji-ripple"></div>
+          <div class="emoji-eyes">
+            <div class="emoji-eye"><div class="emoji-pupil"></div></div>
+            <div class="emoji-eye"><div class="emoji-pupil"></div></div>
+          </div>
+          <div class="emoji-mouth"></div>
+          <div class="emoji-cheek left"></div>
+          <div class="emoji-cheek right"></div>
+          <div class="emoji-hand left"></div>
+          <div class="emoji-hand right"></div>
+        </div>
+      </div>
+    `;
+
+    document.querySelectorAll('.emoji-stage').forEach(stage => {
+      stage.innerHTML = EMOJI_HTML;
+    });
+
+    // ═══════════════════════════════════════════════════════
+    //  🎭 EMOJI COMPANION — EXPRESSION STATE MACHINE
+    // ═══════════════════════════════════════════════════════
+    (function initEmojiCompanions() {
+      const emojiState = new WeakMap();
+
+      function getOrCreateState(emoji) {
+        if (!emojiState.has(emoji)) {
+          emojiState.set(emoji, {
+            keystrokes: [],
+            pauseTimer: null,
+            sleepTimer: null,
+            currentExpression: 'idle',
+            currentLook: 'idle'
+          });
+        }
+        return emojiState.get(emoji);
+      }
+
+      function setExpression(emoji, expr) {
+        const state = getOrCreateState(emoji);
+        if (state.currentExpression === expr) return;
+        state.currentExpression = expr;
+        emoji.setAttribute('data-expression', expr);
+      }
+
+      function pickExpression(state, isPasswordField) {
+        if (isPasswordField) return 'focused';
+
+        const now = Date.now();
+        state.keystrokes = state.keystrokes.filter(t => now - t < 1000);
+        const count = state.keystrokes.length;
+
+        if (count >= 5) return 'excited';
+        if (count >= 2) return 'happy';
+        return 'surprised';
+      }
+
+      function schedulePauseExpression(emoji, isPasswordField) {
+        const state = getOrCreateState(emoji);
+        clearTimeout(state.pauseTimer);
+        clearTimeout(state.sleepTimer);
+
+        state.pauseTimer = setTimeout(() => {
+          if (state.currentExpression === 'excited' ||
+              state.currentExpression === 'happy' ||
+              state.currentExpression === 'surprised') {
+            setExpression(emoji, isPasswordField ? 'focused' : 'thinking');
+          }
+        }, 1600);
+
+        state.sleepTimer = setTimeout(() => {
+          if (!isPasswordField) setExpression(emoji, 'sleepy');
+        }, 8000);
+      }
+
+      function triggerTypingFor(stage, emoji, input) {
+        emoji.classList.remove('typing');
+        void emoji.offsetWidth;
+        emoji.classList.add('typing');
+
+        const state = getOrCreateState(emoji);
+        state.keystrokes.push(Date.now());
+
+        const isPassword = input.hasAttribute('data-password');
+        setExpression(emoji, pickExpression(state, isPassword));
+        schedulePauseExpression(emoji, isPassword);
+
+        const eyes = emoji.querySelectorAll('.emoji-eye');
+        if (Math.random() < 0.12) {
+          eyes.forEach(e => {
+            e.classList.remove('blink');
+            void e.offsetWidth;
+            e.classList.add('blink');
+          });
+        }
+
+        clearTimeout(emoji._typingTimer);
+        emoji._typingTimer = setTimeout(() => emoji.classList.remove('typing'), 400);
+      }
+
+      document.querySelectorAll('[data-emoji-look]').forEach(input => {
+        const view = input.closest('.auth-view');
+        if (!view) return;
+        const stage = view.querySelector('.emoji-stage');
+        if (!stage) return;
+        const emoji = stage.querySelector('.emoji-companion');
+        if (!emoji) return;
+
+        input.addEventListener('focus', () => {
+          emoji.setAttribute('data-look', input.getAttribute('data-emoji-look'));
+          if (input.value.length > 0) {
+            stage.classList.add('active');
+            setExpression(emoji, input.hasAttribute('data-password') ? 'focused' : 'happy');
+          }
+        });
+
+        input.addEventListener('input', () => {
+          if (input.value.length > 0) {
+            stage.classList.add('active');
+            triggerTypingFor(stage, emoji, input);
+          } else {
+            const anyValue = Array.from(view.querySelectorAll('[data-emoji-look]'))
+              .some(el => el.value.length > 0);
+            if (!anyValue) {
+              stage.classList.remove('active');
+              const state = getOrCreateState(emoji);
+              clearTimeout(state.pauseTimer);
+              clearTimeout(state.sleepTimer);
+              state.keystrokes = [];
+              setExpression(emoji, 'idle');
+            }
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' || e.key === 'Delete') {
+            if (input.value.length > 0) {
+              stage.classList.add('active');
+              triggerTypingFor(stage, emoji, input);
+            }
+          } else if (e.key.length === 1) {
+            stage.classList.add('active');
+            triggerTypingFor(stage, emoji, input);
+          }
+        });
+
+        input.addEventListener('blur', () => {
+          const state = getOrCreateState(emoji);
+          clearTimeout(state.pauseTimer);
+          clearTimeout(state.sleepTimer);
+          state.pauseTimer = setTimeout(() => {
+            if (document.activeElement !== input) setExpression(emoji, 'idle');
+          }, 400);
+        });
+      });
+
+      window.__hideAllEmojiStages = function () {
+        document.querySelectorAll('.emoji-stage').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.emoji-companion').forEach(e => {
+          e.setAttribute('data-expression', 'idle');
+          e.setAttribute('data-look', 'idle');
+        });
+      };
+    })();
+
+    // ═══════════════════════════════════════════════════════
+    //  PER-KEYSTROKE "LETTER POP"
+    // ═══════════════════════════════════════════════════════
+    document.querySelectorAll('.field input').forEach(input => {
+      input.addEventListener('input', () => {
+        input.classList.remove('letter-pop');
+        void input.offsetWidth;
+        input.classList.add('letter-pop');
+        clearTimeout(input._popTimer);
+        input._popTimer = setTimeout(() => input.classList.remove('letter-pop'), 260);
+      });
+    });
+
+    // ═══════════════════════════════════════════════════════
+    //  SHOW / HIDE PASSWORD TOGGLE (Blur method)
+    // ═══════════════════════════════════════════════════════
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        const eyeOpen = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        const eyeClosed = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+
+        if (input.classList.contains('password-hidden')) {
+          input.classList.remove('password-hidden');
+          this.innerHTML = eyeClosed;
+        } else {
+          input.classList.add('password-hidden');
+          this.innerHTML = eyeOpen;
+        }
+      });
+    });
+
     // ═══════════════════════════════════════════════════════
     //  TOAST
     // ═══════════════════════════════════════════════════════
@@ -565,7 +1251,6 @@
       }));
     }
 
-    // Seed default admin
     if (getUsers().length === 0) {
       saveUsers([{
         name: 'Harry K.',
@@ -575,7 +1260,6 @@
       }]);
     }
 
-    // Auto-redirect if already logged in
     if (localStorage.getItem(SESSION_KEY)) {
       window.location.href = 'dashboard.html';
     }
@@ -589,6 +1273,9 @@
       document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
       const el = document.getElementById('view-' + view);
       if (el) el.classList.add('active');
+
+      if (window.__hideAllEmojiStages) window.__hideAllEmojiStages();
+
       document.querySelectorAll('.form-error, .form-success').forEach(e => e.classList.remove('show'));
       document.querySelectorAll('.field-hint').forEach(e => e.classList.remove('show', 'error', 'success'));
       document.querySelectorAll('.field input').forEach(e => e.classList.remove('invalid'));
@@ -611,7 +1298,6 @@
     document.getElementById('link-login').addEventListener('click', (e) => { e.preventDefault(); showAuthView('login'); });
     document.getElementById('link-login-2').addEventListener('click', (e) => { e.preventDefault(); showAuthView('login'); });
 
-    // ── Field hints ──
     function setFieldHint(inputId, hintId, message, type) {
       const input = document.getElementById(inputId);
       const hint = document.getElementById(hintId);
@@ -748,6 +1434,11 @@
       e.target.reset();
       document.querySelectorAll('.field-hint').forEach(el => el.classList.remove('show'));
       document.getElementById('password-strength').classList.remove('show');
+      document.querySelectorAll('[data-password]').forEach(inp => inp.classList.add('password-hidden'));
+      document.querySelectorAll('.toggle-password').forEach(b => {
+        b.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      });
+      if (window.__hideAllEmojiStages) window.__hideAllEmojiStages();
 
       setTimeout(() => showAuthView('login'), 1600);
     });
@@ -789,7 +1480,6 @@
           return;
         }
 
-        // Save JWT token and user info
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
@@ -865,11 +1555,13 @@
       document.getElementById('forgot-contact').disabled = false;
       e.target.reset();
       document.getElementById('hint-forgot-pass').classList.remove('show');
+      document.querySelectorAll('[data-password]').forEach(inp => inp.classList.add('password-hidden'));
+      if (window.__hideAllEmojiStages) window.__hideAllEmojiStages();
 
       setTimeout(() => showAuthView('login'), 1600);
     });
 
-    console.log('🔐 Login page ready (Frontend Only)');
+    console.log('🔐 Login page ready — real gaussian blur password 🎭');
   </script>
 </body>
 </html>

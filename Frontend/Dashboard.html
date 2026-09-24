@@ -692,8 +692,8 @@
     .dot.slate  { background: #94a3b8; }
 
     .fleet-summary {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      display: flex;
+      flex-direction: column;
       gap: 8px;
     }
     .fleet-stat {
@@ -702,87 +702,23 @@
       background: var(--glass-3);
       border: 1px solid var(--line-2);
       display: flex;
-      flex-direction: column;
-      gap: 4px;
-      transition: background 0.2s ease, transform 0.25s var(--ease);
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.2s ease, transform 0.25s var(--ease), border-color 0.2s ease;
+      cursor: pointer;
     }
     .fleet-stat:hover {
       background: var(--glass-2);
       transform: translateY(-2px);
+      border-color: var(--accent-soft);
     }
-    .fleet-stat .fs-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
+    .fleet-stat .fs-name {
+      font-size: 0.78rem;
       font-weight: 600;
-      color: var(--ink-4);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-    .fleet-stat .fs-value {
-      font-family: 'Space Grotesk', 'Inter', sans-serif;
-      font-size: 1.2rem;
-      font-weight: 600;
-      letter-spacing: -0.04em;
-      line-height: 1;
       color: var(--ink);
+      letter-spacing: -0.01em;
     }
-
-    .fleet-detail {
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: max-height 0.45s var(--ease), opacity 0.3s ease, margin-top 0.4s var(--ease);
-      margin-top: 0;
-    }
-    .fleet-detail.expanded {
-      max-height: 720px;
-      opacity: 1;
-      margin-top: 12px;
-    }
-    .fleet-detail-inner {
-      padding-top: 12px;
-      border-top: 1px dashed var(--line-2);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .fleet-detail-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
-      font-weight: 600;
-      color: var(--ink-4);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      margin-bottom: 4px;
-    }
-    .fdc-mini {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      border-radius: var(--r-sm);
-      background: var(--glass-3);
-      border: 1px solid transparent;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 0.3s ease, transform 0.35s var(--ease), border-color 0.2s ease, background 0.2s ease;
-    }
-    .fleet-detail.expanded .fdc-mini {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .fleet-detail.expanded .fdc-mini:nth-child(2) { transition-delay: 0.05s; }
-    .fleet-detail.expanded .fdc-mini:nth-child(3) { transition-delay: 0.1s; }
-    .fleet-detail.expanded .fdc-mini:nth-child(4) { transition-delay: 0.15s; }
-    .fleet-detail.expanded .fdc-mini:nth-child(5) { transition-delay: 0.2s; }
-    .fleet-detail.expanded .fdc-mini:nth-child(6) { transition-delay: 0.25s; }
-    .fdc-mini:hover {
-      border-color: var(--line);
-      background: var(--glass-2);
-    }
-
-    .fdc-name { font-size: 0.72rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
-    .fdc-status {
+    .fleet-stat .fs-status {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.55rem;
       font-weight: 600;
@@ -791,9 +727,9 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
-    .fdc-status.active   { color: var(--green); background: var(--green-soft); }
-    .fdc-status.charging { color: var(--sky);   background: var(--sky-soft); }
-    .fdc-status.warning  { color: var(--red);   background: var(--red-soft); }
+    .fs-status.active   { color: var(--green); background: var(--green-soft); }
+    .fs-status.charging { color: var(--sky);   background: var(--sky-soft); }
+    .fs-status.warning  { color: var(--red);   background: var(--red-soft); }
 
     .rail-chart {
       position: relative;
@@ -1277,6 +1213,239 @@
     }
 
     /* ============================================================
+       FLEET MODAL (POPUP CENTER WITH BLUR)
+       ============================================================ */
+    .fleet-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(11, 15, 26, 0.4);
+      -webkit-backdrop-filter: blur(12px) saturate(120%);
+      backdrop-filter: blur(12px) saturate(120%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .fleet-modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    html[data-theme="dark"] .fleet-modal-overlay {
+      background: rgba(2, 4, 10, 0.65);
+    }
+
+    .fleet-modal-content {
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(30px) saturate(200%);
+      backdrop-filter: blur(30px) saturate(200%);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      width: 90%;
+      max-width: 480px;
+      padding: 24px;
+      box-shadow: var(--shadow-lift);
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.4s var(--spring);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .fleet-modal-overlay.open .fleet-modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .fleet-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line-2);
+    }
+    .fleet-modal-title {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+    .fleet-modal-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--glass-3);
+      border: 1px solid var(--line);
+      color: var(--ink-2);
+      font-size: 1.2rem;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+    .fleet-modal-close:hover {
+      background: var(--red-soft);
+      color: var(--red);
+      border-color: rgba(239, 68, 68, 0.3);
+      transform: scale(1.05);
+    }
+
+    .fleet-modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    /* List view items */
+    .fleet-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--glass-3);
+      border: 1px solid var(--line-2);
+      border-radius: var(--r-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .fleet-list-item:hover {
+      background: var(--glass-2);
+      border-color: var(--accent-soft);
+      transform: translateX(4px);
+    }
+    .fleet-list-item .fl-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .fleet-list-item .fl-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .fl-status.active   { color: var(--green); background: var(--green-soft); }
+    .fl-status.charging { color: var(--sky);   background: var(--sky-soft); }
+    .fl-status.warning  { color: var(--red);   background: var(--red-soft); }
+
+    /* Detail view */
+    .fleet-detail-view {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fd-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .fd-robot-name {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+    .fd-status-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+    .fd-status-badge.active   { color: var(--green); background: var(--green-soft); border: 1px solid rgba(16,185,129,0.3); }
+    .fd-status-badge.charging { color: var(--sky);   background: var(--sky-soft); border: 1px solid rgba(14,165,233,0.3); }
+    .fd-status-badge.warning  { color: var(--red);   background: var(--red-soft); border: 1px solid rgba(239,68,68,0.3); }
+
+    .fd-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .fd-stat-box {
+      background: var(--glass-3);
+      border: 1px solid var(--line-2);
+      border-radius: var(--r-md);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .fd-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: var(--ink-4);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .fd-stat-value {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .fd-stat-unit {
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--ink-3);
+      margin-left: 4px;
+    }
+
+    .fd-battery-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 10px;
+      background: var(--line-2);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .fd-battery-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.6s var(--ease);
+    }
+    .fd-battery-fill.high { background: linear-gradient(90deg, #10b981, #34d399); }
+    .fd-battery-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .fd-battery-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    .fd-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--r-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ink-2);
+      background: var(--glass-3);
+      border: 1px solid var(--line);
+      transition: all 0.2s ease;
+      width: fit-content;
+    }
+    .fd-back-btn:hover {
+      background: var(--glass-2);
+      color: var(--ink);
+      transform: translateX(-2px);
+    }
+
+    /* ============================================================
        PROFILE CHIP + PANEL
        ============================================================ */
     .profile-chip {
@@ -1705,28 +1874,8 @@
                 <span class="rail-title">Fleet Status</span>
                 <button class="mini-btn" id="go-to-robots">Expand <span class="chev">▾</span></button>
               </div>
-              <div class="fleet-summary" id="fleet-summary"></div>
-
-              <div class="fleet-detail" id="fleet-detail">
-                <div class="fleet-detail-inner">
-                  <div class="fleet-detail-title">Diagnostics</div>
-                  <div class="fdc-mini">
-                    <span class="fdc-name">🤖 AGV-014</span>
-                    <span class="fdc-status active">Active · 92%</span>
-                  </div>
-                  <div class="fdc-mini">
-                    <span class="fdc-name">🤖 AGV-027</span>
-                    <span class="fdc-status charging">Charging · 34%</span>
-                  </div>
-                  <div class="fdc-mini">
-                    <span class="fdc-name">🤖 AGV-039</span>
-                    <span class="fdc-status active">Active · 78%</span>
-                  </div>
-                  <div class="fdc-mini">
-                    <span class="fdc-name">🤖 AGV-051</span>
-                    <span class="fdc-status warning">Alert · 19%</span>
-                  </div>
-                </div>
+              <div class="fleet-summary" id="fleet-summary">
+                <!-- Dynamically populated -->
               </div>
             </div>
 
@@ -1893,7 +2042,22 @@
   </div>
 
   <!-- ============================================================
-       EXPANDABLE SEARCH PROMPT (Options removed, transparent blur)
+       FLEET MODAL (POPUP CENTER WITH BLUR)
+       ============================================================ -->
+  <div class="fleet-modal-overlay" id="fleet-modal">
+    <div class="fleet-modal-content">
+      <div class="fleet-modal-header">
+        <h3 class="fleet-modal-title" id="fleet-modal-title">Fleet Diagnostics</h3>
+        <button class="fleet-modal-close" id="fleet-modal-close">&times;</button>
+      </div>
+      <div class="fleet-modal-body" id="fleet-modal-body">
+        <!-- Content will be injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       EXPANDABLE SEARCH PROMPT
        ============================================================ -->
   <div class="liquid-search-wrapper" id="search-wrapper">
     <div class="search-gradient-ring" id="search-ring">
@@ -2145,28 +2309,182 @@
 
   <script>
     (function () {
-      const btn = document.getElementById('go-to-robots');
-      const detail = document.getElementById('fleet-detail');
-      if (btn && detail) {
-        btn.addEventListener('click', function (e) {
-          e.preventDefault();
-          const isOpen = detail.classList.toggle('expanded');
-          btn.classList.toggle('expanded', isOpen);
-          btn.innerHTML = isOpen
-            ? 'Collapse <span class="chev">▾</span>'
-            : 'Expand <span class="chev">▾</span>';
-        });
-      }
-    })();
-  </script>
-
-  <script>
-    (function () {
       document.querySelectorAll('.faq-item').forEach(function (item) {
         const q = item.querySelector('.faq-question');
         if (!q) return;
         q.addEventListener('click', function () { item.classList.toggle('open'); });
       });
+    })();
+  </script>
+
+  <!-- FLEET MODAL INTERACTION & DYNAMIC CONTENT -->
+  <script>
+    (function() {
+      // Mock robot data
+      const robots = [
+        { id: 'AGV-014', name: 'AGV-014', status: 'Active', battery: 92, location: 'Zone A', speed: '1.2 m/s', payload: '45 kg', lastMaintenance: '2024-10-12' },
+        { id: 'AGV-027', name: 'AGV-027', status: 'Charging', battery: 34, location: 'Charging Station', speed: '0 m/s', payload: '0 kg', lastMaintenance: '2024-10-10' },
+        { id: 'AGV-039', name: 'AGV-039', status: 'Active', battery: 78, location: 'Zone C', speed: '1.5 m/s', payload: '30 kg', lastMaintenance: '2024-10-14' },
+        { id: 'AGV-051', name: 'AGV-051', status: 'Alert', battery: 19, location: 'Zone B', speed: '0.5 m/s', payload: '50 kg', lastMaintenance: '2024-10-08' },
+        { id: 'AGV-062', name: 'AGV-062', status: 'Active', battery: 88, location: 'Zone A', speed: '1.3 m/s', payload: '20 kg', lastMaintenance: '2024-10-15' },
+        { id: 'AGV-077', name: 'AGV-077', status: 'Charging', battery: 45, location: 'Charging Station', speed: '0 m/s', payload: '0 kg', lastMaintenance: '2024-10-11' },
+        { id: 'AGV-089', name: 'AGV-089', status: 'Alert', battery: 12, location: 'Zone D', speed: '0 m/s', payload: '35 kg', lastMaintenance: '2024-10-05' }
+      ];
+
+      const fleetModal = document.getElementById('fleet-modal');
+      const fleetModalBody = document.getElementById('fleet-modal-body');
+      const fleetModalTitle = document.getElementById('fleet-modal-title');
+      const fleetModalClose = document.getElementById('fleet-modal-close');
+      const goToRobotsBtn = document.getElementById('go-to-robots');
+      const fleetSummary = document.getElementById('fleet-summary');
+
+      // Helper to get status class
+      function getStatusClass(status) {
+        if (status === 'Active') return 'active';
+        if (status === 'Charging') return 'charging';
+        return 'warning';
+      }
+
+      // Populate sidebar fleet summary
+      function renderFleetSummary() {
+        if (!fleetSummary) return;
+        fleetSummary.innerHTML = robots.slice(0, 4).map(robot => `
+          <div class="fleet-stat" data-robot-id="${robot.id}">
+            <span class="fs-name">🤖 ${robot.name}</span>
+            <span class="fs-status ${getStatusClass(robot.status)}">${robot.status} · ${robot.battery}%</span>
+          </div>
+        `).join('');
+        
+        // Add click listeners to sidebar items
+        fleetSummary.querySelectorAll('.fleet-stat').forEach(item => {
+          item.addEventListener('click', function() {
+            const robotId = this.getAttribute('data-robot-id');
+            openFleetDetail(robotId);
+          });
+        });
+      }
+
+      // Render list view for modal
+      function renderFleetList() {
+        fleetModalTitle.textContent = 'Fleet Diagnostics';
+        fleetModalBody.innerHTML = robots.map(robot => `
+          <div class="fleet-list-item" data-robot-id="${robot.id}">
+            <span class="fl-name">🤖 ${robot.name}</span>
+            <span class="fl-status ${getStatusClass(robot.status)}">${robot.status} · ${robot.battery}%</span>
+          </div>
+        `).join('');
+
+        // Add click listeners for list items
+        fleetModalBody.querySelectorAll('.fleet-list-item').forEach(item => {
+          item.addEventListener('click', function() {
+            const robotId = this.getAttribute('data-robot-id');
+            openFleetDetail(robotId);
+          });
+        });
+      }
+
+      // Render detail view for modal
+      function openFleetDetail(robotId) {
+        const robot = robots.find(r => r.id === robotId);
+        if (!robot) return;
+
+        fleetModalTitle.textContent = `Robot Details: ${robot.name}`;
+        
+        let batteryClass = 'high';
+        if (robot.battery < 30) batteryClass = 'low';
+        else if (robot.battery < 60) batteryClass = 'medium';
+
+        fleetModalBody.innerHTML = `
+          <div class="fleet-detail-view">
+            <div class="fd-header">
+              <span class="fd-robot-name">${robot.name}</span>
+              <span class="fd-status-badge ${getStatusClass(robot.status)}">${robot.status}</span>
+            </div>
+            <div class="fd-stats-grid">
+              <div class="fd-stat-box">
+                <span class="fd-stat-label">Battery Level</span>
+                <span class="fd-stat-value">${robot.battery}<span class="fd-stat-unit">%</span></span>
+                <div class="fd-battery-bar">
+                  <div class="fd-battery-fill ${batteryClass}" style="width: ${robot.battery}%"></div>
+                </div>
+              </div>
+              <div class="fd-stat-box">
+                <span class="fd-stat-label">Speed</span>
+                <span class="fd-stat-value">${robot.speed}</span>
+              </div>
+              <div class="fd-stat-box">
+                <span class="fd-stat-label">Location</span>
+                <span class="fd-stat-value">${robot.location}</span>
+              </div>
+              <div class="fd-stat-box">
+                <span class="fd-stat-label">Payload</span>
+                <span class="fd-stat-value">${robot.payload}</span>
+              </div>
+              <div class="fd-stat-box" style="grid-column: 1 / -1;">
+                <span class="fd-stat-label">Last Maintenance</span>
+                <span class="fd-stat-value">${robot.lastMaintenance}</span>
+              </div>
+            </div>
+            <button class="fd-back-btn" id="fd-back-btn">
+              ← Back to Fleet List
+            </button>
+          </div>
+        `;
+
+        // Add back button listener
+        const backBtn = document.getElementById('fd-back-btn');
+        if (backBtn) {
+          backBtn.addEventListener('click', function() {
+            renderFleetList();
+          });
+        }
+      }
+
+      // Open modal (list view)
+      function openFleetModalList() {
+        renderFleetList();
+        fleetModal.classList.add('open');
+      }
+
+      // Open modal (detail view directly)
+      function openFleetModalDetail(robotId) {
+        openFleetDetail(robotId);
+        fleetModal.classList.add('open');
+      }
+
+      // Close modal
+      function closeFleetModal() {
+        fleetModal.classList.remove('open');
+      }
+
+      // Event Listeners
+      if (goToRobotsBtn) {
+        goToRobotsBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          openFleetModalList();
+        });
+      }
+
+      if (fleetModalClose) {
+        fleetModalClose.addEventListener('click', closeFleetModal);
+      }
+
+      if (fleetModal) {
+        fleetModal.addEventListener('click', function(e) {
+          if (e.target === fleetModal) {
+            closeFleetModal();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && fleetModal.classList.contains('open')) {
+          closeFleetModal();
+        }
+      });
+
+      // Initialize
+      renderFleetSummary();
     })();
   </script>
 
