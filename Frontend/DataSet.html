@@ -4,190 +4,276 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Upload Dataset · IronNest</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
 <style>
-/* =========================================================
-   IronNest tokens
-   ========================================================= */
+/* ============================================================
+   DESIGN TOKENS  (shared with Dashboard)
+   ============================================================ */
 :root{
-  --bg:#eef2f8;
-  --panel:#ffffff;
-  --panel-2:#f8fafc;
-  --border:#e5eaf2;
-  --border-2:#d9e0eb;
-  --text:#0e1a2b;
-  --text-2:#5a6a83;
-  --text-3:#8b99b1;
-  --primary:#2563eb;
-  --primary-2:#1d4ed8;
-  --primary-soft:#eaf1ff;
-  --green:#15a34a;
-  --green-soft:#e6f7ed;
-  --amber:#d97706;
-  --amber-soft:#fff4e5;
-  --red:#dc2626;
-  --red-soft:#fdeaea;
-  --violet:#7c3aed;
-  --slate:#64748b;
+  --ink:#0b0f1a; --ink-2:#3b4252; --ink-3:#6b7280; --ink-4:#9ca3af;
+  --bg-base:#eef1f7;
+  --glass:rgba(255,255,255,.55);
+  --glass-2:rgba(255,255,255,.75);
+  --glass-3:rgba(255,255,255,.4);
+  --line:rgba(255,255,255,.7);
+  --line-2:rgba(226,232,240,.7);
 
-  --r-sm:10px;
-  --r:14px;
-  --r-lg:18px;
+  --accent:#6366f1; --accent-2:#4f46e5;
+  --accent-soft:rgba(99,102,241,.12);
+  --accent-ink:#3730a3;
 
-  --shadow-1:0 1px 2px rgba(15,26,43,.04), 0 1px 3px rgba(15,26,43,.03);
-  --shadow-2:0 2px 6px rgba(15,26,43,.05), 0 12px 28px -22px rgba(15,26,43,.32);
-  --shadow-glass:0 2px 6px rgba(15,26,43,.04), 0 16px 40px -28px rgba(15,26,43,.35);
+  --green:#10b981; --green-soft:rgba(16,185,129,.12);
+  --amber:#f59e0b; --amber-soft:rgba(245,158,11,.12);
+  --red:#ef4444;   --red-soft:rgba(239,68,68,.12);
+  --sky:#0ea5e9;   --sky-soft:rgba(14,165,233,.12);
+  --violet:#7c3aed;--violet-soft:rgba(124,58,237,.12);
 
-  --glass-1:rgba(255,255,255,.72);
-  --glass-2:rgba(255,255,255,.55);
-  --glass-border:rgba(255,255,255,.7);
-  --glass-blur:blur(20px) saturate(150%);
+  --r-lg:16px; --r-md:12px; --r-sm:8px;
+  --shadow-soft:0 4px 24px -8px rgba(15,23,42,.08);
+  --shadow-lift:0 12px 32px -12px rgba(15,23,42,.15);
+  --ease:cubic-bezier(.32,.72,0,1);
+  --spring:cubic-bezier(.34,1.4,.64,1);
+}
+html[data-theme="dark"]{
+  --ink:#e7ebf3; --ink-2:#a3adc0; --ink-3:#6b7280; --ink-4:#4b5563;
+  --bg-base:#050810;
+  --glass:rgba(15,22,40,.55);
+  --glass-2:rgba(18,26,46,.75);
+  --glass-3:rgba(10,16,32,.4);
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.06);
 
-  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --mono:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  --accent:#818cf8; --accent-2:#6366f1;
+  --accent-soft:rgba(129,140,248,.15);
+  --accent-ink:#c7d2fe;
+
+  --green:#34d399; --green-soft:rgba(52,211,153,.15);
+  --amber:#fbbf24; --amber-soft:rgba(251,191,36,.15);
+  --red:#f87171;   --red-soft:rgba(248,113,113,.15);
+  --sky:#38bdf8;   --sky-soft:rgba(56,189,248,.15);
+  --violet:#a78bfa;--violet-soft:rgba(167,139,250,.15);
+
+  --shadow-soft:0 4px 24px -8px rgba(0,0,0,.5);
+  --shadow-lift:0 12px 32px -12px rgba(0,0,0,.7);
 }
 
-*,*::before,*::after{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;font-family:var(--font);color:var(--text);
-  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;
-  -webkit-tap-highlight-color:transparent;
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  height:100%;overflow:hidden;color:var(--ink);
+}
+body{background:var(--bg-base)}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 50% 40% at 5% -10%, rgba(96,165,250,.10), transparent 60%),
-    radial-gradient(ellipse 45% 45% at 105% 5%, rgba(147,197,253,.09), transparent 58%),
-    var(--bg);
-  background-attachment:fixed;
-  min-height:100vh;
+    radial-gradient(900px 700px at 15% 20%, rgba(99,102,241,.14), transparent 60%),
+    radial-gradient(800px 700px at 90% 85%, rgba(14,165,233,.10), transparent 60%);
 }
+html[data-theme="dark"] body::before{
+  background:
+    radial-gradient(900px 700px at 15% 20%, rgba(99,102,241,.16), transparent 60%),
+    radial-gradient(800px 700px at 90% 85%, rgba(14,165,233,.12), transparent 60%);
+}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.3);border-radius:20px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.5);background-clip:content-box}
+
 button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none;outline:none;color:inherit}
+input,select{outline:none;border:none;font-family:inherit}
 h1,h2,h3,p{margin:0}
 svg{display:block}
 
-/* =========================================================
-   App shell
-   ========================================================= */
-.app{display:flex;min-height:100vh}
+html.theme-transitioning body,
+html.theme-transitioning .sidebar,
+html.theme-transitioning .main,
+html.theme-transitioning .panel,
+html.theme-transitioning .act-btn{transition:background-color .3s ease, border-color .3s ease, color .25s ease !important}
 
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-old(root){z-index:1}
+::view-transition-new(root){z-index:2}
+
+/* ============================================================
+   SCROLL PROGRESS
+   ============================================================ */
+.scroll-progress{
+  position:fixed;top:0;left:0;height:2px;width:0;
+  background:linear-gradient(90deg,#6366f1,#a855f7,#06b6d4);
+  z-index:9998;pointer-events:none;
+  box-shadow:0 0 12px rgba(99,102,241,.7);
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#app{
+  display:grid;grid-template-columns:220px 1fr;gap:12px;
+  height:100vh;padding:12px;position:relative;z-index:1;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
 .sidebar{
-  width:224px;flex:0 0 224px;
-  background:var(--panel);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  position:sticky;top:0;height:100vh;z-index:30;
+  display:flex;flex-direction:column;gap:2px;padding:18px 12px;
+  border-radius:var(--r-lg);
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-soft);
+  overflow-y:auto;contain:layout paint;
 }
-.brand{display:flex;align-items:center;gap:10px;padding:20px 18px 18px}
-.brand-mark{
-  width:32px;height:32px;border-radius:9px;flex:0 0 32px;
-  background:linear-gradient(150deg,var(--primary),#4f8bff);
-  color:#fff;font-weight:800;font-size:12px;letter-spacing:.4px;
-  display:grid;place-items:center;
-  box-shadow:0 4px 10px -4px rgba(37,99,235,.65);
+.sidebar .logo{
+  display:flex;align-items:center;gap:10px;padding-left:8px;margin-bottom:22px;
+  font-family:'Space Grotesk','Inter',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-.04em;
 }
-.brand-text{display:flex;flex-direction:column;line-height:1.15}
-.brand-text strong{font-size:14.5px;letter-spacing:-.2px}
-.brand-text span{font-size:10.5px;color:var(--text-3);font-weight:500}
-.nav{padding:6px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
+.sidebar .logo .logo-mark{
+  width:32px;height:32px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;font-size:.95rem;color:#fff;
+  background:linear-gradient(135deg,#6366f1,#4f46e5);
+  box-shadow:0 4px 12px -4px rgba(79,70,229,.6);
+}
+.nav-section{padding:12px 14px 4px;font-size:.58rem;font-weight:700;text-transform:uppercase;color:var(--ink-4);letter-spacing:.14em}
 .nav-item{
-  display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;
-  color:var(--text-2);text-decoration:none;font-weight:500;font-size:13.5px;
-  transition:background .15s ease,color .15s ease;
+  display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:var(--r-sm);
+  font-size:.82rem;font-weight:500;color:var(--ink-3);text-align:left;width:100%;
+  position:relative;border:1px solid transparent;text-decoration:none;
+  transition:background .2s ease,color .2s ease,transform .25s var(--ease);
 }
-.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.nav-item:hover{background:var(--panel-2);color:var(--text)}
-.nav-item.is-active{background:var(--primary-soft);color:var(--primary);font-weight:600}
-.sidebar-foot{padding:14px 18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--text-3)}
-.sidebar-foot .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px}
+.nav-item:hover{background:var(--glass-3);color:var(--ink)}
+.nav-item.active{color:var(--accent-ink);font-weight:600;background:var(--accent-soft)}
+.nav-item .icon{width:18px;display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.nav-item .badge{
+  margin-left:auto;padding:2px 7px;font-size:.55rem;font-weight:700;
+  border-radius:20px;min-width:18px;text-align:center;color:#fff;background:var(--red);
+}
+.nav-spacer{flex:1}
 
-.main{flex:1;min-width:0;display:flex;flex-direction:column}
-
-/* Blank topbar */
-.topbar{
-  height:56px;flex:0 0 56px;
-  background:var(--panel);
-  border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:20;
+/* ============================================================
+   MAIN
+   ============================================================ */
+.main{
+  position:relative;overflow-y:auto;overflow-x:hidden;
+  padding:22px 26px 120px;border-radius:var(--r-lg);
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-soft);
+  scroll-behavior:smooth;contain:layout style;
 }
 
-.page{
-  padding:20px 24px 28px;
-  display:flex;flex-direction:column;gap:16px;
-  max-width:1200px;width:100%;margin:0 auto;
-  flex:1;
+/* ============================================================
+   HEADER
+   ============================================================ */
+.deck-header{
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--line-2);
+  flex-wrap:wrap;
 }
+.deck-title{display:flex;flex-direction:column;gap:4px}
+.deck-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:500;color:var(--ink-4);
+  text-transform:uppercase;letter-spacing:.16em;
+}
+.deck-title h1{
+  font-family:'Space Grotesk','Inter',sans-serif;font-size:1.5rem;font-weight:700;
+  letter-spacing:-.04em;line-height:1.1;color:var(--ink);
+}
+.deck-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-/* =========================================================
-   Page header
-   ========================================================= */
-.page-head{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  gap:16px;flex-wrap:wrap;
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.act-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--r-sm);
+  font-size:.76rem;font-weight:600;letter-spacing:-.005em;
+  border:1px solid var(--line);background:var(--glass-2);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:var(--ink-2);white-space:nowrap;
+  transition:transform .2s var(--ease),background .2s ease,border-color .2s ease,box-shadow .2s ease,color .2s ease;
 }
-.page-head h1{font-size:21px;letter-spacing:-.4px;font-weight:700;line-height:1.2}
-.page-head .sub{color:var(--text-2);font-size:13px;margin-top:3px;max-width:560px}
-.head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.act-btn:hover{background:rgba(255,255,255,.85);color:var(--ink);transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+html[data-theme="dark"] .act-btn:hover{background:rgba(30,41,62,.85)}
+.act-btn:active{transform:translateY(0) scale(.98)}
+.act-btn.primary{
+  background:linear-gradient(135deg,#6366f1,#4f46e5);
+  border-color:rgba(255,255,255,.2);color:#fff;
+  box-shadow:0 8px 20px -8px rgba(79,70,229,.7);
+}
+.act-btn.primary:hover{background:linear-gradient(135deg,#7c7ff5,#5b52e8);box-shadow:0 12px 24px -8px rgba(79,70,229,.85)}
+.act-btn.icon-only{width:40px;height:40px;padding:0;justify-content:center}
+.act-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.act-btn .theme-icon{font-size:1rem;transition:transform .35s var(--spring);display:inline-block}
+#theme-toggle:hover .theme-icon{transform:rotate(-15deg) scale(1.1)}
 
-/* =========================================================
-   Buttons
-   ========================================================= */
-.btn{
-  display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;
-  border-radius:10px;border:1px solid var(--border);background:var(--panel);
-  color:var(--text);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;
-  transition:background .15s ease,border-color .15s ease,transform .12s ease,box-shadow .15s ease,color .15s ease;
+.btn{ /* alias for act-btn, used by upload page */
+  display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--r-sm);
+  font-size:.76rem;font-weight:600;
+  border:1px solid var(--line);background:var(--glass-2);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:var(--ink-2);white-space:nowrap;
+  transition:transform .2s var(--ease),background .2s ease,border-color .2s ease,box-shadow .2s ease,color .2s ease;
 }
+.btn:hover{background:rgba(255,255,255,.85);color:var(--ink);transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+html[data-theme="dark"] .btn:hover{background:rgba(30,41,62,.85)}
+.btn:active{transform:translateY(0) scale(.98)}
 .btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.btn:hover{background:var(--panel-2);border-color:var(--border-2)}
-.btn:active{transform:scale(.98)}
-.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
-.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}
-.btn-primary:hover{background:var(--primary-2);border-color:var(--primary-2)}
+.btn-primary{
+  background:linear-gradient(135deg,#6366f1,#4f46e5);border-color:rgba(255,255,255,.2);
+  color:#fff;box-shadow:0 8px 20px -8px rgba(79,70,229,.7);
+}
+.btn-primary:hover{background:linear-gradient(135deg,#7c7ff5,#5b52e8);color:#fff}
 .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-primary:disabled:hover{background:var(--primary);border-color:var(--primary)}
+.btn-primary:disabled:hover{background:linear-gradient(135deg,#6366f1,#4f46e5)}
 .btn-ghost{background:transparent;border-color:transparent}
-.btn-ghost:hover{background:var(--panel-2);border-color:var(--border)}
-.btn-sm{height:30px;padding:0 11px;font-size:12.5px;border-radius:8px}
+.btn-ghost:hover{background:var(--glass-3);border-color:var(--line)}
+.btn-sm{height:30px;padding:0 11px;font-size:.7rem;border-radius:7px}
 .btn-sm svg{width:14px;height:14px}
 
-/* =========================================================
-   Layout
-   ========================================================= */
+/* ============================================================
+   LAYOUT
+   ============================================================ */
 .upload-layout{
-  display:grid;
-  grid-template-columns:minmax(0, 1fr) 300px;
-  gap:16px;
-  align-items:start;
+  display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start;
 }
 .col-main{display:flex;flex-direction:column;gap:16px;min-width:0}
-.col-side{display:flex;flex-direction:column;gap:16px;min-width:0;position:sticky;top:76px}
+.col-side{display:flex;flex-direction:column;gap:16px;min-width:0;position:sticky;top:0}
 
-/* =========================================================
-   Panels
-   ========================================================= */
+/* ============================================================
+   PANELS
+   ============================================================ */
 .panel{
-  background:var(--panel);
-  border:1px solid var(--border);
+  background:var(--glass-2);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  backdrop-filter:blur(16px) saturate(160%);
+  border:1px solid var(--line);
   border-radius:var(--r-lg);
-  box-shadow:var(--shadow-1);
+  box-shadow:var(--shadow-soft);
   overflow:hidden;
-  animation:panelIn .32s cubic-bezier(.22,.9,.3,1) both;
+  animation:panelIn .4s var(--ease) both;
 }
-.panel-glass{
-  background:var(--glass-1);
-  -webkit-backdrop-filter:var(--glass-blur);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  box-shadow:var(--shadow-glass);
-}
+.panel-glass{ background:var(--glass); }
 .panel-head{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:13px 18px;border-bottom:1px solid var(--border);min-height:50px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:16px 20px;border-bottom:1px solid var(--line-2);min-height:54px;
 }
-.panel-glass .panel-head{border-bottom-color:rgba(15,26,43,.06)}
-.panel-head h2{font-size:13.5px;font-weight:700;letter-spacing:-.1px}
-.panel-head .muted{font-size:11.5px;color:var(--text-3);font-weight:500}
-.panel-body{padding:18px}
+.panel-head h2{
+  font-family:'Space Grotesk','Inter',sans-serif;
+  font-size:.95rem;font-weight:600;letter-spacing:-.025em;color:var(--ink);
+}
+.panel-head .muted{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--ink-4);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.panel-body{padding:18px 20px}
 
-@keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes panelIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .upload-layout > .col-main > :nth-child(1){animation-delay:0ms}
 .upload-layout > .col-main > :nth-child(2){animation-delay:60ms}
 .upload-layout > .col-main > :nth-child(3){animation-delay:120ms}
@@ -195,223 +281,200 @@ svg{display:block}
 .col-side > *:nth-child(1){animation-delay:80ms}
 .col-side > *:nth-child(2){animation-delay:140ms}
 
-/* =========================================================
-   Upload area
-   ========================================================= */
-.upload-card{
-  position:relative;
-  border-radius:var(--r-lg);
-  overflow:hidden;
-}
+/* ============================================================
+   UPLOAD AREA
+   ============================================================ */
+.upload-card{position:relative;border-radius:var(--r-lg);overflow:hidden;transition:border-color .25s ease,box-shadow .25s ease}
 .upload-card.is-dragging{
-  border-color:#9dc0ff;
-  box-shadow:0 0 0 4px rgba(37,99,235,.12), var(--shadow-glass);
+  border-color:rgba(129,140,248,.6);
+  box-shadow:0 0 0 4px var(--accent-soft), var(--shadow-lift);
 }
 .upload-zone{
   padding:48px 28px 44px;
-  display:flex;flex-direction:column;align-items:center;gap:16px;
-  text-align:center;
-  cursor:pointer;
-  transition:background .2s ease;
-  border-radius:var(--r-lg);
+  display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;
+  cursor:pointer;transition:background .2s ease;border-radius:var(--r-lg);
 }
-.upload-card.is-dragging .upload-zone{background:rgba(234,241,255,.5)}
+.upload-card.is-dragging .upload-zone{background:var(--accent-soft)}
 .upload-icon{
   width:56px;height:56px;border-radius:16px;
-  background:linear-gradient(180deg,#f0f5ff,#e3ecff);
-  color:var(--primary);
+  background:var(--accent-soft);color:var(--accent);
   display:grid;place-items:center;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.9),
-    0 4px 12px -6px rgba(37,99,235,.35);
-  transition:transform .25s cubic-bezier(.22,.9,.3,1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15), 0 6px 16px -8px rgba(99,102,241,.5);
+  transition:transform .25s var(--ease);
 }
 .upload-icon svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .upload-card.is-dragging .upload-icon{transform:translateY(-2px) scale(1.06)}
-.upload-title{font-size:16px;font-weight:700;letter-spacing:-.2px}
-.upload-sub{font-size:13px;color:var(--text-2)}
+.upload-title{
+  font-family:'Space Grotesk','Inter',sans-serif;
+  font-size:1rem;font-weight:600;letter-spacing:-.02em;color:var(--ink);
+}
+.upload-sub{font-size:.78rem;color:var(--ink-3);font-weight:500}
 .upload-meta{
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;
-  font-size:11.5px;color:var(--text-3);font-weight:500;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-4);
+  font-weight:500;letter-spacing:.05em;
 }
-.upload-meta .dot{width:4px;height:4px;border-radius:50%;background:var(--text-3);display:inline-block;margin:0 2px}
-.upload-meta kbd{
-  font-family:var(--font);font-size:11px;font-weight:700;
-  background:var(--panel-2);border:1px solid var(--border);
-  border-radius:5px;padding:1px 6px;color:var(--text-2);
-}
+.upload-meta .dot{width:4px;height:4px;border-radius:50%;background:var(--ink-4);display:inline-block;margin:0 2px}
 
-/* =========================================================
-   File card
-   ========================================================= */
-.file-card{
-  display:flex;align-items:center;gap:14px;
-  padding:16px 18px;
-}
+/* ============================================================
+   FILE CARD
+   ============================================================ */
+.file-card{display:flex;align-items:center;gap:14px;padding:16px 20px}
 .file-icon{
   width:42px;height:42px;border-radius:11px;flex:0 0 42px;
   display:grid;place-items:center;
-  font-size:10px;font-weight:800;letter-spacing:.4px;
-  background:var(--primary-soft);color:var(--primary);
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.04em;
+  background:var(--accent-soft);color:var(--accent-ink);
 }
+html[data-theme="dark"] .file-icon{color:var(--accent-ink)}
 .file-info{flex:1;min-width:0}
 .file-name{
-  font-size:14px;font-weight:700;letter-spacing:-.1px;
+  font-family:'Space Grotesk','Inter',sans-serif;
+  font-size:.88rem;font-weight:600;letter-spacing:-.015em;color:var(--ink);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .file-meta{
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  font-size:12px;color:var(--text-3);margin-top:3px;font-weight:500;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-4);
+  margin-top:4px;font-weight:500;letter-spacing:.04em;
 }
 .file-meta .dot{width:3px;height:3px;border-radius:50%;background:currentColor;display:inline-block}
 .file-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 
+/* PILLS */
 .pill{
-  display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:99px;
-  font-size:10.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;
-  background:var(--panel-2);color:var(--slate);
-  white-space:nowrap;
+  display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:20px;
+  font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--glass-3);color:var(--ink-3);
+  border:1px solid var(--line-2);white-space:nowrap;
 }
 .pill svg{width:11px;height:11px;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:currentColor}
-.pill.ok{background:var(--green-soft);color:#0f7a37}
-.pill.warn{background:var(--amber-soft);color:#a35c00}
-.pill.err{background:var(--red-soft);color:var(--red)}
-.pill.info{background:var(--primary-soft);color:var(--primary)}
+.pill.ok  {background:var(--green-soft);color:var(--green);border-color:rgba(16,185,129,.25)}
+.pill.warn{background:var(--amber-soft);color:var(--amber);border-color:rgba(245,158,11,.25)}
+.pill.err {background:var(--red-soft);color:var(--red);border-color:rgba(239,68,68,.25)}
+.pill.info{background:var(--accent-soft);color:var(--accent-ink);border-color:rgba(99,102,241,.25)}
 
-/* =========================================================
-   Dataset type picker
-   ========================================================= */
+/* ============================================================
+   DATASET TYPE PICKER
+   ============================================================ */
 .type-list{display:flex;flex-direction:column;gap:8px;padding:14px}
 .type-item{
   display:flex;align-items:flex-start;gap:11px;padding:12px;
-  border-radius:12px;border:1px solid var(--border);background:var(--panel);
-  cursor:pointer;text-align:left;width:100%;
-  transition:border-color .15s ease,background .15s ease,transform .12s ease,box-shadow .15s ease;
+  border-radius:var(--r-md);border:1px solid var(--line-2);
+  background:var(--glass-3);cursor:pointer;text-align:left;width:100%;
+  transition:border-color .15s ease,background .15s ease,transform .15s var(--ease),box-shadow .2s ease;
 }
-.type-item:hover{background:var(--panel-2);border-color:var(--border-2);transform:translateY(-1px);box-shadow:var(--shadow-1)}
+.type-item:hover{background:var(--glass-2);border-color:var(--line);transform:translateY(-1px);box-shadow:var(--shadow-soft)}
 .type-item:active{transform:translateY(0)}
-.type-item:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 .type-item.is-selected{
-  border-color:#a9c6ff;background:#f4f8ff;
-  box-shadow:0 0 0 3px rgba(37,99,235,.10);
+  border-color:rgba(99,102,241,.35);background:var(--accent-soft);
+  box-shadow:0 0 0 3px rgba(99,102,241,.10);
 }
 .type-ico{
   width:32px;height:32px;border-radius:9px;flex:0 0 32px;
   display:grid;place-items:center;
-  background:var(--panel-2);color:var(--text-2);
+  background:var(--glass-2);color:var(--ink-2);
   transition:background .2s ease,color .2s ease;
 }
 .type-ico svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.type-item.is-selected .type-ico{background:var(--primary);color:#fff}
+.type-item.is-selected .type-ico{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff}
 .type-body{flex:1;min-width:0}
-.type-title{font-size:13px;font-weight:700;letter-spacing:-.1px}
-.type-desc{font-size:11.5px;color:var(--text-3);margin-top:2px;line-height:1.35}
+.type-title{font-size:.8rem;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
+.type-desc{font-size:.68rem;color:var(--ink-3);margin-top:3px;line-height:1.4}
 
-/* =========================================================
-   Preview table
-   ========================================================= */
+/* ============================================================
+   PREVIEW TABLE
+   ============================================================ */
 .preview-wrap{overflow:auto;max-height:340px}
-.preview-table{
-  width:100%;border-collapse:separate;border-spacing:0;
-  font-size:12.5px;
-}
+.preview-table{width:100%;border-collapse:collapse;font-size:.75rem}
 .preview-table thead th{
   position:sticky;top:0;z-index:2;
-  background:var(--panel-2);
-  text-align:left;font-weight:700;color:var(--text-2);
-  font-size:11px;text-transform:uppercase;letter-spacing:.5px;
-  padding:10px 14px;
-  border-bottom:1px solid var(--border);
+  background:var(--glass-3);
+  text-align:left;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.55rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-4);padding:11px 16px;border-bottom:1px solid var(--line-2);
   white-space:nowrap;
 }
 .preview-table tbody td{
-  padding:10px 14px;
-  border-bottom:1px solid #f1f5fa;
-  color:var(--text);
-  white-space:nowrap;
+  padding:12px 16px;border-bottom:1px solid var(--line-2);
+  color:var(--ink-2);font-weight:500;white-space:nowrap;
 }
 .preview-table tbody tr:last-child td{border-bottom:none}
-.preview-table tbody tr:hover td{background:#fafbfe}
+.preview-table tbody tr:hover td{background:var(--glass-3)}
 .preview-table .num{font-variant-numeric:tabular-nums}
-.preview-table .empty{color:var(--text-3);font-style:italic}
+.preview-table .empty{color:var(--ink-4);font-style:italic}
 .preview-foot{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:10px 18px;border-top:1px solid var(--border);
-  font-size:12px;color:var(--text-3);font-weight:500;
-  background:var(--panel-2);
+  padding:12px 20px;border-top:1px solid var(--line-2);
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-4);
+  font-weight:500;letter-spacing:.04em;background:var(--glass-3);
 }
 
-/* =========================================================
-   Column mapping
-   ========================================================= */
+/* ============================================================
+   COLUMN MAPPING
+   ============================================================ */
 .mapping-list{display:flex;flex-direction:column;gap:0}
 .mapping-row{
   display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);
-  gap:12px;align-items:center;
-  padding:11px 18px;border-bottom:1px solid #f1f5fa;
+  gap:12px;align-items:center;padding:11px 20px;border-bottom:1px solid var(--line-2);
 }
 .mapping-row:last-child{border-bottom:none}
 .mapping-src{
-  font-size:12.5px;font-weight:600;font-family:var(--mono);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  color:var(--text-2);
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2);
+  letter-spacing:-.01em;
 }
-.mapping-arrow{display:grid;place-items:center;color:var(--text-3)}
+.mapping-arrow{display:grid;place-items:center;color:var(--ink-4)}
 .mapping-arrow svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .mapping-sel{position:relative}
 .mapping-sel select{
-  width:100%;height:32px;border-radius:8px;
-  border:1px solid var(--border);background:var(--panel);
-  font-size:12.5px;font-weight:600;padding:0 26px 0 10px;
-  outline:none;cursor:pointer;appearance:none;
-  transition:border-color .15s ease,box-shadow .15s ease;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b99b1' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  width:100%;height:34px;border-radius:var(--r-sm);
+  border:1px solid var(--line-2);background:var(--glass-3);
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:500;
+  padding:0 26px 0 11px;outline:none;cursor:pointer;appearance:none;color:var(--ink);
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   background-repeat:no-repeat;background-position:right 9px center;
 }
-.mapping-sel select:focus{border-color:#bfd4ff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-.mapping-sel select.is-auto{border-color:#b7e6c8;background-color:#f7fdf9;color:#0f7a37}
-.mapping-sel select.is-unmapped{color:var(--text-3)}
+.mapping-sel select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.mapping-sel select.is-auto{border-color:rgba(16,185,129,.35);background-color:var(--green-soft);color:var(--green)}
+.mapping-sel select.is-unmapped{color:var(--ink-4)}
 
-/* =========================================================
-   Validation
-   ========================================================= */
-.val-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
-  padding:16px 18px;
-}
+/* ============================================================
+   VALIDATION
+   ============================================================ */
+.val-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 20px}
 .val-card{
-  padding:12px 14px;border-radius:12px;
-  border:1px solid var(--border);background:var(--panel-2);
-  display:flex;flex-direction:column;gap:4px;
-  transition:transform .15s ease,box-shadow .15s ease;
+  padding:13px 15px;border-radius:var(--r-md);
+  border:1px solid var(--line-2);background:var(--glass-3);
+  display:flex;flex-direction:column;gap:5px;
+  transition:transform .15s var(--ease),box-shadow .15s ease;
 }
-.val-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-1)}
+.val-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-soft)}
 .val-card .k{
-  font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
-  color:var(--text-3);
+  font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--ink-4);
 }
-.val-card .v{font-size:20px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums;line-height:1.1}
-.val-card.ok{border-color:#c9ecd7;background:rgba(230,247,237,.6)}
-.val-card.ok .k{color:#0f7a37}
-.val-card.ok .v{color:#0f7a37}
-.val-card.warn{border-color:#f6ddb7;background:rgba(255,244,229,.6)}
-.val-card.warn .k{color:#a35c00}
-.val-card.warn .v{color:#a35c00}
-.val-card.err{border-color:#f6cfcf;background:rgba(253,234,234,.6)}
-.val-card.err .k{color:var(--red)}
-.val-card.err .v{color:var(--red)}
+.val-card .v{
+  font-family:'Space Grotesk','Inter',sans-serif;
+  font-size:1.35rem;font-weight:600;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink);
+}
+.val-card.ok  {border-color:rgba(16,185,129,.3);background:var(--green-soft)}
+.val-card.ok .k,.val-card.ok .v{color:var(--green)}
+.val-card.warn{border-color:rgba(245,158,11,.3);background:var(--amber-soft)}
+.val-card.warn .k,.val-card.warn .v{color:var(--amber)}
+.val-card.err {border-color:rgba(239,68,68,.3);background:var(--red-soft)}
+.val-card.err .k,.val-card.err .v{color:var(--red)}
 
-.val-issues{display:flex;flex-direction:column;border-top:1px solid var(--border)}
+.val-issues{display:flex;flex-direction:column;border-top:1px solid var(--line-2)}
 .val-issue{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:11px 18px;border-bottom:1px solid #f1f5fa;
-  font-size:12.5px;
+  display:flex;align-items:flex-start;gap:11px;
+  padding:12px 20px;border-bottom:1px solid var(--line-2);font-size:.76rem;
 }
 .val-issue:last-child{border-bottom:none}
-.val-issue .ico{
-  width:22px;height:22px;border-radius:7px;flex:0 0 22px;
-  display:grid;place-items:center;
-}
+.val-issue .ico{width:24px;height:24px;border-radius:7px;flex:0 0 24px;display:grid;place-items:center}
 .val-issue .ico svg{width:12px;height:12px;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .val-issue.warn .ico{background:var(--amber-soft)}
 .val-issue.warn .ico svg{stroke:var(--amber)}
@@ -419,139 +482,139 @@ svg{display:block}
 .val-issue.err .ico svg{stroke:var(--red)}
 .val-issue.ok .ico{background:var(--green-soft)}
 .val-issue.ok .ico svg{stroke:var(--green)}
-.val-issue .txt{color:var(--text);font-weight:600;line-height:1.35}
+.val-issue .txt{color:var(--ink);font-weight:600;line-height:1.4}
 .val-issue .rows{
-  font-size:11.5px;color:var(--text-3);font-weight:500;margin-top:2px;
-  font-family:var(--mono);
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-4);
+  font-weight:500;margin-top:3px;letter-spacing:.02em;
 }
 
-/* =========================================================
-   Progress / success
-   ========================================================= */
+/* ============================================================
+   PROGRESS / SUCCESS
+   ============================================================ */
 .progress-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.progress-head .lbl{font-size:13px;font-weight:700}
-.progress-head .pct{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
-.progress-bar{
-  height:8px;border-radius:99px;background:#eef1f7;overflow:hidden;
-}
+.progress-head .lbl{font-family:'Space Grotesk','Inter',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:-.02em}
+.progress-head .pct{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;font-variant-numeric:tabular-nums;color:var(--accent)}
+.progress-bar{height:8px;border-radius:99px;background:var(--glass-3);overflow:hidden;border:1px solid var(--line-2)}
 .progress-bar > i{
   display:block;height:100%;border-radius:99px;
-  background:linear-gradient(90deg,#3b82f6,var(--primary));
+  background:linear-gradient(90deg,#6366f1,#06b6d4);
   transition:width .25s ease;
 }
 
-.success{
-  display:flex;align-items:flex-start;gap:14px;padding:20px 20px 18px;
-}
+.success{display:flex;align-items:flex-start;gap:14px;padding:20px}
 .success-ico{
   width:44px;height:44px;border-radius:12px;flex:0 0 44px;
-  background:var(--green-soft);color:var(--green);
-  display:grid;place-items:center;
+  background:var(--green-soft);color:var(--green);display:grid;place-items:center;
 }
 .success-ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.success-title{font-size:15px;font-weight:700;letter-spacing:-.2px}
-.success-sub{font-size:12.5px;color:var(--text-2);margin-top:3px}
+.success-title{font-family:'Space Grotesk','Inter',sans-serif;font-size:.95rem;font-weight:600;letter-spacing:-.02em}
+.success-sub{font-size:.76rem;color:var(--ink-3);margin-top:4px;font-weight:500}
 .success-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 
-/* =========================================================
-   Recent uploads
-   ========================================================= */
-.recent-list{display:flex;flex-direction:column;padding:4px}
-.recent-item{
-  display:flex;gap:11px;padding:11px 12px;border-radius:10px;
-  transition:background .15s ease;
-}
-.recent-item:hover{background:var(--panel-2)}
-.recent-item + .recent-item{border-top:1px solid #f1f5fa}
+/* ============================================================
+   RECENT UPLOADS
+   ============================================================ */
+.recent-list{display:flex;flex-direction:column;padding:6px}
+.recent-item{display:flex;gap:11px;padding:11px 12px;border-radius:var(--r-sm);transition:background .15s ease}
+.recent-item:hover{background:var(--glass-3)}
+.recent-item + .recent-item{border-top:1px solid var(--line-2)}
 .recent-ico{
   width:30px;height:30px;border-radius:8px;flex:0 0 30px;
-  background:var(--panel-2);color:var(--text-2);
-  display:grid;place-items:center;
-  font-size:9px;font-weight:800;letter-spacing:.3px;
+  background:var(--glass-3);color:var(--ink-2);display:grid;place-items:center;
+  font-family:'JetBrains Mono',monospace;font-size:.5rem;font-weight:700;letter-spacing:.03em;
+  border:1px solid var(--line-2);
 }
 .recent-body{flex:1;min-width:0}
-.recent-name{font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent-name{
+  font-family:'Space Grotesk','Inter',sans-serif;
+  font-size:.76rem;font-weight:600;letter-spacing:-.015em;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
 .recent-meta{
   display:flex;align-items:center;gap:7px;flex-wrap:wrap;
-  font-size:11px;color:var(--text-3);font-weight:500;margin-top:3px;
+  font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--ink-4);
+  font-weight:500;margin-top:4px;letter-spacing:.03em;
 }
 .recent-meta .dot{width:3px;height:3px;border-radius:50%;background:currentColor;display:inline-block}
 
-/* =========================================================
-   Action bar
-   ========================================================= */
+/* ============================================================
+   ACTION BAR
+   ============================================================ */
 .action-bar{
   position:sticky;bottom:0;z-index:15;
   display:flex;align-items:center;justify-content:space-between;gap:16px;
   padding:14px 18px;margin-top:4px;
-  background:var(--glass-1);
-  -webkit-backdrop-filter:var(--glass-blur);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--line);
   border-radius:var(--r-lg);
-  box-shadow:var(--shadow-glass);
-  transform:translateY(100%);
-  opacity:0;
-  pointer-events:none;
-  transition:transform .3s cubic-bezier(.22,.9,.3,1),opacity .25s ease;
+  box-shadow:var(--shadow-lift);
+  transform:translateY(100%);opacity:0;pointer-events:none;
+  transition:transform .3s var(--ease),opacity .25s ease;
 }
 .action-bar.is-visible{transform:translateY(0);opacity:1;pointer-events:auto}
-.action-bar .hint{font-size:12px;color:var(--text-2);font-weight:500;display:flex;align-items:center;gap:8px}
-.action-bar .hint svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--text-3)}
+.action-bar .hint{
+  font-size:.74rem;color:var(--ink-3);font-weight:500;
+  display:flex;align-items:center;gap:8px;
+}
+.action-bar .hint svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--ink-4)}
 .action-bar .btns{display:flex;align-items:center;gap:8px}
 
-/* =========================================================
-   Empty / helper
-   ========================================================= */
-.empty{
-  padding:28px 18px;text-align:center;
-  font-size:12.5px;color:var(--text-3);font-weight:500;
-}
+/* ============================================================
+   EMPTY / HELPER
+   ============================================================ */
+.empty{padding:28px 20px;text-align:center;font-size:.74rem;color:var(--ink-4);font-weight:500}
 
-/* =========================================================
-   History modal
-   ========================================================= */
+/* ============================================================
+   HISTORY MODAL
+   ============================================================ */
 .modal-backdrop{
-  position:fixed;inset:0;background:rgba(14,26,43,.35);
+  position:fixed;inset:0;background:rgba(11,15,26,.35);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
-  z-index:80;display:none;align-items:center;justify-content:center;
-  padding:20px;
+  z-index:80;display:none;align-items:center;justify-content:center;padding:20px;
 }
+html[data-theme="dark"] .modal-backdrop{background:rgba(2,4,10,.55)}
 .modal-backdrop.is-open{display:flex;animation:fadeIn .2s ease both}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .modal{
   width:100%;max-width:560px;max-height:min(80vh,640px);
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:var(--r-lg);box-shadow:0 24px 60px -20px rgba(15,26,43,.5);
+  background:var(--glass-2);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-lift);
   display:flex;flex-direction:column;overflow:hidden;
-  animation:modalIn .25s cubic-bezier(.22,.9,.3,1) both;
+  animation:modalIn .25s var(--ease) both;
 }
 @keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
 .modal-head{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:14px 18px;border-bottom:1px solid var(--border);
+  padding:16px 20px;border-bottom:1px solid var(--line-2);
 }
-.modal-head h3{font-size:14px;font-weight:700}
+.modal-head h3{font-family:'Space Grotesk','Inter',sans-serif;font-size:.92rem;font-weight:600;letter-spacing:-.02em}
 .modal-body{padding:8px;overflow-y:auto;flex:1}
 
-/* =========================================================
-   Responsive
-   ========================================================= */
-@media (max-width:980px){
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1200px){
   .upload-layout{grid-template-columns:1fr}
   .col-side{position:static;order:-1}
-  .type-list{flex-direction:row;gap:8px;padding:12px}
-  .type-item{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
+  .type-list{flex-direction:row;gap:8px;padding:12px;overflow-x:auto}
+  .type-item{flex-direction:column;align-items:flex-start;gap:8px;padding:12px;min-width:150px}
   .type-item .type-desc{display:none}
 }
-@media (max-width:1000px){
+@media (max-width:900px){
+  #app{grid-template-columns:1fr;padding:8px;gap:8px}
   .sidebar{display:none}
-  .page{padding:16px 18px 22px}
+  .main{padding:18px 16px 100px}
+  .deck-header{flex-direction:column;align-items:flex-start}
+  .deck-actions{width:100%;justify-content:flex-end}
 }
 @media (max-width:640px){
-  .page-head h1{font-size:18px}
-  .head-actions .btn span.lbl{display:none}
-  .head-actions .btn{padding:0 10px}
+  .deck-title h1{font-size:1.2rem}
   .file-card{flex-wrap:wrap}
   .file-actions{width:100%;justify-content:flex-start}
   .val-grid{grid-template-columns:1fr}
@@ -561,248 +624,212 @@ svg{display:block}
   .action-bar .btns{width:100%}
   .action-bar .btns .btn{flex:1;justify-content:center}
 }
-
 @media (prefers-reduced-motion: reduce){
-  *,*::before,*::after{
-    animation-duration:.001ms !important;
-    animation-iteration-count:1 !important;
-    transition-duration:.001ms !important;
-  }
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
 }
 </style>
+
+<script>
+(function(){
+  try{
+    var saved = localStorage.getItem('ironnest-theme');
+    if(saved==='dark'||saved==='light') document.documentElement.setAttribute('data-theme', saved);
+    else document.documentElement.setAttribute('data-theme','dark');
+  }catch(e){ document.documentElement.setAttribute('data-theme','dark'); }
+})();
+</script>
 </head>
 <body>
 
-<div class="app">
-  <!-- ===================== SIDEBAR ===================== -->
+<div class="scroll-progress" id="scroll-progress"></div>
+
+<div id="app">
   <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-mark">IN</div>
-      <div class="brand-text"><strong>IronNest</strong><span>Warehouse OS</span></div>
+    <div class="logo">
+      <div class="logo-mark">📦</div>
+      <div>IronNest</div>
     </div>
-    <nav class="nav" aria-label="Main">
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
-        Dashboard
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 13h.01M15 13h.01"/></svg>
-        Robots
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-        Orders
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4"/></svg>
-        Inventory
-      </a>
-      <a class="nav-item is-active" href="#" aria-current="page">
-        <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-        Upload
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-        Analytics
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M22 12h-3M5 12H2M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1M18.4 18.4l-2.1-2.1M7.7 7.7L5.6 5.6"/></svg>
-        Settings
-      </a>
-    </nav>
-    <div class="sidebar-foot"><span class="dot"></span>All systems operational</div>
+    <div class="nav-section">Operations</div>
+    <a class="nav-item" href="/dashboard"><span class="icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="/robot-fleet"><span class="icon">🤖</span> Robots</a>
+    <a class="nav-item" href="/forecasting"><span class="icon">📈</span> Forecasting</a>
+    <div class="nav-section">Data</div>
+    <a class="nav-item active" href="/upload-dataset"><span class="icon">📁</span> Upload Dataset</a>
+    <div class="nav-spacer"></div>
+    <a class="nav-item" href="/help"><span class="icon">❓</span> Help &amp; Support</a>
+    <button class="nav-item" id="logout-btn"><span class="icon">🚪</span> Logout</button>
   </aside>
 
-  <div class="main">
-    <header class="topbar" aria-hidden="true"></header>
+  <main class="main" id="main-scroll">
 
-    <main class="page">
-
-      <!-- ===================== HEADER ===================== -->
-      <div class="page-head">
-        <div>
-          <h1>Upload Dataset</h1>
-          <p class="sub">Import warehouse data to configure inventory, orders and robot operations.</p>
-        </div>
-        <div class="head-actions">
-          <button class="btn" id="btnHistory">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            <span class="lbl">Dataset History</span>
-          </button>
-        </div>
+    <header class="deck-header">
+      <div class="deck-title">
+        <span class="deck-eyebrow">Data / Ingestion</span>
+        <h1>Upload Dataset</h1>
       </div>
+      <div class="deck-actions">
+        <button class="act-btn" id="btnHistory">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Dataset History
+        </button>
+        <button class="act-btn icon-only" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
 
-      <!-- ===================== LAYOUT ===================== -->
-      <div class="upload-layout">
+    <div class="upload-layout">
 
-        <!-- ---------- MAIN COLUMN ---------- -->
-        <div class="col-main">
+      <div class="col-main">
 
-          <!-- Upload card -->
-          <div class="panel panel-glass upload-card" id="uploadCard">
-            <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload a dataset file">
-              <div class="upload-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-              </div>
-              <div>
-                <div class="upload-title" id="uploadTitle">Upload Dataset</div>
-                <div class="upload-sub" id="uploadSub">Drag &amp; drop your file here, or browse</div>
-              </div>
-              <div class="upload-meta">
-                <span>Supported: CSV<span class="dot"></span>XLSX<span class="dot"></span>JSON</span>
-                <span>Maximum file size: 50 MB</span>
-              </div>
-              <button class="btn btn-primary" id="btnBrowse" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
-                Browse Files
-              </button>
-              <input type="file" id="fileInput" accept=".csv,.json,.xlsx,.xls" hidden />
+        <!-- Upload card -->
+        <div class="panel panel-glass upload-card" id="uploadCard">
+          <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload a dataset file">
+            <div class="upload-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
             </div>
+            <div>
+              <div class="upload-title" id="uploadTitle">Upload Dataset</div>
+              <div class="upload-sub" id="uploadSub">Drag &amp; drop your file here, or browse</div>
+            </div>
+            <div class="upload-meta">
+              <span>CSV<span class="dot"></span>XLSX<span class="dot"></span>JSON</span>
+              <span>MAX 50 MB</span>
+            </div>
+            <button class="btn btn-primary" id="btnBrowse" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>
+              Browse Files
+            </button>
+            <input type="file" id="fileInput" accept=".csv,.json,.xlsx,.xls" hidden />
           </div>
+        </div>
 
-          <!-- File card -->
-          <div class="panel" id="fileCard" hidden>
-            <div class="file-card">
-              <div class="file-icon" id="fileIcon">CSV</div>
-              <div class="file-info">
-                <div class="file-name" id="fileName">—</div>
-                <div class="file-meta">
-                  <span id="fileSize">—</span>
-                  <span class="dot"></span>
-                  <span id="fileRows">—</span>
-                </div>
-              </div>
-              <div class="file-actions">
-                <span class="pill ok" id="filePill">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                  Ready
-                </span>
-                <button class="btn btn-sm" id="btnReplace" type="button">Replace</button>
-                <button class="btn btn-sm" id="btnRemove" type="button" aria-label="Remove file">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                </button>
+        <!-- File card -->
+        <div class="panel" id="fileCard" hidden>
+          <div class="file-card">
+            <div class="file-icon" id="fileIcon">CSV</div>
+            <div class="file-info">
+              <div class="file-name" id="fileName">—</div>
+              <div class="file-meta">
+                <span id="fileSize">—</span>
+                <span class="dot"></span>
+                <span id="fileRows">—</span>
               </div>
             </div>
-          </div>
-
-          <!-- Preview -->
-          <div class="panel" id="previewPanel" hidden>
-            <div class="panel-head">
-              <h2>Dataset Preview</h2>
-              <span class="muted" id="previewMeta">—</span>
-            </div>
-            <div class="preview-wrap">
-              <table class="preview-table" id="previewTable">
-                <thead></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-            <div class="preview-foot">
-              <span id="previewNote">Showing the first 8 rows</span>
-              <span id="previewCols">—</span>
-            </div>
-          </div>
-
-          <!-- Column mapping -->
-          <div class="panel" id="mappingPanel" hidden>
-            <div class="panel-head">
-              <h2>Map Columns</h2>
-              <span class="muted" id="mappingMeta">—</span>
-            </div>
-            <div class="mapping-list" id="mappingList"></div>
-          </div>
-
-          <!-- Validation -->
-          <div class="panel" id="validationPanel" hidden>
-            <div class="panel-head">
-              <h2>Data Validation</h2>
-              <span class="muted" id="valMeta">—</span>
-            </div>
-            <div class="val-grid">
-              <div class="val-card ok">
-                <span class="k">Valid records</span>
-                <span class="v" id="valOk">0</span>
-              </div>
-              <div class="val-card warn">
-                <span class="k">Warnings</span>
-                <span class="v" id="valWarn">0</span>
-              </div>
-              <div class="val-card err">
-                <span class="k">Errors</span>
-                <span class="v" id="valErr">0</span>
-              </div>
-            </div>
-            <div class="val-issues" id="valIssues"></div>
-          </div>
-
-          <!-- Progress -->
-          <div class="panel" id="progressPanel" hidden>
-            <div class="panel-body">
-              <div class="progress-head">
-                <span class="lbl" id="progressLabel">Importing dataset…</span>
-                <span class="pct" id="progressPct">0%</span>
-              </div>
-              <div class="progress-bar"><i id="progressBar" style="width:0%"></i></div>
-            </div>
-          </div>
-
-          <!-- Success -->
-          <div class="panel" id="successPanel" hidden>
-            <div class="success">
-              <div class="success-ico" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
-              </div>
-              <div style="flex:1;min-width:0">
-                <div class="success-title">Dataset Imported</div>
-                <div class="success-sub" id="successSub">—</div>
-                <div class="success-actions">
-                  <button class="btn btn-sm" id="btnViewData" type="button">View Data</button>
-                  <button class="btn btn-sm btn-primary" id="btnUploadAnother" type="button">Upload Another</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action bar -->
-          <div class="action-bar" id="actionBar">
-            <div class="hint">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
-              <span id="actionHint">Review the preview and mapping before importing.</span>
-            </div>
-            <div class="btns">
-              <button class="btn" id="btnCancel" type="button">Cancel</button>
-              <button class="btn btn-primary" id="btnImport" type="button" disabled>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-                Import Dataset
+            <div class="file-actions">
+              <span class="pill ok" id="filePill">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                Ready
+              </span>
+              <button class="btn btn-sm" id="btnReplace" type="button">Replace</button>
+              <button class="btn btn-sm" id="btnRemove" type="button" aria-label="Remove file">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- ---------- SIDE COLUMN ---------- -->
-        <div class="col-side">
-
-          <!-- Dataset type -->
-          <div class="panel">
-            <div class="panel-head">
-              <h2>Dataset Type</h2>
-            </div>
-            <div class="type-list" id="typeList" role="radiogroup" aria-label="Dataset type"></div>
+        <!-- Preview -->
+        <div class="panel" id="previewPanel" hidden>
+          <div class="panel-head">
+            <h2>Dataset Preview</h2>
+            <span class="muted" id="previewMeta">—</span>
           </div>
+          <div class="preview-wrap">
+            <table class="preview-table" id="previewTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="preview-foot">
+            <span id="previewNote">Showing the first 8 rows</span>
+            <span id="previewCols">—</span>
+          </div>
+        </div>
 
-          <!-- Recent uploads -->
-          <div class="panel">
-            <div class="panel-head">
-              <h2>Recent Uploads</h2>
-              <span class="muted" id="recentCount">—</span>
+        <!-- Column mapping -->
+        <div class="panel" id="mappingPanel" hidden>
+          <div class="panel-head">
+            <h2>Map Columns</h2>
+            <span class="muted" id="mappingMeta">—</span>
+          </div>
+          <div class="mapping-list" id="mappingList"></div>
+        </div>
+
+        <!-- Validation -->
+        <div class="panel" id="validationPanel" hidden>
+          <div class="panel-head">
+            <h2>Data Validation</h2>
+            <span class="muted" id="valMeta">—</span>
+          </div>
+          <div class="val-grid">
+            <div class="val-card ok"><span class="k">Valid records</span><span class="v" id="valOk">0</span></div>
+            <div class="val-card warn"><span class="k">Warnings</span><span class="v" id="valWarn">0</span></div>
+            <div class="val-card err"><span class="k">Errors</span><span class="v" id="valErr">0</span></div>
+          </div>
+          <div class="val-issues" id="valIssues"></div>
+        </div>
+
+        <!-- Progress -->
+        <div class="panel" id="progressPanel" hidden>
+          <div class="panel-body">
+            <div class="progress-head">
+              <span class="lbl" id="progressLabel">Importing dataset…</span>
+              <span class="pct" id="progressPct">0%</span>
             </div>
-            <div class="recent-list" id="recentList"></div>
+            <div class="progress-bar"><i id="progressBar" style="width:0%"></i></div>
+          </div>
+        </div>
+
+        <!-- Success -->
+        <div class="panel" id="successPanel" hidden>
+          <div class="success">
+            <div class="success-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div class="success-title">Dataset Imported</div>
+              <div class="success-sub" id="successSub">—</div>
+              <div class="success-actions">
+                <button class="btn btn-sm" id="btnViewData" type="button">View Data</button>
+                <button class="btn btn-sm btn-primary" id="btnUploadAnother" type="button">Upload Another</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action bar -->
+        <div class="action-bar" id="actionBar">
+          <div class="hint">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+            <span id="actionHint">Review the preview and mapping before importing.</span>
+          </div>
+          <div class="btns">
+            <button class="btn" id="btnCancel" type="button">Cancel</button>
+            <button class="btn btn-primary" id="btnImport" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              Import Dataset
+            </button>
           </div>
         </div>
       </div>
 
-    </main>
-  </div>
+      <div class="col-side">
+        <div class="panel">
+          <div class="panel-head"><h2>Dataset Type</h2></div>
+          <div class="type-list" id="typeList" role="radiogroup" aria-label="Dataset type"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Recent Uploads</h2>
+            <span class="muted" id="recentCount">—</span>
+          </div>
+          <div class="recent-list" id="recentList"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
 </div>
 
 <!-- History modal -->
@@ -820,48 +847,114 @@ svg{display:block}
   </div>
 </div>
 
+<!-- ============================================================
+     THEME TOGGLE + SHELL BEHAVIOUR
+     ============================================================ -->
 <script>
-/* =========================================================================
-   IronNest — Upload Dataset
-   -------------------------------------------------------------------------
-   Architecture
-     • SCHEMA        — field definitions per dataset type
-     • CSVParser     — robust CSV parsing (quoted fields)
-     • FileService   — file read + parse dispatch (CSV / JSON)
-     • AutoMapper    — common column name detection
-     • Validator     — row-level validation per dataset type
-     • ApiService    — mock import pipeline (replace with real fetch)
-     • UI            — progressive reveal controller
-   ========================================================================= */
+(function(){
+  const toggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+  let switching = false;
+
+  function applyTheme(next){
+    html.setAttribute('data-theme', next);
+    try{ localStorage.setItem('ironnest-theme', next); }catch(e){}
+  }
+  function fallbackRipple(x,y,isDark){
+    const ripple=document.createElement('div');
+    const r=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y))*2;
+    ripple.style.cssText=`position:fixed;border-radius:50%;pointer-events:none;z-index:9999;width:${r}px;height:${r}px;left:${x}px;top:${y}px;transform:translate(-50%,-50%) scale(0);opacity:.85;background:${isDark?'radial-gradient(circle, rgba(129,140,248,0.5) 0%, rgba(5,8,16,0.95) 55%, rgba(5,8,16,1) 100%)':'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(238,241,247,0.9) 45%, rgba(238,241,247,1) 100%)'};transition:transform .55s cubic-bezier(0.5,0,0.3,1), opacity .55s ease;`;
+    document.body.appendChild(ripple);
+    requestAnimationFrame(()=>{ ripple.style.transform='translate(-50%,-50%) scale(1)'; ripple.style.opacity='0'; });
+    setTimeout(()=>ripple.remove(),650);
+  }
+  if(toggle){
+    toggle.addEventListener('click',function(){
+      if(switching) return; switching=true; setTimeout(()=>{switching=false;},550);
+      const current = html.getAttribute('data-theme')||'dark';
+      const next = current==='dark'?'light':'dark';
+      const rect = toggle.getBoundingClientRect();
+      const cx = rect.left+rect.width/2, cy = rect.top+rect.height/2;
+      if(document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        const t = document.startViewTransition(()=>{ applyTheme(next); });
+        t.ready.then(()=>{
+          const radius = Math.hypot(Math.max(cx,innerWidth-cx),Math.max(cy,innerHeight-cy));
+          document.documentElement.animate(
+            { clipPath:[`circle(0px at ${cx}px ${cy}px)`,`circle(${radius}px at ${cx}px ${cy}px)`] },
+            { duration:450, easing:'cubic-bezier(0.5,0,0.3,1)', pseudoElement:'::view-transition-new(root)' }
+          );
+        });
+      } else {
+        fallbackRipple(cx,cy,next==='dark');
+        html.classList.add('theme-transitioning');
+        applyTheme(next);
+        setTimeout(()=>html.classList.remove('theme-transitioning'),350);
+      }
+    });
+  }
+})();
+</script>
+
+<script>
+(function(){
+  const logoutBtn = document.getElementById('logout-btn');
+  if(logoutBtn){
+    logoutBtn.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      localStorage.removeItem('access_token'); localStorage.removeItem('user');
+      window.location.href = '/';
+    });
+  }
+})();
+</script>
+
+<script>
+(function(){
+  const scrollRoot = document.querySelector('.main');
+  const progressBar = document.getElementById('scroll-progress');
+  let ticking = false;
+  if(scrollRoot && progressBar){
+    scrollRoot.addEventListener('scroll', function(){
+      if(ticking) return; ticking = true;
+      requestAnimationFrame(()=>{
+        const s = scrollRoot.scrollTop;
+        const t = scrollRoot.scrollHeight - scrollRoot.clientHeight;
+        progressBar.style.width = (t>0 ? (s/t)*100 : 0) + '%';
+        ticking = false;
+      });
+    }, { passive:true });
+  }
+})();
+</script>
+
+<!-- ============================================================
+     ORIGINAL UPLOAD LOGIC (unchanged)
+     ============================================================ -->
+<script>
 (function () {
   "use strict";
 
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => document.querySelectorAll(s);
 
-  /* =======================================================================
-     CONFIG
-     ======================================================================= */
-  const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
+  const MAX_SIZE_BYTES = 50 * 1024 * 1024;
   const ALLOWED_EXT = ["csv", "json", "xlsx", "xls"];
   const PREVIEW_ROWS = 8;
 
-  /* Field definitions per dataset type.
-     `aliases` are normalized (lowercase, alphanumerics only). */
   const SCHEMA = {
     inventory: {
       label: "Inventory",
       desc: "Products, quantities, locations",
       icon: '<svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg>',
       fields: [
-        { key: "product_id",   label: "Product ID",   required: true,  aliases: ["productid","id","sku","product"] },
-        { key: "product_name", label: "Product Name", required: false, aliases: ["productname","name","item","itemname","description"] },
-        { key: "sku",          label: "SKU",          required: false, aliases: ["sku","code","barcode"] },
-        { key: "quantity",     label: "Quantity",     required: true,  numeric: true, aliases: ["quantity","qty","count","stock","amount"] },
-        { key: "warehouse",    label: "Warehouse",    required: false, aliases: ["warehouse","wh","site"] },
-        { key: "zone",         label: "Zone",         required: false, aliases: ["zone","area"] },
-        { key: "aisle",        label: "Aisle",        required: false, aliases: ["aisle","row"] },
-        { key: "rack",         label: "Rack",         required: false, aliases: ["rack","bin","shelf"] }
+        { key:"product_id",   label:"Product ID",   required:true,  aliases:["productid","id","sku","product"] },
+        { key:"product_name", label:"Product Name", required:false, aliases:["productname","name","item","itemname","description"] },
+        { key:"sku",          label:"SKU",          required:false, aliases:["sku","code","barcode"] },
+        { key:"quantity",     label:"Quantity",     required:true,  numeric:true, aliases:["quantity","qty","count","stock","amount"] },
+        { key:"warehouse",    label:"Warehouse",    required:false, aliases:["warehouse","wh","site"] },
+        { key:"zone",         label:"Zone",         required:false, aliases:["zone","area"] },
+        { key:"aisle",        label:"Aisle",        required:false, aliases:["aisle","row"] },
+        { key:"rack",         label:"Rack",         required:false, aliases:["rack","bin","shelf"] }
       ]
     },
     orders: {
@@ -869,13 +962,13 @@ svg{display:block}
       desc: "Order IDs, items, priority, status",
       icon: '<svg viewBox="0 0 24 24"><path d="M9 3h6a2 2 0 0 1 2 2v0H7v0a2 2 0 0 1 2-2z"/><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 17h5"/></svg>',
       fields: [
-        { key: "order_id",    label: "Order ID",    required: true,  aliases: ["orderid","id","orderno","order"] },
-        { key: "product",     label: "Product",     required: true,  aliases: ["product","productname","item","itemname","sku"] },
-        { key: "quantity",    label: "Quantity",    required: true,  numeric: true, aliases: ["quantity","qty","count","amount"] },
-        { key: "priority",    label: "Priority",    required: false, aliases: ["priority","urgency","level"] },
-        { key: "warehouse",   label: "Warehouse",   required: false, aliases: ["warehouse","wh","site"] },
-        { key: "destination", label: "Destination", required: false, aliases: ["destination","dest","target","drop"] },
-        { key: "status",      label: "Status",      required: false, aliases: ["status","state"] }
+        { key:"order_id",    label:"Order ID",    required:true,  aliases:["orderid","id","orderno","order"] },
+        { key:"product",     label:"Product",     required:true,  aliases:["product","productname","item","itemname","sku"] },
+        { key:"quantity",    label:"Quantity",    required:true,  numeric:true, aliases:["quantity","qty","count","amount"] },
+        { key:"priority",    label:"Priority",    required:false, aliases:["priority","urgency","level"] },
+        { key:"warehouse",   label:"Warehouse",   required:false, aliases:["warehouse","wh","site"] },
+        { key:"destination", label:"Destination", required:false, aliases:["destination","dest","target","drop"] },
+        { key:"status",      label:"Status",      required:false, aliases:["status","state"] }
       ]
     },
     robots: {
@@ -883,392 +976,206 @@ svg{display:block}
       desc: "Robot IDs, locations, routes, status",
       icon: '<svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 13h.01M15 13h.01"/></svg>',
       fields: [
-        { key: "robot_id",    label: "Robot ID",    required: true,  aliases: ["robotid","id","robot"] },
-        { key: "name",        label: "Name",        required: false, aliases: ["name","label","robotname"] },
-        { key: "warehouse",   label: "Warehouse",   required: false, aliases: ["warehouse","wh","site"] },
-        { key: "status",      label: "Status",      required: false, aliases: ["status","state"] },
-        { key: "battery",     label: "Battery",     required: false, numeric: true, aliases: ["battery","batt","charge","power"] },
-        { key: "location",    label: "Location",    required: false, aliases: ["location","loc","position","current"] },
-        { key: "destination", label: "Destination", required: false, aliases: ["destination","dest","target","goal"] }
+        { key:"robot_id",    label:"Robot ID",    required:true,  aliases:["robotid","id","robot"] },
+        { key:"name",        label:"Name",        required:false, aliases:["name","label","robotname"] },
+        { key:"warehouse",   label:"Warehouse",   required:false, aliases:["warehouse","wh","site"] },
+        { key:"status",      label:"Status",      required:false, aliases:["status","state"] },
+        { key:"battery",     label:"Battery",     required:false, numeric:true, aliases:["battery","batt","charge","power"] },
+        { key:"location",    label:"Location",    required:false, aliases:["location","loc","position","current"] },
+        { key:"destination", label:"Destination", required:false, aliases:["destination","dest","target","goal"] }
       ]
     }
   };
 
-  /* =======================================================================
-     STATE
-     ======================================================================= */
   const State = {
-    file: null,
-    parsed: null,        // { headers: string[], rows: object[] }
-    datasetType: "orders",
-    mapping: {},         // fieldKey -> sourceColumn | ""
-    validation: null,
-    importing: false,
-    imported: false
+    file:null, parsed:null, datasetType:"orders", mapping:{}, validation:null,
+    importing:false, imported:false
   };
 
-  /* =======================================================================
-     CSV PARSER — handles quoted fields, escaped quotes, CRLF
-     ======================================================================= */
   const CSVParser = {
-    parse(text) {
-      // Strip BOM
-      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-
-      const rows = [];
-      let row = [];
-      let field = "";
-      let inQuotes = false;
-      let i = 0;
-
-      while (i < text.length) {
+    parse(text){
+      if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      const rows=[]; let row=[]; let field=""; let inQuotes=false; let i=0;
+      while(i < text.length){
         const ch = text[i];
-
-        if (inQuotes) {
-          if (ch === '"') {
-            if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
-            inQuotes = false; i++; continue;
-          }
+        if(inQuotes){
+          if(ch === '"'){ if(text[i+1] === '"'){ field += '"'; i+=2; continue; } inQuotes=false; i++; continue; }
           field += ch; i++; continue;
         }
-
-        if (ch === '"') { inQuotes = true; i++; continue; }
-        if (ch === ",") { row.push(field); field = ""; i++; continue; }
-        if (ch === "\r") { i++; continue; }
-        if (ch === "\n") {
-          row.push(field); field = "";
-          if (row.length > 1 || row[0] !== "") rows.push(row);
-          row = []; i++; continue;
-        }
+        if(ch === '"'){ inQuotes=true; i++; continue; }
+        if(ch === ","){ row.push(field); field=""; i++; continue; }
+        if(ch === "\r"){ i++; continue; }
+        if(ch === "\n"){ row.push(field); field=""; if(row.length>1 || row[0]!=="") rows.push(row); row=[]; i++; continue; }
         field += ch; i++;
       }
       row.push(field);
-      if (row.length > 1 || row[0] !== "") rows.push(row);
-
-      if (!rows.length) return { headers: [], rows: [] };
-
-      const headers = rows[0].map((h, idx) => (h || "").trim() || ("Column " + (idx + 1)));
-      const dataRows = [];
-      for (let r = 1; r < rows.length; r++) {
+      if(row.length>1 || row[0]!=="") rows.push(row);
+      if(!rows.length) return { headers:[], rows:[] };
+      const headers = rows[0].map((h,idx)=>(h||"").trim() || ("Column "+(idx+1)));
+      const dataRows=[];
+      for(let r=1;r<rows.length;r++){
         const arr = rows[r];
-        if (arr.length === 1 && arr[0] === "") continue;
-        const obj = {};
-        headers.forEach((h, idx) => { obj[h] = (arr[idx] != null ? String(arr[idx]).trim() : ""); });
+        if(arr.length===1 && arr[0]==="") continue;
+        const obj={};
+        headers.forEach((h,idx)=>{ obj[h]=(arr[idx]!=null?String(arr[idx]).trim():""); });
         dataRows.push(obj);
       }
-      return { headers, rows: dataRows };
+      return { headers, rows:dataRows };
     }
   };
 
-  /* =======================================================================
-     FILE SERVICE — parse by extension
-     ======================================================================= */
   const FileService = {
-    ext(name) {
-      const m = /\.([a-z0-9]+)$/i.exec(name || "");
-      return m ? m[1].toLowerCase() : "";
-    },
-
-    read(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error("Could not read file."));
-        reader.readAsText(file);
+    ext(name){ const m=/\.([a-z0-9]+)$/i.exec(name||""); return m?m[1].toLowerCase():""; },
+    read(file){
+      return new Promise((res,rej)=>{
+        const r=new FileReader();
+        r.onload=()=>res(r.result);
+        r.onerror=()=>rej(new Error("Could not read file."));
+        r.readAsText(file);
       });
     },
-
-    async parse(file) {
+    async parse(file){
       const ext = this.ext(file.name);
       const text = await this.read(file);
-
-      if (ext === "csv") {
-        const parsed = CSVParser.parse(text);
-        if (!parsed.headers.length) throw new Error("The CSV file appears to be empty.");
-        return parsed;
+      if(ext === "csv"){
+        const p = CSVParser.parse(text);
+        if(!p.headers.length) throw new Error("The CSV file appears to be empty.");
+        return p;
       }
-
-      if (ext === "json") {
+      if(ext === "json"){
         let data;
-        try { data = JSON.parse(text); }
-        catch (e) { throw new Error("The JSON file is malformed."); }
-        if (Array.isArray(data)) {
-          if (!data.length) throw new Error("The JSON file contains no records.");
-          const headers = Array.from(
-            data.reduce((set, row) => {
-              if (row && typeof row === "object") Object.keys(row).forEach((k) => set.add(k));
-              return set;
-            }, new Set())
-          );
-          const rows = data.map((r) => {
-            const obj = {};
-            headers.forEach((h) => { obj[h] = r && r[h] != null ? String(r[h]) : ""; });
-            return obj;
-          });
+        try{ data = JSON.parse(text); }catch(e){ throw new Error("The JSON file is malformed."); }
+        if(Array.isArray(data)){
+          if(!data.length) throw new Error("The JSON file contains no records.");
+          const headers = Array.from(data.reduce((s,row)=>{ if(row&&typeof row==="object") Object.keys(row).forEach(k=>s.add(k)); return s; }, new Set()));
+          const rows = data.map(r=>{ const o={}; headers.forEach(h=>{ o[h]= r&&r[h]!=null?String(r[h]):""; }); return o; });
           return { headers, rows };
         }
-        if (data && typeof data === "object" && Array.isArray(data.rows)) {
-          const headers = Array.isArray(data.columns)
-            ? data.columns
-            : Object.keys(data.rows[0] || {});
-          return { headers, rows: data.rows };
+        if(data && typeof data==="object" && Array.isArray(data.rows)){
+          const headers = Array.isArray(data.columns) ? data.columns : Object.keys(data.rows[0]||{});
+          return { headers, rows:data.rows };
         }
         throw new Error("The JSON file must contain an array of records.");
       }
-
-      // XLSX / XLS — server-side parsing required
-      throw new Error(
-        "Excel files are parsed on the server. " +
-        "Please ensure your backend supports .xlsx import, or convert to CSV."
-      );
+      throw new Error("Excel files are parsed on the server. Please convert to CSV.");
     },
-
-    formatSize(bytes) {
-      if (bytes < 1024) return bytes + " B";
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-      return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    formatSize(b){
+      if(b<1024) return b+" B";
+      if(b<1024*1024) return (b/1024).toFixed(1)+" KB";
+      return (b/(1024*1024)).toFixed(1)+" MB";
     }
   };
 
-  /* =======================================================================
-     AUTO MAPPER — best-effort column detection
-     ======================================================================= */
   const AutoMapper = {
-    normalize(s) {
-      return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    },
-    map(headers, type) {
+    normalize(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,""); },
+    map(headers, type){
       const schema = SCHEMA[type];
-      const result = {};
-      const usedHeaders = new Set();
-
-      // Pass 1 — exact alias match
-      for (const field of schema.fields) {
-        const target = this.normalize(field.key);
-        for (const h of headers) {
-          if (usedHeaders.has(h)) continue;
-          const norm = this.normalize(h);
-          if (field.aliases.includes(norm) || norm === target) {
-            result[field.key] = h;
-            usedHeaders.add(h);
-            break;
-          }
+      const result = {}; const used = new Set();
+      for(const f of schema.fields){
+        const target = this.normalize(f.key);
+        for(const h of headers){
+          if(used.has(h)) continue;
+          const n = this.normalize(h);
+          if(f.aliases.includes(n) || n === target){ result[f.key]=h; used.add(h); break; }
         }
       }
-      // Pass 2 — partial match
-      for (const field of schema.fields) {
-        if (result[field.key]) continue;
-        for (const h of headers) {
-          if (usedHeaders.has(h)) continue;
-          const norm = this.normalize(h);
-          if (field.aliases.some((a) => norm.includes(a) || a.includes(norm))) {
-            result[field.key] = h;
-            usedHeaders.add(h);
-            break;
-          }
+      for(const f of schema.fields){
+        if(result[f.key]) continue;
+        for(const h of headers){
+          if(used.has(h)) continue;
+          const n = this.normalize(h);
+          if(f.aliases.some(a=>n.includes(a)||a.includes(n))){ result[f.key]=h; used.add(h); break; }
         }
       }
-      // Fill empties
-      for (const field of schema.fields) {
-        if (!result[field.key]) result[field.key] = "";
-      }
+      for(const f of schema.fields){ if(!result[f.key]) result[f.key]=""; }
       return result;
     }
   };
 
-  /* =======================================================================
-     VALIDATOR
-     ======================================================================= */
   const Validator = {
-    run(parsed, type, mapping) {
+    run(parsed, type, mapping){
       const schema = SCHEMA[type];
-      const required = schema.fields.filter((f) => f.required);
-      const missing = required.filter((f) => !mapping[f.key]);
-
-      const issues = [];
-      if (missing.length) {
-        issues.push({
-          tone: "err",
-          text: "Missing required fields: " + missing.map((f) => f.label).join(", "),
-          rows: []
-        });
+      const required = schema.fields.filter(f=>f.required);
+      const missing = required.filter(f=>!mapping[f.key]);
+      const issues=[];
+      if(missing.length){
+        issues.push({ tone:"err", text:"Missing required fields: "+missing.map(f=>f.label).join(", "), rows:[] });
+        return { ok:0, warn:0, err:parsed.rows.length, issues, canImport:false };
       }
-
-      if (missing.length) {
-        return { ok: 0, warn: 0, err: parsed.rows.length, issues, canImport: false };
-      }
-
-      const numericFields = schema.fields.filter((f) => f.numeric);
-      const primary = schema.fields.find((f) => f.required);
-
+      const numericFields = schema.fields.filter(f=>f.numeric);
+      const primary = schema.fields.find(f=>f.required);
       const validRowIdx = new Set();
       const seenIds = new Map();
-      const dupIdx = [];
-      const missingLocIdx = [];
-      const badQtyIdx = [];
-
-      parsed.rows.forEach((row, idx) => {
-        let rowOk = true;
-        validRowIdx.add(idx);
-
-        // Duplicate primary key
-        if (primary && mapping[primary.key]) {
-          const val = String(row[mapping[primary.key]] || "").trim();
-          if (val) {
-            if (seenIds.has(val)) {
-              dupIdx.push(idx);
-              rowOk = false;
-            } else {
-              seenIds.set(val, idx);
-            }
+      const dupIdx=[]; const missingLocIdx=[]; const badQtyIdx=[];
+      parsed.rows.forEach((row, idx)=>{
+        let rowOk=true; validRowIdx.add(idx);
+        if(primary && mapping[primary.key]){
+          const val = String(row[mapping[primary.key]]||"").trim();
+          if(val){
+            if(seenIds.has(val)){ dupIdx.push(idx); rowOk=false; }
+            else seenIds.set(val, idx);
           }
         }
-
-        // Missing values
-        for (const f of schema.fields) {
-          if (!mapping[f.key]) continue;
-          const val = String(row[mapping[f.key]] || "").trim();
-          if (!val && f.required) { rowOk = false; }
+        for(const f of schema.fields){
+          if(!mapping[f.key]) continue;
+          const v = String(row[mapping[f.key]]||"").trim();
+          if(!v && f.required) rowOk=false;
         }
-
-        // Numeric check
-        for (const f of numericFields) {
-          if (!mapping[f.key]) continue;
-          const val = String(row[mapping[f.key]] || "").trim();
-          if (val === "") continue;
-          const n = Number(val);
-          if (!isFinite(n)) {
-            badQtyIdx.push(idx);
-            rowOk = false;
-          }
+        for(const f of numericFields){
+          if(!mapping[f.key]) continue;
+          const v = String(row[mapping[f.key]]||"").trim();
+          if(v==="") continue;
+          if(!isFinite(Number(v))){ badQtyIdx.push(idx); rowOk=false; }
         }
-
-        // Location-style warning (non-critical fields)
-        const warnField = schema.fields.find((f) =>
-          !f.required && ["location", "destination", "warehouse"].includes(f.key));
-        if (warnField && mapping[warnField.key]) {
-          const v = String(row[mapping[warnField.key]] || "").trim();
-          if (!v) { missingLocIdx.push(idx); }
+        const warnField = schema.fields.find(f=>!f.required && ["location","destination","warehouse"].includes(f.key));
+        if(warnField && mapping[warnField.key]){
+          const v = String(row[mapping[warnField.key]]||"").trim();
+          if(!v) missingLocIdx.push(idx);
         }
-
-        if (!rowOk) validRowIdx.delete(idx);
+        if(!rowOk) validRowIdx.delete(idx);
       });
-
-      const warnCount =
-        (missingLocIdx.length ? missingLocIdx.length : 0) +
-        (dupIdx.length ? dupIdx.length : 0);
-
-      if (dupIdx.length) {
-        issues.push({
-          tone: "warn",
-          text: dupIdx.length + " duplicate record" + (dupIdx.length > 1 ? "s" : "") +
-                " — " + primary.label,
-          rows: dupIdx.slice(0, 12).map((i) => i + 2)
-        });
-      }
-      if (missingLocIdx.length) {
-        issues.push({
-          tone: "warn",
-          text: missingLocIdx.length + " row" + (missingLocIdx.length > 1 ? "s" : "") +
-                " with missing " + (schema.fields.find((f) => f.key === "location")?.label
-                  || schema.fields.find((f) => f.key === "destination")?.label
-                  || schema.fields.find((f) => f.key === "warehouse")?.label || "value"),
-          rows: missingLocIdx.slice(0, 12).map((i) => i + 2)
-        });
-      }
-      if (badQtyIdx.length) {
-        issues.push({
-          tone: "err",
-          text: badQtyIdx.length + " invalid numeric value" + (badQtyIdx.length > 1 ? "s" : ""),
-          rows: badQtyIdx.slice(0, 12).map((i) => i + 2)
-        });
-      }
-
+      const warnCount = (missingLocIdx.length||0) + (dupIdx.length||0);
+      if(dupIdx.length) issues.push({ tone:"warn", text:dupIdx.length+" duplicate record"+(dupIdx.length>1?"s":"")+" — "+primary.label, rows:dupIdx.slice(0,12).map(i=>i+2) });
+      if(missingLocIdx.length) issues.push({ tone:"warn", text:missingLocIdx.length+" row"+(missingLocIdx.length>1?"s":"")+" with missing value", rows:missingLocIdx.slice(0,12).map(i=>i+2) });
+      if(badQtyIdx.length) issues.push({ tone:"err", text:badQtyIdx.length+" invalid numeric value"+(badQtyIdx.length>1?"s":""), rows:badQtyIdx.slice(0,12).map(i=>i+2) });
       const errCount = new Set(badQtyIdx.concat(dupIdx)).size;
       const okCount = Math.max(0, parsed.rows.length - errCount);
-
-      if (!issues.length) {
-        issues.push({ tone: "ok", text: "All rows passed validation.", rows: [] });
-      }
-
-      return {
-        ok: okCount,
-        warn: missingLocIdx.length,
-        err: badQtyIdx.length,
-        issues,
-        canImport: badQtyIdx.length === 0 && missing.length === 0
-      };
+      if(!issues.length) issues.push({ tone:"ok", text:"All rows passed validation.", rows:[] });
+      return { ok:okCount, warn:missingLocIdx.length, err:badQtyIdx.length, issues, canImport: badQtyIdx.length===0 && missing.length===0 };
     }
   };
 
-  /* =======================================================================
-     API SERVICE — mock pipeline. Replace with real fetch() calls.
-     ======================================================================= */
   const ApiService = {
-    /**
-     * @param {File} file
-     * @param {string} datasetType
-     * @param {object} mapping
-     * @param {(pct:number)=>void} onProgress
-     * @returns {Promise<{records:number}>}
-     */
-    async uploadDataset(file, datasetType, mapping, onProgress) {
-      // Real integration point:
-      //   const form = new FormData();
-      //   form.append("file", file);
-      //   form.append("type", datasetType);
-      //   form.append("mapping", JSON.stringify(mapping));
-      //   const res = await fetch("/api/datasets/upload", { method: "POST", body: form });
-      //   return await res.json();
-
-      return new Promise((resolve, reject) => {
-        let pct = 0;
-        const tick = () => {
-          // Slow down near the end for a natural feel
-          const step = pct < 70 ? 6 + Math.random() * 8 : pct < 92 ? 2 + Math.random() * 3 : 1;
-          pct = Math.min(100, pct + step);
+    async uploadDataset(file, datasetType, mapping, onProgress){
+      return new Promise((resolve)=>{
+        let pct=0;
+        const tick=()=>{
+          const step = pct<70 ? 6+Math.random()*8 : pct<92 ? 2+Math.random()*3 : 1;
+          pct = Math.min(100, pct+step);
           onProgress(Math.round(pct));
-          if (pct >= 100) {
-            setTimeout(() => {
-              const n = State.parsed ? State.parsed.rows.length : 0;
-              resolve({ records: n });
-            }, 220);
-          } else {
-            setTimeout(tick, 140 + Math.random() * 120);
-          }
+          if(pct>=100){ setTimeout(()=>{ const n = State.parsed?State.parsed.rows.length:0; resolve({records:n}); },220); }
+          else setTimeout(tick, 140+Math.random()*120);
         };
         setTimeout(tick, 220);
       });
     }
   };
 
-  /* =======================================================================
-     RECENT UPLOADS (seeded mock — swap for GET /api/datasets/recent)
-     ======================================================================= */
   const Recent = {
     items: [
-      { name: "warehouse_orders.csv", type: "orders",  records: 1248, when: "Today, 10:42 PM", status: "Imported" },
-      { name: "inventory_september.xlsx", type: "inventory", records: 3842, when: "Today, 7:15 PM", status: "Imported" },
-      { name: "robot_fleet.csv", type: "robots", records: 24, when: "Yesterday", status: "Imported" }
+      { name:"warehouse_orders.csv", type:"orders", records:1248, when:"Today, 10:42 PM", status:"Imported" },
+      { name:"inventory_september.xlsx", type:"inventory", records:3842, when:"Today, 7:15 PM", status:"Imported" },
+      { name:"robot_fleet.csv", type:"robots", records:24, when:"Yesterday", status:"Imported" }
     ],
-    add(item) {
-      this.items.unshift(item);
-      if (this.items.length > 8) this.items.pop();
-      renderRecent();
-    }
+    add(item){ this.items.unshift(item); if(this.items.length>8) this.items.pop(); renderRecent(); }
   };
 
-  function typeBadge(type) {
-    return (SCHEMA[type] && SCHEMA[type].label) || "Dataset";
-  }
-
-  function renderRecent() {
-    const list = $("#recentList");
-    const history = $("#historyList");
+  function renderRecent(){
+    const list = $("#recentList"); const history = $("#historyList");
     const html = Recent.items.length
-      ? Recent.items.map((it) => `
+      ? Recent.items.map(it=>`
         <div class="recent-item">
-          <div class="recent-ico">${(it.name.split(".").pop() || "file").slice(0, 4).toUpperCase()}</div>
+          <div class="recent-ico">${(it.name.split(".").pop()||"file").slice(0,4).toUpperCase()}</div>
           <div class="recent-body">
             <div class="recent-name">${escapeHtml(it.name)}</div>
             <div class="recent-meta">
@@ -1281,173 +1188,108 @@ svg{display:block}
           </div>
         </div>`).join("")
       : `<div class="empty">No recent uploads yet.</div>`;
-
     list.innerHTML = html;
-    if (history) history.innerHTML = html;
+    if(history) history.innerHTML = html;
     $("#recentCount").textContent = Recent.items.length + " total";
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => (
-      { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
-    ));
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
   }
 
-  /* =======================================================================
-     UI CONTROLLER
-     ======================================================================= */
   const UI = {
-    init() {
+    init(){
       this.renderTypeList();
       this.bindUpload();
       this.bindActions();
       renderRecent();
       this.updateActionBar();
     },
-
-    renderTypeList() {
+    renderTypeList(){
       const wrap = $("#typeList");
-      wrap.innerHTML = Object.keys(SCHEMA).map((key) => {
+      wrap.innerHTML = Object.keys(SCHEMA).map(key=>{
         const s = SCHEMA[key];
-        const selected = key === State.datasetType;
-        return `
-          <button type="button" class="type-item ${selected ? "is-selected" : ""}"
-                  role="radio" aria-checked="${selected}" data-type="${key}">
-            <span class="type-ico" aria-hidden="true">${s.icon}</span>
-            <span class="type-body">
-              <span class="type-title">${s.label}</span>
-              <span class="type-desc">${s.desc}</span>
-            </span>
-          </button>`;
+        const sel = key === State.datasetType;
+        return `<button type="button" class="type-item ${sel?"is-selected":""}" role="radio" aria-checked="${sel}" data-type="${key}">
+          <span class="type-ico" aria-hidden="true">${s.icon}</span>
+          <span class="type-body">
+            <span class="type-title">${s.label}</span>
+            <span class="type-desc">${s.desc}</span>
+          </span>
+        </button>`;
       }).join("");
-
-      wrap.querySelectorAll(".type-item").forEach((btn) => {
-        btn.addEventListener("click", () => this.selectType(btn.dataset.type));
+      wrap.querySelectorAll(".type-item").forEach(btn=>{
+        btn.addEventListener("click", ()=>this.selectType(btn.dataset.type));
       });
     },
-
-    selectType(type) {
-      if (State.importing) return;
+    selectType(type){
+      if(State.importing) return;
       State.datasetType = type;
-      $$("#typeList .type-item").forEach((el) => {
+      $$("#typeList .type-item").forEach(el=>{
         const on = el.dataset.type === type;
         el.classList.toggle("is-selected", on);
-        el.setAttribute("aria-checked", on ? "true" : "false");
+        el.setAttribute("aria-checked", on?"true":"false");
       });
-      if (State.parsed) {
+      if(State.parsed){
         State.mapping = AutoMapper.map(State.parsed.headers, type);
         this.renderMapping();
         this.runValidation();
       }
     },
-
-    /* -------------------- Upload interactions -------------------- */
-    bindUpload() {
-      const card = $("#uploadCard");
-      const zone = $("#uploadZone");
-      const input = $("#fileInput");
-
+    bindUpload(){
+      const card = $("#uploadCard"); const zone = $("#uploadZone"); const input = $("#fileInput");
       let dragDepth = 0;
-
-      const setDragging = (on) => {
+      const setDragging = (on)=>{
         card.classList.toggle("is-dragging", on);
         $("#uploadTitle").textContent = on ? "Drop your dataset here" : "Upload Dataset";
-        $("#uploadSub").textContent = on
-          ? "Release to begin upload"
-          : "Drag & drop your file here, or browse";
+        $("#uploadSub").textContent = on ? "Release to begin upload" : "Drag & drop your file here, or browse";
       };
-
-      ["dragenter", "dragover"].forEach((evt) => {
-        zone.addEventListener(evt, (e) => {
+      ["dragenter","dragover"].forEach(evt=>{
+        zone.addEventListener(evt, (e)=>{
           e.preventDefault(); e.stopPropagation();
-          if (evt === "dragenter") dragDepth++;
+          if(evt === "dragenter") dragDepth++;
           setDragging(true);
         });
       });
-      zone.addEventListener("dragleave", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        dragDepth = Math.max(0, dragDepth - 1);
-        if (dragDepth === 0) setDragging(false);
-      });
-      zone.addEventListener("drop", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        dragDepth = 0; setDragging(false);
-        const files = e.dataTransfer && e.dataTransfer.files;
-        if (files && files.length) this.handleFile(files[0]);
-      });
-
-      zone.addEventListener("click", (e) => {
-        if (e.target.closest("button")) return;
-        input.click();
-      });
-      zone.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); }
-      });
-      $("#btnBrowse").addEventListener("click", (e) => { e.stopPropagation(); input.click(); });
-      input.addEventListener("change", (e) => {
-        const f = e.target.files && e.target.files[0];
-        if (f) this.handleFile(f);
-        input.value = "";
-      });
-
-      $("#btnReplace").addEventListener("click", () => input.click());
-      $("#btnRemove").addEventListener("click", () => this.reset());
+      zone.addEventListener("dragleave", (e)=>{ e.preventDefault(); e.stopPropagation(); dragDepth = Math.max(0,dragDepth-1); if(dragDepth===0) setDragging(false); });
+      zone.addEventListener("drop", (e)=>{ e.preventDefault(); e.stopPropagation(); dragDepth=0; setDragging(false); const files=e.dataTransfer&&e.dataTransfer.files; if(files&&files.length) this.handleFile(files[0]); });
+      zone.addEventListener("click", (e)=>{ if(e.target.closest("button")) return; input.click(); });
+      zone.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); input.click(); } });
+      $("#btnBrowse").addEventListener("click", (e)=>{ e.stopPropagation(); input.click(); });
+      input.addEventListener("change", (e)=>{ const f=e.target.files&&e.target.files[0]; if(f) this.handleFile(f); input.value=""; });
+      $("#btnReplace").addEventListener("click", ()=>input.click());
+      $("#btnRemove").addEventListener("click", ()=>this.reset());
     },
-
-    /* -------------------- File handling -------------------- */
-    async handleFile(file) {
+    async handleFile(file){
       const ext = FileService.ext(file.name);
-
-      if (ALLOWED_EXT.indexOf(ext) === -1) {
-        this.showFileError("Unsupported file type. Please upload CSV, XLSX or JSON.");
-        return;
-      }
-      if (file.size > MAX_SIZE_BYTES) {
-        this.showFileError("File exceeds the 50 MB limit.");
-        return;
-      }
-      if (file.size === 0) {
-        this.showFileError("The selected file is empty.");
-        return;
-      }
-
-      State.file = file;
-      State.imported = false;
-
-      // Show the file card while we parse
+      if(ALLOWED_EXT.indexOf(ext)===-1){ this.showFileError("Unsupported file type. Please upload CSV, XLSX or JSON."); return; }
+      if(file.size > MAX_SIZE_BYTES){ this.showFileError("File exceeds the 50 MB limit."); return; }
+      if(file.size === 0){ this.showFileError("The selected file is empty."); return; }
+      State.file = file; State.imported = false;
       $("#fileCard").hidden = false;
       $("#fileName").textContent = file.name;
-      $("#fileIcon").textContent = ext.slice(0, 4).toUpperCase();
+      $("#fileIcon").textContent = ext.slice(0,4).toUpperCase();
       $("#fileSize").textContent = FileService.formatSize(file.size);
       $("#fileRows").textContent = "Reading…";
       const pill = $("#filePill");
       pill.className = "pill info";
       pill.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Processing';
-
-      this.hidePanels(["previewPanel", "mappingPanel", "validationPanel", "progressPanel", "successPanel"]);
-
-      try {
+      this.hidePanels(["previewPanel","mappingPanel","validationPanel","progressPanel","successPanel"]);
+      try{
         const parsed = await FileService.parse(file);
         State.parsed = parsed;
         State.mapping = AutoMapper.map(parsed.headers, State.datasetType);
-
         $("#fileRows").textContent = parsed.rows.length.toLocaleString() + " rows";
         pill.className = "pill ok";
         pill.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Ready';
-
-        this.renderPreview();
-        this.renderMapping();
-        this.runValidation();
-        this.updateActionBar();
-      } catch (err) {
+        this.renderPreview(); this.renderMapping(); this.runValidation(); this.updateActionBar();
+      }catch(err){
         this.showFileError(err && err.message ? err.message : "Could not read the selected file.");
       }
     },
-
-    showFileError(message) {
-      State.file = null;
-      State.parsed = null;
-      $("#fileCard").hidden = false;
+    showFileError(message){
+      State.file=null; State.parsed=null;
+      $("#fileCard").hidden=false;
       $("#fileName").textContent = "Upload failed";
       $("#fileIcon").textContent = "!";
       $("#fileSize").textContent = "—";
@@ -1455,256 +1297,157 @@ svg{display:block}
       const pill = $("#filePill");
       pill.className = "pill err";
       pill.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Error';
-      this.hidePanels(["previewPanel", "mappingPanel", "validationPanel", "progressPanel", "successPanel"]);
+      this.hidePanels(["previewPanel","mappingPanel","validationPanel","progressPanel","successPanel"]);
       this.updateActionBar();
     },
-
-    /* -------------------- Preview -------------------- */
-    renderPreview() {
-      if (!State.parsed) return;
+    renderPreview(){
+      if(!State.parsed) return;
       const { headers, rows } = State.parsed;
-      const thead = $("#previewTable thead");
-      const tbody = $("#previewTable tbody");
-
-      thead.innerHTML = "<tr>" + headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("") + "</tr>";
+      const thead = $("#previewTable thead"); const tbody = $("#previewTable tbody");
+      thead.innerHTML = "<tr>" + headers.map(h=>`<th>${escapeHtml(h)}</th>`).join("") + "</tr>";
       const slice = rows.slice(0, PREVIEW_ROWS);
-      tbody.innerHTML = slice.map((row) =>
-        "<tr>" + headers.map((h) => {
-          const v = row[h];
-          const empty = v == null || v === "";
-          return `<td class="${empty ? "empty" : ""}">${empty ? "—" : escapeHtml(v)}</td>`;
-        }).join("") + "</tr>"
-      ).join("");
-
+      tbody.innerHTML = slice.map(row=>"<tr>"+headers.map(h=>{
+        const v = row[h]; const empty = v==null||v==="";
+        return `<td class="${empty?"empty":""}">${empty?"—":escapeHtml(v)}</td>`;
+      }).join("")+"</tr>").join("");
       $("#previewMeta").textContent = rows.length.toLocaleString() + " total rows";
       $("#previewNote").textContent = "Showing the first " + Math.min(PREVIEW_ROWS, rows.length) + " rows";
       $("#previewCols").textContent = headers.length + " columns";
       $("#previewPanel").hidden = false;
     },
-
-    /* -------------------- Mapping -------------------- */
-    renderMapping() {
+    renderMapping(){
       const schema = SCHEMA[State.datasetType];
       const headers = State.parsed ? State.parsed.headers : [];
       const list = $("#mappingList");
-
-      list.innerHTML = schema.fields.map((f) => {
+      list.innerHTML = schema.fields.map(f=>{
         const current = State.mapping[f.key] || "";
         const isAuto = !!current;
-        const options = ['<option value="">— Not mapped —</option>']
-          .concat(headers.map((h) =>
-            `<option value="${escapeHtml(h)}" ${h === current ? "selected" : ""}>${escapeHtml(h)}</option>`
-          )).join("");
+        const options = ['<option value="">— Not mapped —</option>'].concat(headers.map(h=>
+          `<option value="${escapeHtml(h)}" ${h===current?"selected":""}>${escapeHtml(h)}</option>`
+        )).join("");
         const cls = isAuto ? "is-auto" : "is-unmapped";
-        return `
-          <div class="mapping-row">
-            <div class="mapping-src" title="${escapeHtml(f.label)}${f.required ? " · required" : ""}">
-              ${escapeHtml(f.label)}${f.required ? ' <span style="color:var(--red)">*</span>' : ""}
-            </div>
-            <div class="mapping-arrow" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </div>
-            <div class="mapping-sel">
-              <select class="${cls}" data-field="${f.key}" aria-label="Map ${escapeHtml(f.label)}">
-                ${options}
-              </select>
-            </div>
-          </div>`;
+        return `<div class="mapping-row">
+          <div class="mapping-src" title="${escapeHtml(f.label)}${f.required?" · required":""}">
+            ${escapeHtml(f.label)}${f.required?' <span style="color:var(--red)">*</span>':""}
+          </div>
+          <div class="mapping-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </div>
+          <div class="mapping-sel">
+            <select class="${cls}" data-field="${f.key}" aria-label="Map ${escapeHtml(f.label)}">${options}</select>
+          </div>
+        </div>`;
       }).join("");
-
-      list.querySelectorAll("select").forEach((sel) => {
-        sel.addEventListener("change", () => {
+      list.querySelectorAll("select").forEach(sel=>{
+        sel.addEventListener("change", ()=>{
           State.mapping[sel.dataset.field] = sel.value;
           sel.classList.toggle("is-auto", !!sel.value);
           sel.classList.toggle("is-unmapped", !sel.value);
           this.runValidation();
         });
       });
-
       $("#mappingPanel").hidden = false;
-      const mapped = schema.fields.filter((f) => State.mapping[f.key]).length;
+      const mapped = schema.fields.filter(f=>State.mapping[f.key]).length;
       $("#mappingMeta").textContent = mapped + " of " + schema.fields.length + " mapped";
     },
-
-    /* -------------------- Validation -------------------- */
-    runValidation() {
-      if (!State.parsed) return;
+    runValidation(){
+      if(!State.parsed) return;
       const result = Validator.run(State.parsed, State.datasetType, State.mapping);
       State.validation = result;
-
       $("#valOk").textContent = result.ok.toLocaleString();
       $("#valWarn").textContent = result.warn.toLocaleString();
       $("#valErr").textContent = result.err.toLocaleString();
       $("#valMeta").textContent = State.parsed.rows.length.toLocaleString() + " rows scanned";
-
       const icons = {
-        ok: '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
-        warn: '<svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
-        err: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>'
+        ok:'<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+        warn:'<svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+        err:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>'
       };
-
-      $("#valIssues").innerHTML = result.issues.map((it) => `
+      $("#valIssues").innerHTML = result.issues.map(it=>`
         <div class="val-issue ${it.tone}">
           <div class="ico">${icons[it.tone]}</div>
           <div>
             <div class="txt">${escapeHtml(it.text)}</div>
-            ${it.rows && it.rows.length
-              ? `<div class="rows">Rows: ${it.rows.slice(0, 12).join(", ")}${it.rows.length >= 12 ? "…" : ""}</div>`
-              : ""}
+            ${it.rows && it.rows.length ? `<div class="rows">Rows: ${it.rows.slice(0,12).join(", ")}${it.rows.length>=12?"…":""}</div>` : ""}
           </div>
-        </div>
-      `).join("");
-
+        </div>`).join("");
       $("#validationPanel").hidden = false;
       this.updateActionBar();
     },
-
-    /* -------------------- Action bar -------------------- */
-    updateActionBar() {
-      const bar = $("#actionBar");
-      const btnImport = $("#btnImport");
-      const hint = $("#actionHint");
-
-      if (!State.file || State.imported || State.importing) {
+    updateActionBar(){
+      const bar = $("#actionBar"); const btnImport = $("#btnImport"); const hint = $("#actionHint");
+      if(!State.file || State.imported || State.importing){
         bar.classList.toggle("is-visible", !!State.file && !State.imported);
-        btnImport.disabled = true;
-        return;
+        btnImport.disabled = true; return;
       }
       bar.classList.add("is-visible");
-
       const ready = State.validation && State.validation.canImport;
       btnImport.disabled = !ready;
-
-      if (!State.validation) {
-        hint.textContent = "Analyzing the file…";
-      } else if (!ready) {
-        const missing = SCHEMA[State.datasetType].fields
-          .filter((f) => f.required && !State.mapping[f.key])
-          .map((f) => f.label);
-        if (missing.length) {
-          hint.textContent = "Map required field" + (missing.length > 1 ? "s" : "") + ": " + missing.join(", ");
-        } else if (State.validation.err > 0) {
-          hint.textContent = State.validation.err + " error" + (State.validation.err > 1 ? "s" : "") + " must be resolved before importing.";
-        } else {
-          hint.textContent = "Ready to import.";
-        }
+      if(!State.validation){ hint.textContent = "Analyzing the file…"; }
+      else if(!ready){
+        const missing = SCHEMA[State.datasetType].fields.filter(f=>f.required && !State.mapping[f.key]).map(f=>f.label);
+        if(missing.length) hint.textContent = "Map required field" + (missing.length>1?"s":"") + ": " + missing.join(", ");
+        else if(State.validation.err>0) hint.textContent = State.validation.err + " error" + (State.validation.err>1?"s":"") + " must be resolved before importing.";
+        else hint.textContent = "Ready to import.";
       } else {
         hint.textContent = "Ready to import " + State.validation.ok.toLocaleString() + " records.";
       }
     },
-
-    hidePanels(ids) {
-      ids.forEach((id) => { const el = document.getElementById(id); if (el) el.hidden = true; });
+    hidePanels(ids){ ids.forEach(id=>{ const el = document.getElementById(id); if(el) el.hidden = true; }); },
+    bindActions(){
+      $("#btnCancel").addEventListener("click", ()=>this.reset());
+      $("#btnImport").addEventListener("click", ()=>this.importDataset());
+      $("#btnUploadAnother").addEventListener("click", ()=>this.reset());
+      $("#btnViewData").addEventListener("click", ()=>{ alert("Navigate to the imported dataset view (wire this to your router)."); });
+      $("#btnHistory").addEventListener("click", ()=>{ $("#historyModal").classList.add("is-open"); });
+      $("#btnHistoryClose").addEventListener("click", ()=>{ $("#historyModal").classList.remove("is-open"); });
+      $("#historyModal").addEventListener("click", (e)=>{ if(e.target.id==="historyModal") $("#historyModal").classList.remove("is-open"); });
+      document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") $("#historyModal").classList.remove("is-open"); });
     },
-
-    /* -------------------- Actions -------------------- */
-    bindActions() {
-      $("#btnCancel").addEventListener("click", () => this.reset());
-      $("#btnImport").addEventListener("click", () => this.importDataset());
-      $("#btnUploadAnother").addEventListener("click", () => this.reset());
-      $("#btnViewData").addEventListener("click", () => {
-        // Placeholder — wire to your actual data route
-        alert("Navigate to the imported dataset view (wire this to your router).");
-      });
-
-      $("#btnHistory").addEventListener("click", () => {
-        $("#historyModal").classList.add("is-open");
-      });
-      $("#btnHistoryClose").addEventListener("click", () => {
-        $("#historyModal").classList.remove("is-open");
-      });
-      $("#historyModal").addEventListener("click", (e) => {
-        if (e.target.id === "historyModal") $("#historyModal").classList.remove("is-open");
-      });
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") $("#historyModal").classList.remove("is-open");
-      });
-    },
-
-    async importDataset() {
-      if (State.importing || !State.file) return;
-      if (!State.validation || !State.validation.canImport) return;
-
+    async importDataset(){
+      if(State.importing || !State.file) return;
+      if(!State.validation || !State.validation.canImport) return;
       State.importing = true;
       $("#actionBar").classList.remove("is-visible");
-      this.hidePanels(["progressPanel", "successPanel"]);
+      this.hidePanels(["progressPanel","successPanel"]);
       $("#progressPanel").hidden = false;
       $("#progressLabel").textContent = "Importing dataset…";
       $("#progressPct").textContent = "0%";
       $("#progressBar").style.width = "0%";
-
-      try {
-        const res = await ApiService.uploadDataset(
-          State.file, State.datasetType, State.mapping,
-          (pct) => {
-            $("#progressPct").textContent = pct + "%";
-            $("#progressBar").style.width = pct + "%";
-          }
-        );
-
+      try{
+        const res = await ApiService.uploadDataset(State.file, State.datasetType, State.mapping, (pct)=>{
+          $("#progressPct").textContent = pct + "%";
+          $("#progressBar").style.width = pct + "%";
+        });
         $("#progressPanel").hidden = true;
         $("#successPanel").hidden = false;
-        $("#successSub").textContent =
-          res.records.toLocaleString() + " records were successfully added to IronNest.";
-
-        Recent.add({
-          name: State.file.name,
-          type: State.datasetType,
-          records: res.records,
-          when: "Just now",
-          status: "Imported"
-        });
-
-        State.imported = true;
-        State.importing = false;
-        this.updateActionBar();
-      } catch (err) {
+        $("#successSub").textContent = res.records.toLocaleString() + " records were successfully added to IronNest.";
+        Recent.add({ name:State.file.name, type:State.datasetType, records:res.records, when:"Just now", status:"Imported" });
+        State.imported = true; State.importing = false; this.updateActionBar();
+      }catch(err){
         State.importing = false;
         $("#progressPanel").hidden = true;
         this.updateActionBar();
         alert("Import failed: " + (err && err.message ? err.message : "Unknown error"));
       }
     },
-
-    reset() {
-      State.file = null;
-      State.parsed = null;
-      State.mapping = {};
-      State.validation = null;
-      State.importing = false;
-      State.imported = false;
-
-      $("#fileInput").value = "";
-      $("#fileCard").hidden = true;
+    reset(){
+      State.file=null; State.parsed=null; State.mapping={}; State.validation=null;
+      State.importing=false; State.imported=false;
+      $("#fileInput").value=""; $("#fileCard").hidden=true;
       $("#actionBar").classList.remove("is-visible");
-      this.hidePanels(["previewPanel", "mappingPanel", "validationPanel", "progressPanel", "successPanel"]);
-
-      // Reset upload zone text
+      this.hidePanels(["previewPanel","mappingPanel","validationPanel","progressPanel","successPanel"]);
       $("#uploadTitle").textContent = "Upload Dataset";
       $("#uploadSub").textContent = "Drag & drop your file here, or browse";
       $("#uploadCard").classList.remove("is-dragging");
     }
   };
 
-  /* =======================================================================
-     BOOT
-     ======================================================================= */
-  function boot() {
-    UI.init();
-  }
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
+  function boot(){ UI.init(); }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
 
-  /* Public API — connect your backend here */
-  window.IronNestUpload = {
-    schema: SCHEMA,
-    state: State,
-    api: ApiService,
-    cs: CSVParser
-  };
+  window.IronNestUpload = { schema:SCHEMA, state:State, api:ApiService, cs:CSVParser };
 })();
 </script>
 </body>

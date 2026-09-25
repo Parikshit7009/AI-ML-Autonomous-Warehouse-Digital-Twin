@@ -63,6 +63,10 @@ def serve_robot_fleet():
 @app.get("/forecasting")
 def serve_forecasting():
     return FileResponse(FRONTEND_DIR / "forecasting.html")
+
+@app.get("/DataSet")
+def serve_DataSet():
+    return FileResponse(FRONTEND_DIR / "DataSet.html")
 # Health check
 @app.get("/health")
 def health():

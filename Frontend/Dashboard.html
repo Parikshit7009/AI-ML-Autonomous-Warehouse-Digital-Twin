@@ -22,7 +22,7 @@
 
   <style>
     /* ============================================================
-       DESIGN TOKENS — solid, no blur
+       DESIGN TOKENS
        ============================================================ */
     :root {
       --ink: #0b0f1a;
@@ -31,12 +31,12 @@
       --ink-4: #9ca3af;
 
       --bg-base: #eef1f7;
-      --glass: #ffffff;
-      --glass-2: #ffffff;
-      --glass-3: rgba(248, 250, 252, 0.85);
+      --glass: rgba(255, 255, 255, 0.55);
+      --glass-2: rgba(255, 255, 255, 0.75);
+      --glass-3: rgba(255, 255, 255, 0.4);
 
-      --line: rgba(15, 23, 42, 0.08);
-      --line-2: rgba(15, 23, 42, 0.06);
+      --line: rgba(255, 255, 255, 0.7);
+      --line-2: rgba(226, 232, 240, 0.7);
 
       --accent: #6366f1;
       --accent-2: #4f46e5;
@@ -56,7 +56,8 @@
       --r-md: 12px;
       --r-sm: 8px;
 
-      --shadow-soft: 0 2px 12px -4px rgba(15, 23, 42, 0.06);
+      --shadow-soft: 0 4px 24px -8px rgba(15, 23, 42, 0.08);
+      --shadow-lift: 0 12px 32px -12px rgba(15, 23, 42, 0.15);
 
       --ease: cubic-bezier(0.32, 0.72, 0, 1);
       --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -69,12 +70,12 @@
       --ink-4: #4b5563;
 
       --bg-base: #050810;
-      --glass: #0f1628;
-      --glass-2: #0f1628;
-      --glass-3: rgba(20, 28, 46, 0.9);
+      --glass: rgba(15, 22, 40, 0.55);
+      --glass-2: rgba(18, 26, 46, 0.75);
+      --glass-3: rgba(10, 16, 32, 0.4);
 
-      --line: rgba(255, 255, 255, 0.07);
-      --line-2: rgba(255, 255, 255, 0.05);
+      --line: rgba(255, 255, 255, 0.08);
+      --line-2: rgba(255, 255, 255, 0.06);
 
       --accent: #818cf8;
       --accent-2: #6366f1;
@@ -90,7 +91,8 @@
       --sky: #38bdf8;
       --sky-soft: rgba(56, 189, 248, 0.15);
 
-      --shadow-soft: 0 2px 12px -4px rgba(0, 0, 0, 0.5);
+      --shadow-soft: 0 4px 24px -8px rgba(0, 0, 0, 0.5);
+      --shadow-lift: 0 12px 32px -12px rgba(0, 0, 0, 0.7);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -106,17 +108,21 @@
 
     body { background: var(--bg-base); }
 
-    /* PERF: super-simple static background — no fixed layers, no radial gradients */
     body::before {
       content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      position: fixed;
+      inset: 0;
       pointer-events: none;
       z-index: 0;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.10) 0%, transparent 40%);
+      background:
+        radial-gradient(900px 700px at 15% 20%, rgba(99, 102, 241, 0.14), transparent 60%),
+        radial-gradient(800px 700px at 90% 85%, rgba(14, 165, 233, 0.1), transparent 60%);
+    }
+
+    html[data-theme="dark"] body::before {
+      background:
+        radial-gradient(900px 700px at 15% 20%, rgba(99, 102, 241, 0.16), transparent 60%),
+        radial-gradient(800px 700px at 90% 85%, rgba(14, 165, 233, 0.12), transparent 60%);
     }
 
     ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -132,6 +138,26 @@
     button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; color: inherit; }
     input { font-family: inherit; outline: none; border: none; }
 
+    html.theme-transitioning body,
+    html.theme-transitioning .sidebar,
+    html.theme-transitioning .main,
+    html.theme-transitioning .metric-ribbon,
+    html.theme-transitioning .deck-hero,
+    html.theme-transitioning .rail-card,
+    html.theme-transitioning .deck-table,
+    html.theme-transitioning .act-btn,
+    html.theme-transitioning .profile-chip {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.25s ease !important;
+    }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none;
+      mix-blend-mode: normal;
+    }
+    ::view-transition-old(root) { z-index: 1; }
+    ::view-transition-new(root) { z-index: 2; }
+
     /* ============================================================
        SCROLL PROGRESS
        ============================================================ */
@@ -144,6 +170,7 @@
       background: linear-gradient(90deg, #6366f1, #a855f7, #06b6d4);
       z-index: 9998;
       pointer-events: none;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.7);
     }
 
     /* ============================================================
@@ -160,7 +187,7 @@
     }
 
     /* ============================================================
-       SIDEBAR — solid, no blur
+       SIDEBAR
        ============================================================ */
     .sidebar {
       display: flex;
@@ -169,8 +196,12 @@
       padding: 18px 12px;
       border-radius: var(--r-lg);
       background: var(--glass);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      backdrop-filter: blur(20px) saturate(160%);
       border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
       overflow-y: auto;
+      contain: layout paint;
     }
     .sidebar .logo {
       display: flex;
@@ -193,6 +224,7 @@
       font-size: 0.95rem;
       color: #fff;
       background: linear-gradient(135deg, #6366f1, #4f46e5);
+      box-shadow: 0 4px 12px -4px rgba(79, 70, 229, 0.6);
     }
     .nav-section {
       padding: 12px 14px 4px;
@@ -213,7 +245,8 @@
       color: var(--ink-3);
       text-align: left;
       width: 100%;
-      transition: background 0.2s ease, color 0.2s ease;
+      position: relative;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.25s var(--ease);
       border: 1px solid transparent;
     }
     .nav-item:hover {
@@ -224,6 +257,7 @@
       color: var(--accent-ink);
       font-weight: 600;
       background: var(--accent-soft);
+      border-color: transparent;
     }
     .nav-item .icon {
       width: 18px;
@@ -246,7 +280,7 @@
     .nav-spacer { flex: 1; }
 
     /* ============================================================
-       MAIN — solid panel
+       MAIN
        ============================================================ */
     .main {
       position: relative;
@@ -255,8 +289,12 @@
       padding: 22px 26px 120px;
       border-radius: var(--r-lg);
       background: var(--glass);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      backdrop-filter: blur(20px) saturate(160%);
       border: 1px solid var(--line);
-      overscroll-behavior: contain;
+      box-shadow: var(--shadow-soft);
+      scroll-behavior: smooth;
+      contain: layout style;
     }
 
     /* ============================================================
@@ -302,23 +340,33 @@
       font-weight: 600;
       letter-spacing: -0.005em;
       border: 1px solid var(--line);
-      background: var(--glass-3);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       color: var(--ink-2);
-      transition: background 0.2s ease, color 0.2s ease;
+      transition: transform 0.2s var(--ease), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       white-space: nowrap;
     }
     .act-btn:hover {
-      background: var(--glass-2);
+      background: rgba(255, 255, 255, 0.85);
+      border-color: var(--line);
       color: var(--ink);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft);
     }
-    .act-btn:active { transform: scale(0.98); }
+    html[data-theme="dark"] .act-btn:hover {
+      background: rgba(30, 41, 62, 0.85);
+    }
+    .act-btn:active { transform: translateY(0) scale(0.98); }
     .act-btn.primary {
       background: linear-gradient(135deg, #6366f1, #4f46e5);
-      border-color: transparent;
+      border-color: rgba(255, 255, 255, 0.2);
       color: #fff;
+      box-shadow: 0 8px 20px -8px rgba(79, 70, 229, 0.7);
     }
     .act-btn.primary:hover {
       background: linear-gradient(135deg, #7c7ff5, #5b52e8);
+      box-shadow: 0 12px 24px -8px rgba(79, 70, 229, 0.85);
     }
     .act-btn.icon-only {
       width: 40px; height: 40px;
@@ -338,11 +386,14 @@
     .metric-ribbon {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      background: var(--glass-3);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       margin-bottom: 20px;
       overflow: hidden;
+      box-shadow: var(--shadow-soft);
     }
 
     .metric {
@@ -354,7 +405,7 @@
       transition: background 0.2s ease;
     }
     .metric + .metric { border-left: 1px solid var(--line-2); }
-    .metric:hover { background: var(--glass-2); }
+    .metric:hover { background: var(--glass-3); }
 
     .metric-label {
       font-family: 'JetBrains Mono', monospace;
@@ -398,6 +449,7 @@
       height: 6px;
       border-radius: 50%;
       background: var(--green);
+      animation: livePulse 2s ease-in-out infinite;
     }
     @keyframes livePulse {
       0%, 100% { opacity: 1; }
@@ -417,11 +469,14 @@
     .deck-hero {
       display: flex;
       flex-direction: column;
-      background: var(--glass-3);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       overflow: hidden;
       min-height: 520px;
+      box-shadow: var(--shadow-soft);
     }
     .hero-head {
       display: flex;
@@ -460,6 +515,7 @@
       width: 5px; height: 5px;
       border-radius: 50%;
       background: var(--green);
+      animation: livePulse 1.6s ease-in-out infinite;
     }
 
     .scene-wrapper {
@@ -502,12 +558,20 @@
     .deck-rail { display: flex; flex-direction: column; gap: 12px; }
 
     .rail-card {
-      background: var(--glass-3);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       padding: 16px 18px;
       display: flex;
       flex-direction: column;
+      box-shadow: var(--shadow-soft);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.3s var(--ease);
+    }
+    .rail-card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: var(--shadow-lift);
     }
 
     .rail-head {
@@ -555,17 +619,25 @@
       border: 1px solid var(--line);
       background: var(--glass-3);
       color: var(--ink-2);
-      transition: background 0.2s ease, color 0.2s ease;
+      transition: all 0.2s var(--ease);
     }
     .mini-btn:hover {
       background: var(--glass-2);
+      border-color: var(--line);
       color: var(--ink);
+      transform: translateY(-1px);
     }
-    .mini-btn:active { transform: scale(0.97); }
+    .mini-btn:active { transform: translateY(0) scale(0.97); }
+    .mini-btn.expanded {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      border-color: transparent;
+    }
     .mini-btn .chev {
       display: inline-block;
       transition: transform 0.35s var(--spring);
     }
+    .mini-btn.expanded .chev { transform: rotate(180deg); }
 
     .rail-donut-wrap {
       position: relative;
@@ -620,8 +692,8 @@
     .dot.slate  { background: #94a3b8; }
 
     .fleet-summary {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
     }
     .fleet-stat {
@@ -630,21 +702,87 @@
       background: var(--glass-3);
       border: 1px solid var(--line-2);
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: background 0.2s ease;
-      cursor: pointer;
+      flex-direction: column;
+      gap: 4px;
+      transition: background 0.2s ease, transform 0.25s var(--ease);
     }
     .fleet-stat:hover {
       background: var(--glass-2);
+      transform: translateY(-2px);
     }
-    .fleet-stat .fs-name {
-      font-size: 0.78rem;
+    .fleet-stat .fs-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
       font-weight: 600;
-      color: var(--ink);
-      letter-spacing: -0.01em;
+      color: var(--ink-4);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
-    .fleet-stat .fs-status {
+    .fleet-stat .fs-value {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .fleet-detail {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.45s var(--ease), opacity 0.3s ease, margin-top 0.4s var(--ease);
+      margin-top: 0;
+    }
+    .fleet-detail.expanded {
+      max-height: 720px;
+      opacity: 1;
+      margin-top: 12px;
+    }
+    .fleet-detail-inner {
+      padding-top: 12px;
+      border-top: 1px dashed var(--line-2);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .fleet-detail-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: var(--ink-4);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 4px;
+    }
+    .fdc-mini {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: var(--r-sm);
+      background: var(--glass-3);
+      border: 1px solid transparent;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.3s ease, transform 0.35s var(--ease), border-color 0.2s ease, background 0.2s ease;
+    }
+    .fleet-detail.expanded .fdc-mini {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fleet-detail.expanded .fdc-mini:nth-child(2) { transition-delay: 0.05s; }
+    .fleet-detail.expanded .fdc-mini:nth-child(3) { transition-delay: 0.1s; }
+    .fleet-detail.expanded .fdc-mini:nth-child(4) { transition-delay: 0.15s; }
+    .fleet-detail.expanded .fdc-mini:nth-child(5) { transition-delay: 0.2s; }
+    .fleet-detail.expanded .fdc-mini:nth-child(6) { transition-delay: 0.25s; }
+    .fdc-mini:hover {
+      border-color: var(--line);
+      background: var(--glass-2);
+    }
+
+    .fdc-name { font-size: 0.72rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+    .fdc-status {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.55rem;
       font-weight: 600;
@@ -653,9 +791,9 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
-    .fs-status.active   { color: var(--green); background: var(--green-soft); }
-    .fs-status.charging { color: var(--sky);   background: var(--sky-soft); }
-    .fs-status.warning  { color: var(--red);   background: var(--red-soft); }
+    .fdc-status.active   { color: var(--green); background: var(--green-soft); }
+    .fdc-status.charging { color: var(--sky);   background: var(--sky-soft); }
+    .fdc-status.warning  { color: var(--red);   background: var(--red-soft); }
 
     .rail-chart {
       position: relative;
@@ -689,10 +827,13 @@
        INVENTORY TABLE
        ============================================================ */
     .deck-table {
-      background: var(--glass-3);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       overflow: hidden;
+      box-shadow: var(--shadow-soft);
     }
 
     .table-head {
@@ -780,9 +921,9 @@
        PAGES
        ============================================================ */
     .page { display: none; }
-    .page.active { display: block; animation: pageIn 0.3s var(--ease) both; }
+    .page.active { display: block; animation: pageIn 0.4s var(--ease) both; }
     @keyframes pageIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
@@ -814,9 +955,12 @@
     .card {
       padding: 20px 22px;
       border-radius: var(--r-lg);
-      background: var(--glass-3);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
       margin-bottom: 14px;
+      box-shadow: var(--shadow-soft);
     }
     .card-header {
       display: flex;
@@ -866,18 +1010,25 @@
     .help-card {
       padding: 20px;
       border-radius: var(--r-lg);
-      background: var(--glass-3);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--line);
-      transition: background 0.2s ease;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.3s var(--ease), border-color 0.25s ease, box-shadow 0.25s ease;
     }
     .help-card:hover {
-      background: var(--glass-2);
+      transform: translateY(-4px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: var(--shadow-lift);
     }
     .help-card .help-icon {
       display: block;
       font-size: 1.4rem;
       margin-bottom: 10px;
+      transition: transform 0.3s var(--spring);
     }
+    .help-card:hover .help-icon { transform: scale(1.15) rotate(-6deg); }
     .help-card h4 {
       font-family: 'Space Grotesk', 'Inter', sans-serif;
       font-size: 0.88rem;
@@ -931,17 +1082,20 @@
       cursor: pointer;
       border: 1.5px dashed var(--line-2);
       background: var(--glass-3);
-      transition: border-color 0.3s ease, background 0.3s ease;
+      transition: all 0.3s var(--ease);
     }
     .upload-zone:hover {
       border-color: var(--accent);
       background: var(--accent-soft);
+      transform: translateY(-2px);
     }
     .upload-zone .up-icon {
       display: block;
       font-size: 2rem;
       margin-bottom: 10px;
+      transition: transform 0.3s var(--spring);
     }
+    .upload-zone:hover .up-icon { transform: translateY(-4px) scale(1.1); }
     .upload-zone .up-title { font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; }
     .upload-zone .up-sub { font-size: 0.74rem; color: var(--ink-4); font-weight: 500; }
     .upload-zone .up-sub span { color: var(--accent); font-weight: 600; }
@@ -959,7 +1113,7 @@
     }
 
     /* ============================================================
-       SEARCH BAR — SOLID, no backdrop-filter
+       SEARCH BAR — BOTTOM RIGHT, EXPANDABLE GRADIENT PROMPT
        ============================================================ */
     .liquid-search-wrapper {
       position: fixed;
@@ -969,35 +1123,47 @@
       align-items: flex-end;
       gap: 10px;
       z-index: 500;
+      animation: searchIn 0.6s var(--spring) 0.4s both;
+    }
+    @keyframes searchIn {
+      from { opacity: 0; transform: translateX(30px) scale(0.9); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
     }
 
+    /* The Gradient Ring */
     .search-gradient-ring {
       position: relative;
       border-radius: 50px;
       padding: 2px;
       background: conic-gradient(from 90deg, #facc15, #22c55e, #3b82f6, #a855f7, #ef4444, #facc15);
-      transition: border-radius 0.4s var(--spring);
+      transition: border-radius 0.4s var(--spring), box-shadow 0.3s ease;
       z-index: 500;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
     }
     .search-gradient-ring.expanded {
       border-radius: 24px;
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
     }
 
+    /* The Inner Search Pill / Box */
     .search-input-pill {
       position: relative;
       width: 260px;
       max-width: calc(100vw - 120px);
       height: 46px;
       border-radius: 48px;
-      background: #0f172a;
+      /* Transparent blur background */
+      background: rgba(15, 23, 42, 0.65);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      backdrop-filter: blur(40px) saturate(190%);
       display: flex;
       align-items: center;
       padding: 0 18px;
       overflow: hidden;
-      transition: width 0.4s var(--spring), height 0.4s var(--spring), border-radius 0.4s var(--spring);
+      transition: all 0.4s var(--spring);
       box-sizing: border-box;
     }
-
+    
     .search-gradient-ring.expanded .search-input-pill {
       width: 580px;
       max-width: calc(100vw - 40px);
@@ -1005,6 +1171,10 @@
       border-radius: 22px;
       padding: 0 24px;
       justify-content: flex-start;
+      /* Keep the transparent blur but slightly darker for contrast */
+      background: rgba(15, 23, 42, 0.75);
+      -webkit-backdrop-filter: blur(50px) saturate(200%);
+      backdrop-filter: blur(50px) saturate(200%);
     }
 
     .search-input-pill .search-icon {
@@ -1014,6 +1184,7 @@
       stroke-width: 2.4;
       fill: none;
       flex-shrink: 0;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
       transition: transform 0.35s var(--spring);
     }
     .search-input-pill:hover .search-icon { transform: rotate(-8deg) scale(1.06); }
@@ -1029,17 +1200,20 @@
       color: #ffffff;
       caret-color: #ffffff;
       letter-spacing: -0.01em;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
       padding-left: 12px;
     }
     .search-input-pill input::placeholder {
       color: rgba(255, 255, 255, 0.7);
       font-weight: 400;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
     .search-input-pill input::selection {
       background: rgba(129, 140, 248, 0.45);
       color: #fff;
     }
 
+    /* The original circular button — hide it when expanded */
     .search-circle-btn {
       position: relative;
       width: 46px;
@@ -1051,11 +1225,15 @@
       cursor: pointer;
       flex-shrink: 0;
       color: #ffffff;
-      background: #0f172a;
+      background: rgba(12, 18, 34, 0.85);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      backdrop-filter: blur(40px) saturate(190%);
       border: 2px solid transparent;
       background-clip: padding-box;
-      transition: transform 0.3s var(--spring), opacity 0.3s ease;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+      transition: all 0.4s var(--spring);
     }
+    /* Apply gradient border to the circular button too */
     .search-circle-btn::before {
       content: '';
       position: absolute;
@@ -1079,232 +1257,23 @@
       stroke: currentColor;
       stroke-width: 2.5;
       fill: none;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
       transition: transform 0.35s var(--spring);
     }
     .search-circle-btn:hover svg { transform: rotate(-8deg) scale(1.08); }
 
+    /* Collapse circular button when expanded */
     .search-gradient-ring.expanded ~ .search-circle-btn {
       opacity: 0;
       pointer-events: none;
       transform: scale(0.8);
     }
 
-    /* ============================================================
-       FLEET MODAL — solid overlay, no backdrop-filter
-       ============================================================ */
-    .fleet-modal-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: rgba(11, 15, 26, 0.55);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-    }
-    .fleet-modal-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    html[data-theme="dark"] .fleet-modal-overlay {
-      background: rgba(2, 4, 10, 0.75);
-    }
-
-    .fleet-modal-content {
-      background: var(--glass);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      width: 90%;
-      max-width: 480px;
-      padding: 24px;
-      box-shadow: 0 20px 60px -20px rgba(15, 23, 42, 0.3);
-      transform: scale(0.94) translateY(16px);
-      transition: transform 0.35s var(--spring);
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-    .fleet-modal-overlay.open .fleet-modal-content {
-      transform: scale(1) translateY(0);
-    }
-
-    .fleet-modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--line-2);
-    }
-    .fleet-modal-title {
-      font-family: 'Space Grotesk', 'Inter', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--ink);
-    }
-    .fleet-modal-close {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--glass-3);
-      border: 1px solid var(--line);
-      color: var(--ink-2);
-      font-size: 1.2rem;
-      line-height: 1;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-    .fleet-modal-close:hover {
-      background: var(--red-soft);
-      color: var(--red);
-    }
-
-    .fleet-modal-body {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 60vh;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .fleet-list-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      background: var(--glass-3);
-      border: 1px solid var(--line-2);
-      border-radius: var(--r-md);
-      cursor: pointer;
-      transition: background 0.2s ease, border-color 0.2s ease;
-    }
-    .fleet-list-item:hover {
-      background: var(--glass-2);
-      border-color: var(--accent-soft);
-    }
-    .fleet-list-item .fl-name {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--ink);
-    }
-    .fleet-list-item .fl-status {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 4px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-    .fl-status.active   { color: var(--green); background: var(--green-soft); }
-    .fl-status.charging { color: var(--sky);   background: var(--sky-soft); }
-    .fl-status.warning  { color: var(--red);   background: var(--red-soft); }
-
-    .fleet-detail-view {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .fd-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .fd-robot-name {
-      font-family: 'Space Grotesk', 'Inter', sans-serif;
-      font-size: 1.3rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--ink);
-    }
-    .fd-status-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
-      text-transform: uppercase;
-    }
-    .fd-status-badge.active   { color: var(--green); background: var(--green-soft); border: 1px solid rgba(16,185,129,0.3); }
-    .fd-status-badge.charging { color: var(--sky);   background: var(--sky-soft); border: 1px solid rgba(14,165,233,0.3); }
-    .fd-status-badge.warning  { color: var(--red);   background: var(--red-soft); border: 1px solid rgba(239,68,68,0.3); }
-
-    .fd-stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .fd-stat-box {
-      background: var(--glass-3);
-      border: 1px solid var(--line-2);
-      border-radius: var(--r-md);
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .fd-stat-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
-      font-weight: 600;
-      color: var(--ink-4);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-    .fd-stat-value {
-      font-family: 'Space Grotesk', 'Inter', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-    }
-    .fd-stat-unit {
-      font-size: 0.7rem;
-      font-weight: 400;
-      color: var(--ink-3);
-      margin-left: 4px;
-    }
-
-    .fd-battery-bar {
-      width: 100%;
-      height: 8px;
-      border-radius: 10px;
-      background: var(--line-2);
-      overflow: hidden;
-      margin-top: 6px;
-    }
-    .fd-battery-fill {
-      height: 100%;
-      border-radius: 10px;
-      transition: width 0.6s var(--ease);
-    }
-    .fd-battery-fill.high { background: linear-gradient(90deg, #10b981, #34d399); }
-    .fd-battery-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-    .fd-battery-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
-
-    .fd-back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: var(--r-sm);
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--ink-2);
-      background: var(--glass-3);
-      border: 1px solid var(--line);
-      transition: background 0.2s ease, color 0.2s ease;
-      width: fit-content;
-    }
-    .fd-back-btn:hover {
-      background: var(--glass-2);
-      color: var(--ink);
+    /* Fallback for backdrop-filter */
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .search-input-pill,
+      .search-circle-btn { background: rgba(12, 18, 34, 0.95); }
+      .search-gradient-ring.expanded .search-input-pill { background: rgba(12, 18, 34, 0.98); }
     }
 
     /* ============================================================
@@ -1317,14 +1286,19 @@
       padding: 4px 14px 4px 4px;
       border-radius: var(--r-sm);
       cursor: pointer;
-      background: var(--glass-3);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       border: 1px solid var(--line);
-      transition: background 0.2s ease;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.25s var(--ease);
       user-select: none;
     }
     .profile-chip:hover {
-      background: var(--glass-2);
+      background: rgba(255, 255, 255, 0.85);
+      transform: translateY(-1px);
     }
+    html[data-theme="dark"] .profile-chip:hover { background: rgba(30, 41, 62, 0.85); }
+    .profile-chip:active { transform: translateY(0) scale(0.98); }
     .profile-chip.open {
       background: var(--accent-soft);
       border-color: rgba(99, 102, 241, 0.3);
@@ -1353,10 +1327,12 @@
       position: fixed;
       inset: 0;
       background: rgba(11, 15, 26, 0.2);
+      -webkit-backdrop-filter: blur(2px);
+      backdrop-filter: blur(2px);
       z-index: 998;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease;
+      transition: opacity 0.3s ease;
     }
     .profile-backdrop.open { opacity: 1; pointer-events: auto; }
     html[data-theme="dark"] .profile-backdrop { background: rgba(2, 4, 10, 0.5); }
@@ -1366,17 +1342,19 @@
       top: 72px;
       right: 22px;
       width: 300px;
-      background: var(--glass);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      backdrop-filter: blur(24px) saturate(180%);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
-      box-shadow: 0 20px 60px -20px rgba(15, 23, 42, 0.25);
+      box-shadow: var(--shadow-lift);
       padding: 18px;
       z-index: 999;
       transform-origin: top right;
       transform: translateY(-10px) scale(0.94);
       opacity: 0;
       pointer-events: none;
-      transition: transform 0.35s var(--spring), opacity 0.25s ease;
+      transition: transform 0.4s var(--spring), opacity 0.25s ease;
     }
     .profile-panel.open {
       transform: translateY(0) scale(1);
@@ -1405,7 +1383,11 @@
       letter-spacing: -0.02em;
       color: #fff;
       background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #2563eb 100%);
+      box-shadow: 0 10px 22px -12px rgba(79, 70, 229, 0.9);
+      transition: transform 0.5s var(--spring);
     }
+    .profile-panel.open .pp-avatar { transform: scale(1) rotate(0deg); }
+    .profile-panel:not(.open) .pp-avatar { transform: scale(0.6) rotate(-20deg); }
 
     .pp-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
     .pp-name {
@@ -1439,7 +1421,7 @@
       color: var(--ink-2);
       text-align: left;
       width: 100%;
-      transition: background 0.2s ease, color 0.2s ease;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.25s var(--ease);
     }
     .pp-item:hover {
       background: var(--glass-3);
@@ -1455,7 +1437,8 @@
       font-size: 0.95rem;
     }
     .pp-item-label { flex: 1; }
-    .pp-item-arrow { color: var(--ink-4); font-size: 0.85rem; }
+    .pp-item-arrow { color: var(--ink-4); font-size: 0.85rem; transition: transform 0.25s var(--ease); }
+    .pp-item:hover .pp-item-arrow { transform: translateX(3px); color: var(--ink-2); }
     .pp-item-badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.58rem;
@@ -1482,11 +1465,14 @@
       color: var(--red);
       background: var(--red-soft);
       border: 1px solid rgba(239, 68, 68, 0.25);
-      transition: background 0.2s ease;
+      transition: all 0.2s var(--ease);
     }
     .pp-signout:hover {
       background: rgba(239, 68, 68, 0.2);
+      border-color: var(--red);
+      transform: translateY(-1px);
     }
+    .pp-signout:active { transform: translateY(0) scale(0.98); }
 
     /* ============================================================
        TOAST
@@ -1505,6 +1491,7 @@
       font-weight: 600;
       color: #fff;
       background: var(--ink);
+      box-shadow: var(--shadow-lift);
       opacity: 0;
       transform: translateY(14px);
       transition: opacity 0.3s ease, transform 0.4s var(--ease);
@@ -1513,14 +1500,16 @@
     .toast.show { opacity: 1; transform: translateY(0); }
 
     /* ============================================================
-       SCROLL REVEAL — simpler, no transform on blur
+       SCROLL REVEAL
        ============================================================ */
     [data-reveal] {
       opacity: 0;
-      transition: opacity 0.5s ease;
+      transform: translateY(16px);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
     }
     [data-reveal].in-view {
       opacity: 1;
+      transform: translateY(0);
     }
 
     /* ============================================================
@@ -1566,7 +1555,7 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
       }
-      [data-reveal] { opacity: 1; }
+      [data-reveal] { opacity: 1; transform: none; }
     }
   </style>
 
@@ -1717,6 +1706,28 @@
                 <button class="mini-btn" id="go-to-robots">Expand <span class="chev">▾</span></button>
               </div>
               <div class="fleet-summary" id="fleet-summary"></div>
+
+              <div class="fleet-detail" id="fleet-detail">
+                <div class="fleet-detail-inner">
+                  <div class="fleet-detail-title">Diagnostics</div>
+                  <div class="fdc-mini">
+                    <span class="fdc-name">🤖 AGV-014</span>
+                    <span class="fdc-status active">Active · 92%</span>
+                  </div>
+                  <div class="fdc-mini">
+                    <span class="fdc-name">🤖 AGV-027</span>
+                    <span class="fdc-status charging">Charging · 34%</span>
+                  </div>
+                  <div class="fdc-mini">
+                    <span class="fdc-name">🤖 AGV-039</span>
+                    <span class="fdc-status active">Active · 78%</span>
+                  </div>
+                  <div class="fdc-mini">
+                    <span class="fdc-name">🤖 AGV-051</span>
+                    <span class="fdc-status warning">Alert · 19%</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="rail-card" data-reveal>
@@ -1881,16 +1892,9 @@
     </main>
   </div>
 
-  <div class="fleet-modal-overlay" id="fleet-modal">
-    <div class="fleet-modal-content">
-      <div class="fleet-modal-header">
-        <h3 class="fleet-modal-title" id="fleet-modal-title">Fleet Diagnostics</h3>
-        <button class="fleet-modal-close" id="fleet-modal-close">&times;</button>
-      </div>
-      <div class="fleet-modal-body" id="fleet-modal-body"></div>
-    </div>
-  </div>
-
+  <!-- ============================================================
+       EXPANDABLE SEARCH PROMPT (Options removed, transparent blur)
+       ============================================================ -->
   <div class="liquid-search-wrapper" id="search-wrapper">
     <div class="search-gradient-ring" id="search-ring">
       <div class="search-input-pill">
@@ -1901,7 +1905,8 @@
         <input type="text" placeholder="Ask anything..." id="search-input" />
       </div>
     </div>
-
+    
+    <!-- Original circular search button (hidden when expanded) -->
     <button class="search-circle-btn" aria-label="Search" id="search-circle-btn">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="7"></circle>
@@ -1965,6 +1970,17 @@
         if (window.__refreshCharts) window.__refreshCharts();
       }
 
+      function fallbackRipple(x, y, isDark) {
+        const ripple = document.createElement('div');
+        ripple.style.cssText = `position:fixed;border-radius:50%;pointer-events:none;z-index:9999;width:${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) * 2}px;height:${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) * 2}px;left:${x}px;top:${y}px;transform:translate(-50%,-50%) scale(0);opacity:0.85;background:${isDark ? 'radial-gradient(circle, rgba(129,140,248,0.5) 0%, rgba(5,8,16,0.95) 55%, rgba(5,8,16,1) 100%)' : 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(238,241,247,0.9) 45%, rgba(238,241,247,1) 100%)'};transition:transform 0.55s cubic-bezier(0.5,0,0.3,1), opacity 0.55s ease;`;
+        document.body.appendChild(ripple);
+        requestAnimationFrame(() => {
+          ripple.style.transform = 'translate(-50%,-50%) scale(1)';
+          ripple.style.opacity = '0';
+        });
+        setTimeout(() => ripple.remove(), 650);
+      }
+
       if (toggle) {
         toggle.addEventListener('click', function () {
           if (switching) return;
@@ -1974,10 +1990,26 @@
           const current = html.getAttribute('data-theme') || 'dark';
           const next = current === 'dark' ? 'light' : 'dark';
 
+          const rect = toggle.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+
           if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            document.startViewTransition(() => applyTheme(next));
+            const transition = document.startViewTransition(() => {
+              applyTheme(next);
+            });
+            transition.ready.then(() => {
+              const radius = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy));
+              document.documentElement.animate(
+                { clipPath: [`circle(0px at ${cx}px ${cy}px)`, `circle(${radius}px at ${cx}px ${cy}px)`] },
+                { duration: 450, easing: 'cubic-bezier(0.5, 0, 0.3, 1)', pseudoElement: '::view-transition-new(root)' }
+              );
+            });
           } else {
+            fallbackRipple(cx, cy, next === 'dark');
+            html.classList.add('theme-transitioning');
             applyTheme(next);
+            setTimeout(() => html.classList.remove('theme-transitioning'), 350);
           }
         });
       }
@@ -2102,11 +2134,28 @@
               observer.unobserve(entry.target);
             }
           });
-        }, { root: scrollRoot, threshold: 0.05 });
+        }, { root: scrollRoot, threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
         revealEls.forEach(el => observer.observe(el));
       } else {
         revealEls.forEach(el => el.classList.add('in-view'));
+      }
+    })();
+  </script>
+
+  <script>
+    (function () {
+      const btn = document.getElementById('go-to-robots');
+      const detail = document.getElementById('fleet-detail');
+      if (btn && detail) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          const isOpen = detail.classList.toggle('expanded');
+          btn.classList.toggle('expanded', isOpen);
+          btn.innerHTML = isOpen
+            ? 'Collapse <span class="chev">▾</span>'
+            : 'Expand <span class="chev">▾</span>';
+        });
       }
     })();
   </script>
@@ -2121,158 +2170,7 @@
     })();
   </script>
 
-  <script>
-    (function() {
-      const robots = [
-        { id: 'AGV-014', name: 'AGV-014', status: 'Active', battery: 92, location: 'Zone A', speed: '1.2 m/s', payload: '45 kg', lastMaintenance: '2024-10-12' },
-        { id: 'AGV-027', name: 'AGV-027', status: 'Charging', battery: 34, location: 'Charging Station', speed: '0 m/s', payload: '0 kg', lastMaintenance: '2024-10-10' },
-        { id: 'AGV-039', name: 'AGV-039', status: 'Active', battery: 78, location: 'Zone C', speed: '1.5 m/s', payload: '30 kg', lastMaintenance: '2024-10-14' },
-        { id: 'AGV-051', name: 'AGV-051', status: 'Alert', battery: 19, location: 'Zone B', speed: '0.5 m/s', payload: '50 kg', lastMaintenance: '2024-10-08' },
-        { id: 'AGV-062', name: 'AGV-062', status: 'Active', battery: 88, location: 'Zone A', speed: '1.3 m/s', payload: '20 kg', lastMaintenance: '2024-10-15' },
-        { id: 'AGV-077', name: 'AGV-077', status: 'Charging', battery: 45, location: 'Charging Station', speed: '0 m/s', payload: '0 kg', lastMaintenance: '2024-10-11' },
-        { id: 'AGV-089', name: 'AGV-089', status: 'Alert', battery: 12, location: 'Zone D', speed: '0 m/s', payload: '35 kg', lastMaintenance: '2024-10-05' }
-      ];
-
-      const fleetModal = document.getElementById('fleet-modal');
-      const fleetModalBody = document.getElementById('fleet-modal-body');
-      const fleetModalTitle = document.getElementById('fleet-modal-title');
-      const fleetModalClose = document.getElementById('fleet-modal-close');
-      const goToRobotsBtn = document.getElementById('go-to-robots');
-      const fleetSummary = document.getElementById('fleet-summary');
-
-      function getStatusClass(status) {
-        if (status === 'Active') return 'active';
-        if (status === 'Charging') return 'charging';
-        return 'warning';
-      }
-
-      function renderFleetSummary() {
-        if (!fleetSummary) return;
-        fleetSummary.innerHTML = robots.slice(0, 4).map(robot => `
-          <div class="fleet-stat" data-robot-id="${robot.id}">
-            <span class="fs-name">🤖 ${robot.name}</span>
-            <span class="fs-status ${getStatusClass(robot.status)}">${robot.status} · ${robot.battery}%</span>
-          </div>
-        `).join('');
-
-        fleetSummary.querySelectorAll('.fleet-stat').forEach(item => {
-          item.addEventListener('click', function() {
-            const robotId = this.getAttribute('data-robot-id');
-            openFleetDetail(robotId);
-          });
-        });
-      }
-
-      function renderFleetList() {
-        fleetModalTitle.textContent = 'Fleet Diagnostics';
-        fleetModalBody.innerHTML = robots.map(robot => `
-          <div class="fleet-list-item" data-robot-id="${robot.id}">
-            <span class="fl-name">🤖 ${robot.name}</span>
-            <span class="fl-status ${getStatusClass(robot.status)}">${robot.status} · ${robot.battery}%</span>
-          </div>
-        `).join('');
-
-        fleetModalBody.querySelectorAll('.fleet-list-item').forEach(item => {
-          item.addEventListener('click', function() {
-            const robotId = this.getAttribute('data-robot-id');
-            openFleetDetail(robotId);
-          });
-        });
-      }
-
-      function openFleetDetail(robotId) {
-        const robot = robots.find(r => r.id === robotId);
-        if (!robot) return;
-
-        fleetModalTitle.textContent = `Robot Details: ${robot.name}`;
-
-        let batteryClass = 'high';
-        if (robot.battery < 30) batteryClass = 'low';
-        else if (robot.battery < 60) batteryClass = 'medium';
-
-        fleetModalBody.innerHTML = `
-          <div class="fleet-detail-view">
-            <div class="fd-header">
-              <span class="fd-robot-name">${robot.name}</span>
-              <span class="fd-status-badge ${getStatusClass(robot.status)}">${robot.status}</span>
-            </div>
-            <div class="fd-stats-grid">
-              <div class="fd-stat-box">
-                <span class="fd-stat-label">Battery Level</span>
-                <span class="fd-stat-value">${robot.battery}<span class="fd-stat-unit">%</span></span>
-                <div class="fd-battery-bar">
-                  <div class="fd-battery-fill ${batteryClass}" style="width: ${robot.battery}%"></div>
-                </div>
-              </div>
-              <div class="fd-stat-box">
-                <span class="fd-stat-label">Speed</span>
-                <span class="fd-stat-value">${robot.speed}</span>
-              </div>
-              <div class="fd-stat-box">
-                <span class="fd-stat-label">Location</span>
-                <span class="fd-stat-value">${robot.location}</span>
-              </div>
-              <div class="fd-stat-box">
-                <span class="fd-stat-label">Payload</span>
-                <span class="fd-stat-value">${robot.payload}</span>
-              </div>
-              <div class="fd-stat-box" style="grid-column: 1 / -1;">
-                <span class="fd-stat-label">Last Maintenance</span>
-                <span class="fd-stat-value">${robot.lastMaintenance}</span>
-              </div>
-            </div>
-            <button class="fd-back-btn" id="fd-back-btn">
-              ← Back to Fleet List
-            </button>
-          </div>
-        `;
-
-        const backBtn = document.getElementById('fd-back-btn');
-        if (backBtn) {
-          backBtn.addEventListener('click', function() {
-            renderFleetList();
-          });
-        }
-      }
-
-      function openFleetModalList() {
-        renderFleetList();
-        fleetModal.classList.add('open');
-      }
-
-      function closeFleetModal() {
-        fleetModal.classList.remove('open');
-      }
-
-      if (goToRobotsBtn) {
-        goToRobotsBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          openFleetModalList();
-        });
-      }
-
-      if (fleetModalClose) {
-        fleetModalClose.addEventListener('click', closeFleetModal);
-      }
-
-      if (fleetModal) {
-        fleetModal.addEventListener('click', function(e) {
-          if (e.target === fleetModal) {
-            closeFleetModal();
-          }
-        });
-      }
-
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && fleetModal.classList.contains('open')) {
-          closeFleetModal();
-        }
-      });
-
-      renderFleetSummary();
-    })();
-  </script>
-
+  <!-- SEARCH BAR INTERACTION -->
   <script>
     (function() {
       const searchRing = document.getElementById('search-ring');
@@ -2281,6 +2179,7 @@
       const searchCircleBtn = document.getElementById('search-circle-btn');
       const searchPill = document.querySelector('.search-input-pill');
 
+      // Expand on click of the entire search pill
       searchPill.addEventListener('click', function(e) {
         e.stopPropagation();
         searchRing.classList.add('expanded');
@@ -2295,12 +2194,14 @@
         });
       }
 
+      // Collapse when clicking outside
       document.addEventListener('click', function(e) {
         if (!searchWrapper.contains(e.target)) {
           searchRing.classList.remove('expanded');
         }
       });
 
+      // Prevent clicking inside the wrapper from collapsing it
       searchWrapper.addEventListener('click', function(e) {
         e.stopPropagation();
       });
@@ -2523,7 +2424,7 @@ function updateForecastChart(selectedSKU) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: false,
+            animation: { duration: 250 },
             interaction: { mode: "index", intersect: false },
             plugins: {
                 legend: { display: false },
@@ -2609,231 +2510,246 @@ loadOperationsKPIs();
     const loadingEl = document.getElementById('scene-loading');
     if (!container) throw new Error("no container");
 
-    let initialised = false;
-    let scene, camera, renderer, controls, warehouse;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x030712);
 
-    function initScene() {
-      if (initialised) return;
-      initialised = true;
+    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 200);
+    camera.position.set(14, 15, 16);
 
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x030712);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    container.appendChild(renderer.domElement);
 
-      camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 200);
-      camera.position.set(14, 15, 16);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.maxPolarAngle = Math.PI / 2.15;
+    controls.minDistance = 12;
+    controls.maxDistance = 32;
+    controls.enablePan = false;
+    controls.autoRotate = false;
+    controls.target.set(0, 0.4, 0);
 
-      renderer = new THREE.WebGLRenderer({
-        antialias: false,
-        powerPreference: 'low-power',
-        stencil: false
+    scene.add(new THREE.AmbientLight(0x8899cc, 0.7));
+    const keyLight = new THREE.DirectionalLight(0xbaccff, 1.15);
+    keyLight.position.set(8, 18, 10);
+    scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0x4fd1c5, 0.35);
+    fillLight.position.set(-10, 8, -8);
+    scene.add(fillLight);
+
+    const warehouse = new THREE.Group();
+    scene.add(warehouse);
+
+    const groundGeo = new THREE.PlaneGeometry(24, 18);
+    const groundMat = new THREE.MeshBasicMaterial({ color: 0x030712 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.02;
+    warehouse.add(ground);
+
+    function buildSection(opts) {
+      const { x, z, w, d, baseColor, labelText, labelColor, shelves = null } = opts;
+      const group = new THREE.Group();
+      group.position.set(x, 0, z);
+
+      const plateGeo = new THREE.BoxGeometry(w, 0.06, d);
+      const plateMat = new THREE.MeshStandardMaterial({
+        color: baseColor, emissive: baseColor, emissiveIntensity: 0.35,
+        transparent: true, opacity: 0.42, roughness: 0.7, metalness: 0.2
       });
-      renderer.setPixelRatio(1);
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.05;
-      container.appendChild(renderer.domElement);
+      const plate = new THREE.Mesh(plateGeo, plateMat);
+      plate.position.y = 0.03;
+      group.add(plate);
 
-      controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = false;
-      controls.maxPolarAngle = Math.PI / 2.15;
-      controls.minDistance = 12;
-      controls.maxDistance = 32;
-      controls.enablePan = false;
-      controls.autoRotate = false;
-      controls.target.set(0, 0.4, 0);
+      const edgesGeo = new THREE.EdgesGeometry(plateGeo);
+      const edgesMat = new THREE.LineBasicMaterial({ color: baseColor, transparent: true, opacity: 0.85 });
+      const edges = new THREE.LineSegments(edgesGeo, edgesMat);
+      edges.position.y = 0.03;
+      group.add(edges);
 
-      scene.add(new THREE.AmbientLight(0x8899cc, 0.7));
-      const keyLight = new THREE.DirectionalLight(0xbaccff, 1.15);
-      keyLight.position.set(8, 18, 10);
-      scene.add(keyLight);
-      const fillLight = new THREE.DirectionalLight(0x4fd1c5, 0.35);
-      fillLight.position.set(-10, 8, -8);
-      scene.add(fillLight);
-
-      warehouse = new THREE.Group();
-      scene.add(warehouse);
-
-      const groundGeo = new THREE.PlaneGeometry(24, 18);
-      const groundMat = new THREE.MeshBasicMaterial({ color: 0x030712 });
-      const ground = new THREE.Mesh(groundGeo, groundMat);
-      ground.rotation.x = -Math.PI / 2;
-      ground.position.y = -0.02;
-      warehouse.add(ground);
-
-      const sharedPlateGeometries = {};
-      const sharedPlateMaterials = {};
-      const sharedEdgeGeometries = {};
-      const sharedEdgeMaterials = {};
-      const sharedShelfGeo = new THREE.BoxGeometry(1, 0.28, 1);
-      const sharedShelfMat = new THREE.MeshStandardMaterial({
-        color: 0x3b82f6, emissive: 0x3b82f6, emissiveIntensity: 0.5,
-        roughness: 0.5, metalness: 0.4
-      });
-
-      function buildSection(opts) {
-        const { x, z, w, d, baseColor, labelText, labelColor, shelves = null } = opts;
-        const group = new THREE.Group();
-        group.position.set(x, 0, z);
-
-        const key = w + '_' + d;
-        if (!sharedPlateGeometries[key]) {
-          sharedPlateGeometries[key] = new THREE.BoxGeometry(w, 0.06, d);
-          sharedEdgeGeometries[key] = new THREE.EdgesGeometry(sharedPlateGeometries[key]);
-        }
-        if (!sharedPlateMaterials[baseColor]) {
-          sharedPlateMaterials[baseColor] = new THREE.MeshStandardMaterial({
-            color: baseColor, emissive: baseColor, emissiveIntensity: 0.35,
-            transparent: true, opacity: 0.42, roughness: 0.7, metalness: 0.2
-          });
-          sharedEdgeMaterials[baseColor] = new THREE.LineBasicMaterial({
-            color: baseColor, transparent: true, opacity: 0.85
-          });
-        }
-
-        const plate = new THREE.Mesh(sharedPlateGeometries[key], sharedPlateMaterials[baseColor]);
-        plate.position.y = 0.03;
-        group.add(plate);
-
-        const edges = new THREE.LineSegments(sharedEdgeGeometries[key], sharedEdgeMaterials[baseColor]);
-        edges.position.y = 0.03;
-        group.add(edges);
-
-        if (shelves) {
-          const { rows, cols, shelfColor } = shelves;
-          const shelfMat = shelfColor === 0x3b82f6 ? sharedShelfMat : new THREE.MeshStandardMaterial({
-            color: shelfColor, emissive: shelfColor, emissiveIntensity: 0.5,
-            roughness: 0.5, metalness: 0.4
-          });
-          const padX = w * 0.1, padZ = d * 0.12;
-          const availW = w - padX * 2, availD = d - padZ * 2;
-          const cellW = availW / cols, cellD = availD / rows;
-          const shelfW = cellW * 0.68, shelfD = cellD * 0.68;
-          const startX = -availW / 2 + cellW / 2;
-          const startZ = -availD / 2 + cellD / 2;
-          for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-              const mesh = new THREE.Mesh(sharedShelfGeo, shelfMat);
-              mesh.scale.set(shelfW, 1, shelfD);
-              mesh.position.set(startX + c * cellW, 0.2, startZ + r * cellD);
-              group.add(mesh);
-            }
+      if (shelves) {
+        const { rows, cols, shelfColor } = shelves;
+        const shelfMat = new THREE.MeshStandardMaterial({
+          color: shelfColor, emissive: shelfColor, emissiveIntensity: 0.5,
+          roughness: 0.5, metalness: 0.4
+        });
+        const padX = w * 0.1, padZ = d * 0.12;
+        const availW = w - padX * 2, availD = d - padZ * 2;
+        const cellW = availW / cols, cellD = availD / rows;
+        const shelfW = cellW * 0.68, shelfD = cellD * 0.68, shelfH = 0.28;
+        const startX = -availW / 2 + cellW / 2;
+        const startZ = -availD / 2 + cellD / 2;
+        const sharedGeo = new THREE.BoxGeometry(shelfW, shelfH, shelfD);
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const mesh = new THREE.Mesh(sharedGeo, shelfMat);
+            mesh.position.set(startX + c * cellW, shelfH / 2 + 0.06, startZ + r * cellD);
+            group.add(mesh);
           }
         }
-
-        if (labelText) {
-          const canvas = document.createElement('canvas');
-          canvas.width = 512; canvas.height = 128;
-          const ctx = canvas.getContext('2d');
-          ctx.font = 'bold 44px Inter, sans-serif';
-          ctx.fillStyle = labelColor;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(labelText.toUpperCase(), 256, 64);
-          const texture = new THREE.CanvasTexture(canvas);
-          texture.minFilter = THREE.LinearFilter;
-          texture.magFilter = THREE.LinearFilter;
-          texture.generateMipmaps = false;
-          const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
-          const sprite = new THREE.Sprite(spriteMat);
-          const scaleW = Math.min(w * 0.9, 3.2);
-          sprite.scale.set(scaleW, scaleW * 0.25, 1);
-          sprite.position.set(0, 1.15, -d / 2 - 0.15);
-          group.add(sprite);
-        }
-
-        warehouse.add(group);
       }
 
-      buildSection({ x: -6.5, z: -4.5, w: 6.5, d: 3.2, baseColor: 0x2563eb, labelText: 'Receiving Area', labelColor: '#93c5fd' });
-      buildSection({ x: 5.5, z: -5, w: 5, d: 2.3, baseColor: 0xdc2626, labelText: 'Restricted Zone', labelColor: '#fca5a5' });
-      buildSection({ x: 5.5, z: -2.2, w: 5, d: 2.3, baseColor: 0x2563eb, labelText: 'Restricted Zone', labelColor: '#93c5fd' });
-      buildSection({ x: -3, z: 1.5, w: 9, d: 7, baseColor: 0x1d4ed8, shelves: { rows: 5, cols: 6, shelfColor: 0x3b82f6 } });
-      buildSection({ x: 5.5, z: 2.5, w: 5, d: 3, baseColor: 0x059669, labelText: 'Cold Room', labelColor: '#6ee7b7' });
+      if (labelText) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512; canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.font = 'bold 44px Inter, sans-serif';
+        ctx.fillStyle = labelColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labelText.toUpperCase(), 256, 64);
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.generateMipmaps = false;
+        const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
+        const sprite = new THREE.Sprite(spriteMat);
+        const scaleW = Math.min(w * 0.9, 3.2);
+        sprite.scale.set(scaleW, scaleW * 0.25, 1);
+        sprite.position.set(0, 1.15, -d / 2 - 0.15);
+        group.add(sprite);
+      }
 
-      const robotData = [
-        { x: -6, z: -4.5, color: 0xff3b30 },
-        { x: 5.5, z: -5, color: 0xfbbf24 },
-        { x: 5.5, z: -2.2, color: 0x3b82f6 },
-        { x: -5, z: 0.3, color: 0xffffff },
-        { x: -2.5, z: -0.5, color: 0x60a5fa },
-        { x: -1, z: 2.5, color: 0x34d399 },
-        { x: 1.5, z: 1.5, color: 0xef4444 }
-      ];
+      warehouse.add(group);
+    }
 
-      const sharedSphereGeo = new THREE.SphereGeometry(0.16, 10, 10);
-      const robotMats = new Map();
-      robotData.forEach(r => {
-        const g = new THREE.Group();
-        g.position.set(r.x, 0.32, r.z);
-        if (!robotMats.has(r.color)) {
-          robotMats.set(r.color, new THREE.MeshStandardMaterial({
-            color: r.color, emissive: r.color, emissiveIntensity: 1.6, roughness: 0.3
-          }));
-        }
-        g.add(new THREE.Mesh(sharedSphereGeo, robotMats.get(r.color)));
-        warehouse.add(g);
+    buildSection({ x: -6.5, z: -4.5, w: 6.5, d: 3.2, baseColor: 0x2563eb, labelText: 'Receiving Area', labelColor: '#93c5fd' });
+    buildSection({ x: 5.5, z: -5, w: 5, d: 2.3, baseColor: 0xdc2626, labelText: 'Restricted Zone', labelColor: '#fca5a5' });
+    buildSection({ x: 5.5, z: -2.2, w: 5, d: 2.3, baseColor: 0x2563eb, labelText: 'Restricted Zone', labelColor: '#93c5fd' });
+    buildSection({ x: -3, z: 1.5, w: 9, d: 7, baseColor: 0x1d4ed8, shelves: { rows: 5, cols: 6, shelfColor: 0x3b82f6 } });
+    buildSection({ x: 5.5, z: 2.5, w: 5, d: 3, baseColor: 0x059669, labelText: 'Cold Room', labelColor: '#6ee7b7' });
+
+    (function buildLoadingDock() {
+      const w = 15, d = 1.2;
+      const group = new THREE.Group();
+      group.position.set(-1, 0, 5.8);
+      const geo = new THREE.BoxGeometry(w, 0.06, d);
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0x475569, emissive: 0x1e293b, emissiveIntensity: 0.5,
+        transparent: true, opacity: 0.5
       });
+      const plate = new THREE.Mesh(geo, mat);
+      plate.position.y = 0.03;
+      group.add(plate);
+      const eGeo = new THREE.EdgesGeometry(geo);
+      const eMat = new THREE.LineBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.8 });
+      const e = new THREE.LineSegments(eGeo, eMat);
+      e.position.y = 0.03;
+      group.add(e);
+      const canvas = document.createElement('canvas');
+      canvas.width = 512; canvas.height = 96;
+      const ctx = canvas.getContext('2d');
+      ctx.font = 'bold 40px Inter, sans-serif';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('LOADING DOCK', 256, 48);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.minFilter = THREE.LinearFilter;
+      tex.generateMipmaps = false;
+      const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+      const sprite = new THREE.Sprite(spriteMat);
+      sprite.scale.set(3, 0.55, 1);
+      sprite.position.set(0, 0.85, 0);
+      group.add(sprite);
+      warehouse.add(group);
+    })();
 
-      function buildPath(points, color) {
-        const geo = new THREE.BufferGeometry().setFromPoints(
-          points.map(p => new THREE.Vector3(p[0], 1.0, p[1]))
-        );
-        const mat = new THREE.LineDashedMaterial({
-          color: color, dashSize: 0.25, gapSize: 0.18, transparent: true, opacity: 0.7
-        });
-        const line = new THREE.Line(geo, mat);
-        line.computeLineDistances();
-        warehouse.add(line);
-      }
+    const robotData = [
+      { x: -6, z: -4.5, color: 0xff3b30 },
+      { x: 5.5, z: -5, color: 0xfbbf24 },
+      { x: 5.5, z: -2.2, color: 0x3b82f6 },
+      { x: -5, z: 0.3, color: 0xffffff },
+      { x: -2.5, z: -0.5, color: 0x60a5fa },
+      { x: -1, z: 2.5, color: 0x34d399 },
+      { x: 1.5, z: 1.5, color: 0xef4444 }
+    ];
 
-      buildPath([[-6, -4.5], [-4, -2], [-2, 0], [-1, 2.5]], 0x60a5fa);
-      buildPath([[-6, -4.5], [-2, -5], [2, -5], [5.5, -5]], 0xfbbf24);
-      buildPath([[5.5, -2.2], [3, -1], [1, 1], [-1, 2.5]], 0x3b82f6);
+    const sharedSphereGeo = new THREE.SphereGeometry(0.16, 16, 16);
+    const glowTextures = new Map();
+    function getGlowTexture(color) {
+      if (glowTextures.has(color)) return glowTextures.get(color);
+      const canvas = document.createElement('canvas');
+      canvas.width = 128; canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      const c = new THREE.Color(color);
+      const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      grad.addColorStop(0, `rgba(${c.r*255|0}, ${c.g*255|0}, ${c.b*255|0}, 1)`);
+      grad.addColorStop(0.4, `rgba(${c.r*255|0}, ${c.g*255|0}, ${c.b*255|0}, 0.4)`);
+      grad.addColorStop(1, `rgba(${c.r*255|0}, ${c.g*255|0}, ${c.b*255|0}, 0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 128, 128);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.minFilter = THREE.LinearFilter;
+      tex.generateMipmaps = false;
+      glowTextures.set(color, tex);
+      return tex;
+    }
 
-      let needsRender = true;
-      function renderScene() {
-        if (!needsRender) return;
-        needsRender = false;
-        renderer.render(scene, camera);
-      }
-
-      const ro = new ResizeObserver(() => {
-        const w = container.clientWidth, h = container.clientHeight;
-        if (w === 0 || h === 0) return;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-        needsRender = true;
-        renderScene();
+    robotData.forEach(r => {
+      const g = new THREE.Group();
+      g.position.set(r.x, 0.32, r.z);
+      const mat = new THREE.MeshStandardMaterial({
+        color: r.color, emissive: r.color, emissiveIntensity: 1.6, roughness: 0.3
       });
-      ro.observe(container);
+      g.add(new THREE.Mesh(sharedSphereGeo, mat));
+      const glowMat = new THREE.SpriteMaterial({
+        map: getGlowTexture(r.color), transparent: true,
+        blending: THREE.AdditiveBlending, depthWrite: false
+      });
+      const glow = new THREE.Sprite(glowMat);
+      glow.scale.set(1.2, 1.2, 1);
+      g.add(glow);
+      warehouse.add(g);
+    });
 
-      controls.addEventListener('change', () => { needsRender = true; renderScene(); });
+    function buildPath(points, color) {
+      const geo = new THREE.BufferGeometry().setFromPoints(
+        points.map(p => new THREE.Vector3(p[0], 1.0, p[1]))
+      );
+      const mat = new THREE.LineDashedMaterial({
+        color: color, dashSize: 0.25, gapSize: 0.18, transparent: true, opacity: 0.7
+      });
+      const line = new THREE.Line(geo, mat);
+      line.computeLineDistances();
+      warehouse.add(line);
+    }
+
+    buildPath([[-6, -4.5], [-4, -2], [-2, 0], [-1, 2.5]], 0x60a5fa);
+    buildPath([[-6, -4.5], [-2, -5], [2, -5], [5.5, -5]], 0xfbbf24);
+    buildPath([[5.5, -2.2], [3, -1], [1, 1], [-1, 2.5]], 0x3b82f6);
+
+    const ro = new ResizeObserver(() => {
+      const w = container.clientWidth, h = container.clientHeight;
+      if (w === 0 || h === 0) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+      needsRender = true;
       renderScene();
+    });
+    ro.observe(container);
 
-      container.style.opacity = '0';
-      container.style.transition = 'opacity 0.6s ease';
-      requestAnimationFrame(() => { container.style.opacity = '1'; });
-
-      setTimeout(() => { if (loadingEl) loadingEl.style.display = 'none'; }, 250);
+    let needsRender = true;
+    function renderScene() {
+      if (!needsRender) return;
+      needsRender = false;
+      renderer.render(scene, camera);
     }
 
-    // PERF: lazy-init — don't build the 3D scene until it scrolls into view
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            initScene();
-            io.disconnect();
-          }
-        });
-      }, { rootMargin: '200px' });
-      io.observe(container);
-    } else {
-      initScene();
-    }
+    controls.addEventListener('change', () => { needsRender = true; renderScene(); });
+    renderScene();
 
-    // Chart.js donut — only once
+    container.style.opacity = '0';
+    container.style.transition = 'opacity 0.6s ease';
+    requestAnimationFrame(() => { container.style.opacity = '1'; });
+
+    setTimeout(() => { if (loadingEl) loadingEl.style.display = 'none'; }, 250);
+
     const donutCanvas = document.getElementById('usageChart');
     if (donutCanvas) {
       new Chart(donutCanvas, {
@@ -2844,14 +2760,14 @@ loadOperationsKPIs();
             data: [240, 136, 84, 20],
             backgroundColor: ['#818cf8', '#fb923c', '#60a5fa', '#94a3b8'],
             borderWidth: 0,
-            hoverOffset: 0
+            hoverOffset: 4
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: true,
           cutout: '74%',
-          animation: false,
+          animation: { duration: 500 },
           plugins: { legend: { display: false }, tooltip: { enabled: false } }
         }
       });
